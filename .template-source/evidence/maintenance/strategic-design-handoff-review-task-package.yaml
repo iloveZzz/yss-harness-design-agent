@@ -1,0 +1,57 @@
+schema_version: 1
+task_id: strategic-design-handoff-formal-review
+work_unit_id: work-unit.intensity-aware-review
+actor_id: reviewer.strategic-design-handoff
+role_id: role.requirements-manager
+runtime_id: runtime.generic
+execution_state: Reviewer
+workflow_status: active
+skill_source:
+  registry_ref: docs/agents/digital-human-roles.yaml
+  defaults_ref: taskPackageDefaults(role.requirements-manager)
+  core_skills: [grilling, domain-modeling, research, competitive-intelligence, grill-with-docs]
+  forbidden_skills: []
+contract:
+  kind: template-maintenance
+  contract_id: maintenance-strategic-design-handoff
+  contract_version: 1
+  status: issued
+  contract_ref: docs/process/harness-profile.yaml
+  maintenance_ref: .template-source/evidence/maintenance/strategic-design-handoff-l3-checkpoint-2026-08-27.yaml
+inputs:
+  - docs/process/harness-profile.yaml
+  - docs/process/schemas/strategic-design-handoff.schema.json
+  - docs/templates/strategic-design-handoff-template.yaml
+  - .agents/skills/yss-strategic-design/SKILL.md
+  - .agents/skills/yss-strategic-design/references/orchestration-contract.yaml
+  - scripts/lib/harness-profile.mjs
+  - scripts/lib/lifecycle-transition.mjs
+objective: >-
+  以独立 Reviewer 身份审查本次业务上游 Harness profile 改造，确认目标用户边界、战略设计终点、
+  下游 Tactical DDD 交付契约、兼容路由和验证证据没有遗漏或越界。
+allowed_write_paths:
+  - .template-source/evidence/maintenance/strategic-design-handoff-formal-independent-review-2026-08-27.md
+forbidden_actions:
+  - 修改实现或流程资产
+  - 修改用户已有未提交文件
+  - 执行 git commit 或 git push
+  - 以 Reviewer 身份批准自己未审查的变更
+expected_outputs:
+  - 独立审查结论
+  - blocker、non-blocker 和 residual risk
+  - 对 profile 路由和 Schema 的验证结果
+expected_evidence_files:
+  - .template-source/evidence/maintenance/strategic-design-handoff-formal-independent-review-2026-08-27.md
+verification_commands:
+  - scripts/verify-harness-profile
+  - scripts/verify-harness-profile-scenarios
+  - scripts/verify-lifecycle-transition-scenarios
+verification_results: []
+review_context:
+  implementation_actor_id: agent.main
+  implementation_task_id: harness-strategic-design-handoff
+downstream_consumers: [role.lifecycle-orchestrator]
+convergence:
+  parent_work_unit: work-unit.intensity-aware-verification
+  convergence_ref: .template-source/evidence/maintenance/strategic-design-handoff-l3-checkpoint-2026-08-27.yaml
+  conflict_escalation: 回交主控，由主控决定是否返工

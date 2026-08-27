@@ -1,0 +1,61 @@
+schema_version: 1
+intensity: L3
+classification_reason: >-
+  新增业务上游 Harness profile、战略设计交付包 Schema，并改变生命周期转换与任务包路由语义；
+  该变更触及 lifecycle-gate、generation-semantics 和 aggregate-behavior-change。
+triggers:
+  - lifecycle-gate
+  - generation-semantics
+  - aggregate-behavior-change
+changed_assets:
+  - docs/process/harness-profile.yaml
+  - docs/process/schemas/strategic-design-handoff.schema.json
+  - docs/templates/strategic-design-handoff-template.yaml
+  - .agents/skills/yss-strategic-design/SKILL.md
+  - .agents/skills/yss-strategic-design/references/orchestration-contract.yaml
+  - .agents/skills/yss-strategic-design/references/orchestration.md
+  - .agents/skills/yss-strategic-design/references/state-model.md
+  - .agents/skills/yss-strategic-design/references/matt-yss-adapter.md
+  - .agents/skills/yss-stage-decision/SKILL.md
+  - scripts/lib/harness-profile.mjs
+  - scripts/lib/lifecycle-transition.mjs
+  - scripts/lib/task-package.mjs
+  - docs/process/schemas/digital-human-task-package.schema.json
+  - docs/process/yss-product-lifecycle-team-guide.md
+  - docs/process/harness-executive-blueprint.md
+  - docs/agents/digital-human-roles.md
+  - CONTEXT.md
+  - AGENTS.md
+  - docs/agents/yss-skill-registry.yaml
+  - docs/agents/digital-human-roles.yaml
+  - scripts/lib/skill-registry.mjs
+  - scripts/lib/skill-governance.mjs
+  - scripts/lib/digital-human-roles.mjs
+  - scripts/lib/scenario-checks.mjs
+  - scripts/node-verify-lifecycle-registry.mjs
+  - scripts/verify-repository-scope-scenarios
+  - scripts/verify-subagent-task-package-scenarios
+  - docs/process/schemas/digital-human-task-package.schema.json
+  - yss-public-skills.json
+  - skills-lock.json
+verification_evidence:
+  - kind: red
+    command: .template-source/evidence/maintenance/strategic-design-handoff-red-2026-08-27.md
+    result: pass
+  - kind: green
+    command: .template-source/evidence/maintenance/strategic-design-handoff-green-2026-08-27.md
+    result: pass
+  - kind: refactor
+    command: .template-source/evidence/maintenance/strategic-design-handoff-refactor-2026-08-27.md
+    result: pass
+  - kind: pressure-scenario
+    command: .template-source/evidence/maintenance/strategic-design-handoff-pressure-2026-08-27.md
+    result: pass
+  - kind: fresh-verification
+    command: scripts/verify-template
+    result: pass
+  - kind: formal-independent-review
+    command: .template-source/evidence/maintenance/strategic-design-handoff-formal-independent-review-2026-08-27.md
+    result: pass
+review_mode: formal-independent
+escalation: none

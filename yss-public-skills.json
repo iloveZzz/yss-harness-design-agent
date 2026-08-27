@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "repository": "iloveZzz/yss-spec-dev-skills",
+  "canonical_root": ".agents/skills",
+  "skills": [
+    "yss-antd-design",
+    "yss-design-system",
+    "yss-prototype-stage",
+    "yss-stage-decision",
+    "yss-strategic-design"
+  ],
+  "groupings": [
+    {
+      "title": "战略设计",
+      "description": "用于产品、需求和商务完成 DDD 战略设计上游交付。",
+      "skills": ["yss-strategic-design", "yss-stage-decision"]
+    },
+    {
+      "title": "产品设计",
+      "description": "用于页面原型、交互状态和设计系统校准。",
+      "skills": ["yss-antd-design", "yss-design-system", "yss-prototype-stage"]
+    }
+  ]
+}

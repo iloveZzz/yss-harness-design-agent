@@ -12,7 +12,13 @@ const indexPath = path.join(reviewsRoot, "index.yaml");
 const sourceRoot = ".template-source/evidence/reviews";
 const hash = (bytes) => createHash("sha256").update(bytes).digest("hex");
 const die = (message) => { throw new TypeError(message); };
-const git = (...args) => execFileSync("git", args, { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
+const git = (...args) => {
+  try {
+    return execFileSync("git", args, { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
+  } catch (error) {
+    die("Git archive 不可用（git " + args.join(" ") + "）: " + String(error.stderr || error.message).trim());
+  }
+};
 const reviews = () => existsSync(reviewsRoot) ? readdirSync(reviewsRoot).filter((name) => name.endsWith(".md")).sort().map((name) => path.join(reviewsRoot, name)) : [];
 const relative = (file) => path.relative(root, file).split(path.sep).join("/");
 const makeEntry = (file, archiveRef = null) => {
@@ -30,7 +36,8 @@ function load() {
 function validate(data) {
   if (!data || data.schema_version !== 1 || data.kind !== "review-evidence-index" || data.source_root !== sourceRoot) die("证据索引结构无效");
   if (!data.archive || data.archive.kind !== "git-history" || !["pending", "complete"].includes(data.archive.status)) die("证据索引 archive 无效");
-  if (!Array.isArray(data.files) || !data.files.length || data.count !== data.files.length) die("证据索引 files 或 count 无效");
+  if (!Array.isArray(data.files) || data.count !== data.files.length) die("证据索引 files 或 count 无效");
+  if (data.files.length === 0 && data.archive.status !== "pending") die("空证据索引只能是 pending");
   const paths = new Set(); const origins = new Set();
   for (const entry of data.files) {
     if (!entry || typeof entry.path !== "string" || !entry.path.startsWith(sourceRoot + "/") || !entry.path.endsWith(".md") || entry.path.slice(sourceRoot.length + 1).includes("/") || entry.archive_path !== entry.path || typeof entry.origin_path !== "string" || !entry.origin_path.startsWith("docs/reviews/") || typeof entry.bytes !== "number" || entry.bytes < 0 || !/^[a-f0-9]{64}$/.test(entry.sha256 || "") || paths.has(entry.path) || origins.has(entry.origin_path)) die("证据索引条目无效: " + (entry?.path || "<unknown>"));
@@ -55,14 +62,17 @@ function validate(data) {
 
 function serialize(data) {
   const quote = (value) => JSON.stringify(value);
-  const result = ["---", "schema_version: 1", "kind: review-evidence-index", "source_root: " + quote(sourceRoot), "count: " + data.files.length, "archive:", "  kind: git-history", "  status: " + data.archive.status, "  commit: " + (data.archive.commit === null ? "null" : data.archive.commit), "  tree: " + (data.archive.tree === null ? "null" : data.archive.tree), "files:"];
-  for (const entry of data.files) result.push("- path: " + quote(entry.path), "  origin_path: " + quote(entry.origin_path), "  bytes: " + entry.bytes, "  sha256: " + entry.sha256, "  archive_path: " + quote(entry.archive_path), "  archive_ref: " + (entry.archive_ref === null ? "null" : quote(entry.archive_ref)));
+  const result = ["---", "schema_version: 1", "kind: review-evidence-index", "source_root: " + quote(sourceRoot), "count: " + data.files.length, "archive:", "  kind: git-history", "  status: " + data.archive.status, "  commit: " + (data.archive.commit === null ? "null" : data.archive.commit), "  tree: " + (data.archive.tree === null ? "null" : data.archive.tree)];
+  if (!data.files.length) result.push("files: []");
+  else {
+    result.push("files:");
+    for (const entry of data.files) result.push("- path: " + quote(entry.path), "  origin_path: " + quote(entry.origin_path), "  bytes: " + entry.bytes, "  sha256: " + entry.sha256, "  archive_path: " + quote(entry.archive_path), "  archive_ref: " + (entry.archive_ref === null ? "null" : quote(entry.archive_ref)));
+  }
   return result.join("\n") + "\n";
 }
 
 function writePending() {
-  const source = reviews(); if (!source.length) die("没有发现 .template-source/evidence/reviews/*.md");
-  return { archive: { kind: "git-history", status: "pending", commit: null, tree: null }, files: source.map((file) => makeEntry(file)) };
+  return { archive: { kind: "git-history", status: "pending", commit: null, tree: null }, files: reviews().map((file) => makeEntry(file)) };
 }
 
 function writeComplete(requested) {

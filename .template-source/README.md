@@ -11,8 +11,8 @@
 
 ## 归档规则
 
-1. RED / GREEN、压力场景、研究和独立审查证据先保留在 `evidence/reviews/`，完成 archive-source checkpoint 后由 `index.yaml` 汇总，原始文件从工作树移除但继续保存在 Git 历史或发布附件中。
-2. `evidence/reviews/index.yaml` 是当前证据清单、SHA-256 和 checkpoint 引用的唯一事实源；`pending` 只允许出现在尚未取得 archive-source checkpoint 的中间状态。
+1. RED / GREEN、压力场景、研究和独立审查证据先保留在 `evidence/reviews/`，完成 archive-source checkpoint 后由 `index.yaml` 汇总，原始文件从工作树移除但继续保存在 **本仓库** Git 历史或发布附件中。不得引用本仓库不存在的外部 commit。
+2. `evidence/reviews/index.yaml` 是当前证据清单、SHA-256 和 checkpoint 引用的唯一事实源；`pending` 只允许出现在尚未取得 archive-source checkpoint 的中间状态。本仓库若丢弃了归档 blob 所在历史，必须删除不可恢复的 complete 条目并回退为 `pending`（允许空清单），不能保留失效的 `archive.commit`。
 3. 跨仓库契约进入 `contracts/`；模板源发布路线进入 `roadmap/`。路线条目必须有状态和验收证据，全部 `closed` 后才能从工作树移除。维护侧 Node 工具依赖、lockfile 和 vendor 构建位于 `tooling/node/`，不进入模板实例分发面。
 4. 仅描述模板源执行过程的派生表进入 `derived/`。
 5. 仅影响模板治理、尚未成为实例运行规则的 ADR 进入 `adr/`，`proposed` 不等于当前发布门禁。

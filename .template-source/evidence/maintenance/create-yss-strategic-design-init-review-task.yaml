@@ -1,0 +1,67 @@
+schema_version: 1
+task_id: create-yss-strategic-design-init-review
+work_unit_id: work-unit.intensity-aware-review
+actor_id: reviewer.create-yss-strategic-design-init.2026-08-28
+feature_id: create-yss-strategic-design-init
+role_id: role.requirements-manager
+runtime_id: runtime.generic
+execution_state: Reviewer
+workflow_status: active
+profile_id: harness.business-ddd-strategy-handoff
+skill_source:
+  registry_ref: docs/agents/digital-human-roles.yaml
+  defaults_ref: taskPackageDefaults(role.requirements-manager)
+  core_skills: [grilling, domain-modeling, research, competitive-intelligence, grill-with-docs]
+  forbidden_skills: []
+contract:
+  kind: template-maintenance
+  contract_id: create-yss-strategic-design-init-review
+  contract_version: 1
+  status: issued
+  contract_ref: .template-source/contracts/create-yss-strategic-design-init-contract.md
+  maintenance_ref: .template-source/evidence/maintenance/create-yss-strategic-design-init-l3-checkpoint-2026-08-28.yaml
+inputs:
+  - .template-source/contracts/create-yss-strategic-design-init-contract.md
+  - docs/process/instance-distribution-manifest.yaml
+  - docs/process/harness-profile.yaml
+  - AGENTS.md
+  - README.md
+  - ../create-yss-strategic-design/src/cli.js
+  - ../create-yss-strategic-design/tests/init-cli.test.js
+objective: >-
+  以非实施者身份审查 create-yss-strategic-design 空目录 init：确认它绑定本 harness 而非 create-yss-spec，
+  生成 project-instance 且 profile 为 harness.business-ddd-strategy-handoff，
+  禁止路径不进入实例，AGENTS.md 不把 yss-router / OpenAPI / 垂直切片当作本地硬门禁。
+allowed_write_paths:
+  - .template-source/evidence/maintenance/create-yss-strategic-design-init-formal-independent-review-2026-08-28.md
+forbidden_actions:
+  - 修改实现资产
+  - 修改分发清单
+  - 修改 AGENTS.md
+  - 修改 CLI 源码
+  - commit
+  - push
+  - npm publish
+  - 宣布可发布
+expected_outputs:
+  - 正式独立审查结论
+  - findings
+  - 验证命令与退出码
+  - 遗留风险和下一步
+expected_evidence_files:
+  - .template-source/evidence/maintenance/create-yss-strategic-design-init-formal-independent-review-2026-08-28.md
+verification_commands:
+  - scripts/verify-instance-distribution
+  - scripts/verify-instance-distribution-scenarios
+  - scripts/verify-template
+  - YSS_STRATEGIC_DESIGN_TEMPLATE_REPO=. node --test tests/init-cli.test.js
+verification_results: []
+review_context:
+  implementation_actor_id: worker.create-yss-strategic-design-init.2026-08-28
+  implementation_task_id: create-yss-strategic-design-init-implementation
+downstream_consumers:
+  - role.lifecycle-orchestrator
+convergence:
+  parent_work_unit: work-unit.intensity-aware-review
+  convergence_ref: .template-source/evidence/maintenance/create-yss-strategic-design-init-l3-checkpoint-2026-08-28.yaml
+  conflict_escalation: 返回主控，由主控决定是否修改分发清单、CLI 或入口规则。

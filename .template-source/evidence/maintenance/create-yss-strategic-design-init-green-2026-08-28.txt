@@ -1,0 +1,13 @@
+✔ help and version do not write files (62.807ms)
+✔ v1 rejects attach and sync (29.727875ms)
+✔ dry-run does not create the target directory (153.105458ms)
+✔ non-empty target is rejected without --force (57.917834ms)
+✔ init generates a strategic design project-instance (7125.6395ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7472.685166

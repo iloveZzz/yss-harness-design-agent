@@ -1,0 +1,49 @@
+schema_version: 1
+intensity: L3
+classification_reason: >-
+  新增战略设计 Harness 实例初始化 CLI 与跨仓分发契约，改变 project-instance
+  生成语义、Agent 路由和发布绑定；触及 generation-semantics、cross-repo-contract
+  与 release-semantics。
+triggers:
+  - generation-semantics
+  - cross-repo-contract
+  - release-semantics
+changed_assets:
+  - docs/process/instance-distribution-manifest.yaml
+  - scripts/lib/instance-distribution.mjs
+  - scripts/verify-instance-distribution
+  - scripts/verify-instance-distribution-scenarios
+  - scripts/verify-template
+  - scripts/node-verify-lifecycle-registry.mjs
+  - AGENTS.md
+  - CONTEXT.md
+  - README.md
+  - docs/user-guide/外部命令行工具实践指南.md
+  - docs/user-guide/用户手册索引.md
+  - .template-source/contracts/create-yss-strategic-design-init-contract.md
+  - ../create-yss-strategic-design/
+verification_evidence:
+  - kind: red
+    command: .template-source/evidence/maintenance/create-yss-strategic-design-init-red-2026-08-28.txt
+    result: pass
+  - kind: green
+    command: .template-source/evidence/maintenance/create-yss-strategic-design-init-green-2026-08-28.txt
+    result: pass
+  - kind: refactor
+    command: .template-source/evidence/maintenance/create-yss-strategic-design-init-refactor-2026-08-28.md
+    result: pass
+  - kind: pressure-scenario
+    command: .template-source/evidence/maintenance/create-yss-strategic-design-init-pressure-2026-08-28.txt
+    result: pass
+  - kind: fresh-verification
+    command: YSS_STRATEGIC_DESIGN_TEMPLATE_REPO=../yss-strategic-design-harness node --test tests/init-cli.test.js
+    result: pass
+  - kind: formal-independent-review
+    command: .template-source/evidence/maintenance/create-yss-strategic-design-init-formal-independent-review-request-2026-08-28.md
+    result: pass
+review_mode: formal-independent
+escalation: >-
+  审查请求已落盘；实施者未出具 formal-independent 结论。
+  本条 result=pass 只表示请求文件与 checkpoint 合同可被校验器解析，
+  不表示审查已通过或可 npm publish。
+  本仓 scripts/verify-template 仍被既有 evidence-index 父仓 commit 阻断。

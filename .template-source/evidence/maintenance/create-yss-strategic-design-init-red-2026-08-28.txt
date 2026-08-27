@@ -1,0 +1,7 @@
+RED: naive working-tree copy of the harness still contains forbidden instance paths
+source has docs/templates/openapi-spec-template.yaml: yes
+source has docs/templates/vertical-slice-ticket-template.md: yes
+source has .template-source/: yes
+CLI snapshot has openapi template: no
+CLI snapshot has vertical-slice template: no
+CLI snapshot has .template-source: no

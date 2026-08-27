@@ -1,10 +1,14 @@
 # YSS Strategic Design Harness
 
+> **项目名称：** [填写]
+> **业务领域：** [填写]
+> **团队规模：** [填写]
+>
 > 面向产品、需求、商务的业务上游战略设计 Harness（`harness.business-ddd-strategy-handoff`）。本地生命周期在 Strategic Design Handoff 结束，不进入 OpenAPI、Tactical DDD、垂直切片实现或发布。
 
 ## 定位
 
-本模板默认作为战略设计 / 研发管理仓库，保留 Discovery、Spec、原型、业务级 Ticket、战略设计交付包、Agent skills 和协作约定。OpenAPI、实现仓库和运行时代码由下游研发 profile 接管。
+本模板默认作为战略设计 / 研发管理仓库，保留 Discovery、Spec、原型、业务级 Ticket、战略设计交付包、Agent skills 和协作约定。OpenAPI、实现仓库和运行时代码由下游研发 profile 接管。机器可读边界见 [`docs/process/harness-profile.yaml`](./docs/process/harness-profile.yaml)。
 
 ## 项目结构
 
@@ -21,18 +25,14 @@
 ├── CONTEXT.md               ← 领域词汇表
 ├── yss-project.yaml         ← 仓库身份清单
 ├── docs/
-│   ├── api/                 ← OpenAPI 3.1 契约
-│   ├── adr/                 ← 架构决策记录
-│   ├── requirements/        ← Spec / 用户故事 / 需求草案 / 垂直切片
+│   ├── adr/                 ← 架构决策记录入口
+│   ├── requirements/        ← Spec / 用户故事 / 业务级 Ticket
 │   ├── discovery/           ← 机会探索、市场、竞品和用户材料
 │   ├── design/              ← 产品设计、原型、交互说明和状态矩阵
-│   ├── architecture/        ← 架构设计与审查模板
-│   ├── releases/            ← 发布说明
-│   ├── implementation/      ← 实施方案、上线记录和回滚方案
-│   ├── testing/             ← 测试策略和验证记录
+│   ├── architecture/        ← 业务 / 功能架构模板
 │   ├── agents/              ← Agent 协作规范、Ticket/Triage/领域文档约定
-│   ├── templates/           ← 通用文档模板
-│   └── process/             ← 生命周期、裁剪、Scrum 和技能治理说明
+│   ├── templates/           ← 通用文档模板与战略设计交付包
+│   └── process/             ← 生命周期、profile、裁剪和技能治理说明
 └── scripts/                 ← 模板轻量校验脚本
 ```
 
@@ -50,17 +50,17 @@ YSS skills 的公开发布投影维护在 [iloveZzz/yss-spec-dev-skills](https:/
 
 ## 模板初始化 CLI
 
-`create-yss-spec` 的目标维护位置是独立 GitHub 仓库 [iloveZzz/create-yss-spec](https://github.com/iloveZzz/create-yss-spec)。本仓库不再包含 CLI 源码、测试、发布配置或开发过程记录，只保留面向模板使用者的实践指南：
+`create-yss-strategic-design` 是本 harness 的实例初始化 CLI，维护位置是独立仓库 [iloveZzz/create-yss-strategic-design](https://github.com/iloveZzz/create-yss-strategic-design)。它不是 `create-yss-spec`：后者面向全生命周期模板 `yss-spec-project-template`。
 
-- [create-yss-spec 外部 CLI 实践指南](./docs/user-guide/外部命令行工具实践指南.md)
+- [create-yss-strategic-design 实践指南](./docs/user-guide/外部命令行工具实践指南.md)
 
 推荐入口：
 
 ```bash
-npm create yss-spec@latest
+npm create yss-strategic-design@latest
 ```
 
-首次使用前请先确认独立仓库和 npm 包已完成发布。
+首次使用前请先确认独立仓库和 npm 包已完成发布。未完成跨仓验证前，不要把本命令当作已发布入口。
 
 ## 模板配置取舍
 
@@ -88,12 +88,10 @@ scripts/verify-template
 
 该脚本检查：
 
-- `yss-project.yaml`、权威流程资产和模板是否完整。
+- `yss-project.yaml`、权威流程资产、Harness profile 和实例分发清单是否完整。
 - 共享技能投影及 `skills-lock.json` 的完整树哈希是否一致。
-- 过时技能、路径和规范用语是否已清理。
-- 五类流程压力场景是否符合条件门禁和仓库身份路由。
-- Markdown 相对链接是否指向现有文件。
-- 示例 OpenAPI YAML 是否可解析。
+- `project-instance` 不得包含 OpenAPI / 垂直切片实现 / 模板源治理区等禁止路径。
+- 流程压力场景是否符合条件门禁和仓库身份路由。
 - Git diff 是否存在空白错误。
 
 ## 关键文档
@@ -101,30 +99,22 @@ scripts/verify-template
 | 文档 | 内容 |
 |------|------|
 | [AGENTS.md](./AGENTS.md) | 仓库身份路由、战略设计硬门禁与禁止事项 |
+| [docs/process/harness-profile.yaml](./docs/process/harness-profile.yaml) | 战略设计交付 profile |
+| [docs/process/instance-distribution-manifest.yaml](./docs/process/instance-distribution-manifest.yaml) | 实例分发清单 |
 | [docs/user-guide/用户手册索引.md](./docs/user-guide/用户手册索引.md) | 模板使用说明 |
-| [docs/user-guide/产品生命周期工作流.md](./docs/user-guide/产品生命周期工作流.md) | 产品全生命周期使用手册 |
-| [docs/user-guide/图示生成器使用指南.md](./docs/user-guide/图示生成器使用指南.md) | Excalidraw 可视化辅助 skill 使用手册 |
-| [docs/process/PDCA-SCRUM.md](./docs/process/PDCA-SCRUM.md) | PDCA × Scrum × AI |
-| [docs/process/MATT-POCOCK-ENGINEERING-SKILLS.md](./docs/process/MATT-POCOCK-ENGINEERING-SKILLS.md) | Matt Pocock Engineering Skills 集成与使用 |
-| [docs/process/lifecycle-registry.yaml](./docs/process/lifecycle-registry.yaml) | 生命周期结构事实源：主阶段、门禁、产物、工作单元、证据与稳定 ID |
-| [docs/process/harness-process-tailoring.md](./docs/process/harness-process-tailoring.md) | 小改动 / 中等变更 / 新模块的流程裁剪指南 |
+| [docs/process/lifecycle-registry.yaml](./docs/process/lifecycle-registry.yaml) | 生命周期结构事实源 |
+| [docs/process/harness-process-tailoring.md](./docs/process/harness-process-tailoring.md) | 流程裁剪指南 |
 | [docs/process/harness-executive-blueprint.md](./docs/process/harness-executive-blueprint.md) | 面向业务方和管理者的 Harness 一页式蓝图 |
-| [docs/process/implementation-repo-integration.md](./docs/process/implementation-repo-integration.md) | 外部前端 / 后端实现仓库接入与跨仓库切片绑定 |
 | [docs/agents/README.md](./docs/agents/README.md) | Agent 协作文档目录说明 |
 | [docs/agents/skills-maintenance.md](./docs/agents/skills-maintenance.md) | Agent skills 安装与维护 |
-| [docs/user-guide/规格与任务迁移指南.md](./docs/user-guide/规格与任务迁移指南.md) | 旧规格与任务入口迁移指南 |
 | [docs/discovery/IDEATION.md](./docs/discovery/IDEATION.md) | 机会构想方法 |
-| [docs/architecture/README.md](./docs/architecture/README.md) | 架构设计 + 审查清单 |
-| [docs/testing/README.md](./docs/testing/README.md) | 测试策略 |
 
 ## 核心模板
 
 | 模板 | 用途 |
 |------|------|
-| [docs/templates/spec-template.md](./docs/templates/spec-template.md) | Spec，包含 OpenAPI 影响、测试决策、AI / 人工审查点 |
-| [docs/templates/local-parent-ticket-template.md](./docs/templates/local-parent-ticket-template.md) | Local Markdown 功能父 Ticket 与生命周期索引 |
-| [docs/templates/vertical-slice-ticket-template.md](./docs/templates/vertical-slice-ticket-template.md) | 垂直切片 Ticket |
+| [docs/templates/spec-template.md](./docs/templates/spec-template.md) | Spec，包含测试决策、AI / 人工审查点 |
+| [docs/templates/strategic-design-handoff-template.yaml](./docs/templates/strategic-design-handoff-template.yaml) | 战略设计交付包 |
 | [docs/templates/agent-brief-template.md](./docs/templates/agent-brief-template.md) | `triage` 产出的 Agent Brief |
-| [docs/templates/implementation-repo-registry-template.md](./docs/templates/implementation-repo-registry-template.md) | 外部实现仓库登记 |
-| [docs/templates/cross-repo-slice-template.md](./docs/templates/cross-repo-slice-template.md) | 跨仓库垂直切片记录 |
-| [docs/architecture/templates/architecture-deepening-template.md](./docs/architecture/templates/architecture-deepening-template.md) | 架构 deepening 候选与 seam 设计 |
+| [docs/architecture/templates/business-architecture-template.md](./docs/architecture/templates/business-architecture-template.md) | 业务架构 |
+| [docs/architecture/templates/functional-architecture-template.md](./docs/architecture/templates/functional-architecture-template.md) | 功能架构 |

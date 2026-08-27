@@ -2,6 +2,10 @@
 
 > 本文件只保存 Agent 必须首先遵守的仓库身份路由、硬门禁和禁止事项。生命周期对象 ID 以 `docs/process/lifecycle-registry.yaml` 为准；本仓本地执行边界以 `docs/process/harness-profile.yaml` 为准。完整流程裁剪见 `docs/process/harness-process-tailoring.md`。
 
+**项目名称：** [填写]
+**业务领域：** [填写]
+**团队规模：** [填写]
+
 ## 1. 首先识别仓库身份
 
 每个任务开始时先读取根目录 `yss-project.yaml`：
@@ -24,6 +28,7 @@
 | 模板维护强度触发与最低等级 | `docs/process/maintenance-intensity.yaml` |
 | 技能清单、来源、版本、哈希和投影目标 | `skills-lock.json` |
 | 技能分层、别名、默认可发现性和运行时入口 | `docs/agents/yss-skill-registry.yaml`（当前 `status: active`，生命周期消费，Router 不消费） |
+| 实例分发清单 | `docs/process/instance-distribution-manifest.yaml`；CLI `template.manifest.json` 是其投影 |
 | 数字人角色、阶段协作组、运行时绑定与生命周期会签 | `docs/agents/digital-human-roles.yaml`；`docs/agents/digital-human-roles.md` 为操作说明 |
 
 README、用户指南、根目录 `CLAUDE.md` 和其他说明文档只引用或解释上述事实，不重复定义同一规则。`CLAUDE.md` 是 Claude Code 入口指针，不是第二套 Agent 规则。
@@ -42,7 +47,7 @@ README、用户指南、根目录 `CLAUDE.md` 和其他说明文档只引用或�
 
 - 创建、修改或退役 skill 时使用 `maintaining-skills`，并先按 `docs/process/harness-process-tailoring.md` 判定 L1 / L2 / L3；只有 L3 必须保留完整基线失败、压力场景、修订后验证和正式独立审查证据。
 - `.agents/skills` 是跨 Agent 共享技能的权威内容；`.claude/skills`、`.codex/skills`、`.cursor/skills`、`.hermes/skills`、`.pi/skills`、`.qoder/skills`、`.trae/skills` 中的共享技能是生成投影，禁止分别手工修改。Cursor 的契约运行时入口是 `.cursor/skills`；不得把 canonical `.agents/skills` 与某个平台投影当作同权双入口。
-- `scripts/verify-template` 是模板发布阻断门禁。模板与外部 `create-yss-spec` 的跨仓库契约未完成集成验证时，不得声称可发布。
+- `scripts/verify-template` 是模板发布阻断门禁。模板与外部 `create-yss-strategic-design` 的跨仓库契约未完成集成验证时，不得声称可发布。不得把本仓发布绑定到 `create-yss-spec`。
 
 ## 5. `project-instance` 战略设计路由
 
@@ -73,7 +78,7 @@ Strategic Design Handoff 批准后，下游团队用 `yss-tactical-design` 接�
 |---|---|
 | 技术事实、标准、第三方 API 或框架行为影响决策 | `research` 或等价的一手资料记录 |
 | 竞品、市场或用户口碑事实 | `competitive-intelligence` |
-| UI 设计、原型、组件或主题 | `yss-design-system` 后使用 `yss-prototype-stage`；Codex 再路由 `product-design:index`，其他 Agent 交付等价合同资产；原型产出前后用 `yss-antd-design` 记录 Ant Design v6 事实与浏览器验证 |
+| UI 设计、原型、组件或主题 | `yss-design-system` 后使用 `yss-prototype-stage`；Codex 再路由 `product-design:index`，其他 Agent 交付等价合同资产；原型产出前后用 `yss-antd-design` 记录 Ant Design v6 事实与浏览器验证。生产前端由下游研发 profile 落地。 |
 | merge / rebase 冲突 | `resolving-merge-conflicts` |
 | 跨线程、跨仓库、上下文过长或原型结论回流 | `handoff` 或等价交接记录 |
 | 数字人角色、Agent 运行时协同或生命周期会签 | 先读 `docs/agents/digital-human-roles.yaml`。职称实例叠加在编排器上，不另起生命周期，不批准下游 Slice 合同、不设 `ready-for-agent`、不宣布可发布 |
@@ -83,7 +88,7 @@ Strategic Design Handoff 批准后，下游团队用 `yss-tactical-design` 接�
 
 ## 9. 工作区边界
 
-当前仓库是战略设计 / 研发管理仓库，不承载产品运行时代码。不要把 `apps/backend/`、`apps/frontend/` 或独立实现仓当作本 profile 的默认产出。实现仓库布局属于下游研发 profile。
+当前仓库是战略设计 / 研发管理仓库，不承载产品运行时代码。不要把 `apps/backend/`、`apps/frontend/` 或独立实现仓当作本 profile 的默认产出。实现仓库布局属于下游研发 profile。空 gitlink、detached HEAD 或 `--force` 覆盖挂载点不得当成普通目录。
 
 ## 10. 独立审查、验证和追踪
 

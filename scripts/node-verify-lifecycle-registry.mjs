@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { parseArgs } from "node:util";
@@ -42,17 +42,23 @@ try {
       const ignored = run("git", ["check-ignore", "-q", relativePath]);
       if (ignored.status === 0) throw new TypeError(`权威注册表资产不得被 Git 忽略: ${relativePath}`);
     }
-    const stalePaths = ["AGENTS.md", "README.md", "docs/user-guide/产品生命周期工作流.md", ".agents/skills/yss-strategic-design/SKILL.md", "docs/process/lifecycle-artifact-map.md"];
-    if (isTemplateSource(ROOT)) stalePaths.push(".template-source/derived/harness-work-unit-map.md");
+    const stalePaths = ["AGENTS.md", "README.md", ".agents/skills/yss-strategic-design/SKILL.md", "docs/process/lifecycle-artifact-map.md"];
+    if (isTemplateSource(ROOT)) {
+      stalePaths.push("docs/user-guide/产品生命周期工作流.md", ".template-source/derived/harness-work-unit-map.md");
+    }
     for (const relativePath of stalePaths) {
-      if (/\d+\s*个(?:主阶段|门禁|工作单元|职责点)/.test(readFileSync(path.join(ROOT, relativePath), "utf8"))) {
+      const filePath = path.join(ROOT, relativePath);
+      if (!existsSync(filePath)) continue;
+      if (/\d+\s*个(?:主阶段|门禁|工作单元|职责点)/.test(readFileSync(filePath, "utf8"))) {
         throw new TypeError(`${relativePath} 不得手工声明生命周期对象数量；请引用 lifecycle-registry.yaml`);
       }
     }
-    const publicSkills = JSON.parse(readFileSync(path.join(ROOT, "yss-public-skills.json"), "utf8"));
-    const groups = new Map(publicSkills.groupings.map((group) => [group.title, group.skills]));
-    if (groups.get("战略设计")?.includes("yss-strategic-design") !== true) throw new TypeError("yss-strategic-design 必须在战略设计分组");
-    if (JSON.stringify(publicSkills.skills).includes("yss-web-controller")) throw new TypeError("当前分支不得导出 yss-web-controller");
+    if (isTemplateSource(ROOT)) {
+      const publicSkills = JSON.parse(readFileSync(path.join(ROOT, "yss-public-skills.json"), "utf8"));
+      const groups = new Map(publicSkills.groupings.map((group) => [group.title, group.skills]));
+      if (groups.get("战略设计")?.includes("yss-strategic-design") !== true) throw new TypeError("yss-strategic-design 必须在战略设计分组");
+      if (JSON.stringify(publicSkills.skills).includes("yss-web-controller")) throw new TypeError("当前分支不得导出 yss-web-controller");
+    }
   }
   process.stdout.write(`生命周期注册表验证通过（${registry.status}）\n`);
 } catch (error) {

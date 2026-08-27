@@ -1,5 +1,7 @@
 # `create-yss-spec` 接管与模板同步跨仓库契约
 
+> 历史契约：本文描述全生命周期模板 `yss-spec-project-template` 与 `create-yss-spec` 的接口。**本 harness 不使用、不履行本文。** 本仓实例初始化契约见 [create-yss-strategic-design-init-contract.md](./create-yss-strategic-design-init-contract.md)。
+
 本文定义模板源仓库与外部 `create-yss-spec` CLI 仓库之间的身份、资产边界、迁移、同步、验证和发布契约。
 
 ## 契约目标

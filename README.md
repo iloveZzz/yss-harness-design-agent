@@ -1,10 +1,10 @@
-# YSS Spec Project Template
+# YSS Strategic Design Harness
 
-> Matt Pocock Engineering Skills × YSS × OpenAPI 驱动的轻量 AI 研发文档模板。
+> 面向产品、需求、商务的业务上游战略设计 Harness（`harness.business-ddd-strategy-handoff`）。本地生命周期在 Strategic Design Handoff 结束，不进入 OpenAPI、Tactical DDD、垂直切片实现或发布。
 
 ## 定位
 
-本模板默认作为 Harness / 研发管理仓库，保留流程文档、契约模板、Agent skills 和协作约定。前端 / 后端源码默认位于独立实现仓库；只有用户明确选择本仓库承载实现代码时，才按需创建 `apps/backend/`、`apps/frontend/`。
+本模板默认作为战略设计 / 研发管理仓库，保留 Discovery、Spec、原型、业务级 Ticket、战略设计交付包、Agent skills 和协作约定。OpenAPI、实现仓库和运行时代码由下游研发 profile 接管。
 
 ## 项目结构
 
@@ -36,15 +36,15 @@
 └── scripts/                 ← 模板轻量校验脚本
 ```
 
-项目需要生成度量、外部实现仓库记录或其他临时产物时再按需创建对应目录。前后端实现仓库接入规则见 `docs/process/implementation-repo-integration.md`。
+项目需要生成度量或其他临时产物时再按需创建对应目录。`docs/api/`、`docs/implementation/`、`docs/testing/` 等目录保留为下游研发模板兼容资产，不是本 profile 的本地主链。
 
 ## Quickstart
 
-1. 先读取 `yss-project.yaml`，按 `repository_mode` 选择模板维护或产品研发生命周期。
-2. 必读入口为 `AGENTS.md` 与 `CONTEXT.md`；流程事实分别以生命周期映射和裁剪指南为准。
+1. 先读取 `yss-project.yaml`，按 `repository_mode` 选择模板维护或 `harness.business-ddd-strategy-handoff` 产品战略设计流程。
+2. 必读入口为 `AGENTS.md` 与 `CONTEXT.md`；本地职责边界以 `docs/process/harness-profile.yaml` 为准，生命周期 ID 以 `docs/process/lifecycle-registry.yaml` 为准。
 3. `template-source` 修改流程、技能或模板后，执行 `scripts/sync-skills`、`scripts/update-skill-lock` 和 `scripts/verify-template`。
-4. `project-instance` 先做影响面分诊；进入 Spec 基线时使用 `grill-with-docs`、`to-spec`，契约冻结后再用 `to-tickets` 拆分垂直切片 Ticket。
-5. 实现仓库接入、YSS 路由、独立审查、fresh verification 和 Git checkpoint 以 `AGENTS.md` 的硬门禁为准。
+4. `project-instance` 使用 `yss-strategic-design`：机会调研 → Spec → 页面原型 → 业务级 Ticket → `work-unit.strategic-design-handoff`。不要在本地拆垂直切片或进入实现。
+5. OpenAPI、Tactical DDD、实现仓库和覆盖率门禁属于下游研发 profile，不是本仓硬门禁。
 
 YSS skills 的公开发布投影维护在 [iloveZzz/yss-spec-dev-skills](https://github.com/iloveZzz/yss-spec-dev-skills)，发布清单和导出命令见 [skills 维护说明](./docs/agents/skills-maintenance.md)。
 
@@ -100,7 +100,7 @@ scripts/verify-template
 
 | 文档 | 内容 |
 |------|------|
-| [AGENTS.md](./AGENTS.md) | 全局 AI 指令 + 工程基线入口 + Agent 协作 |
+| [AGENTS.md](./AGENTS.md) | 仓库身份路由、战略设计硬门禁与禁止事项 |
 | [docs/user-guide/用户手册索引.md](./docs/user-guide/用户手册索引.md) | 模板使用说明 |
 | [docs/user-guide/产品生命周期工作流.md](./docs/user-guide/产品生命周期工作流.md) | 产品全生命周期使用手册 |
 | [docs/user-guide/图示生成器使用指南.md](./docs/user-guide/图示生成器使用指南.md) | Excalidraw 可视化辅助 skill 使用手册 |

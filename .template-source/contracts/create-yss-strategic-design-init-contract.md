@@ -39,10 +39,10 @@ metadata 至少包含：
 ```json
 {
   "metadataSchemaVersion": 1,
-  "templateName": "yss-strategic-design-harness",
+  "templateName": "yss-strategic-design-agent",
   "profileId": "harness.business-ddd-strategy-handoff",
   "cliVersion": "<semver>",
-  "templateSource": "github:iloveZzz/yss-strategic-design-harness",
+  "templateSource": "github:iloveZzz/yss-strategic-design-agent",
   "templateCommit": "<40-char-commit>",
   "managedFilesManifestVersion": "<manifest-hash>",
   "variables": {},

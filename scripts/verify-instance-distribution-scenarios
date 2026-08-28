@@ -11,7 +11,7 @@ import {
 const source = loadInstanceDistributionManifest();
 const valid = validateInstanceDistribution({ mode: "template-source", manifest: source });
 assert.equal(valid.profile_id, "harness.business-ddd-strategy-handoff");
-assert.equal(valid.cli_package, "create-yss-strategic-design");
+assert.equal(valid.cli_package, "create-yss-harness-design");
 
 assert.equal(shouldDistribute("docs/process/harness-profile.yaml", source), true);
 assert.equal(shouldDistribute("docs/templates/strategic-design-handoff-template.yaml", source), true);
@@ -47,7 +47,7 @@ const mutations = [
     (candidate) => {
       candidate.cli_package = "create-yss-spec";
     },
-    /cli_package|create-yss-strategic-design/,
+    /cli_package|create-yss-harness-design/,
   ],
   [
     "missing forbidden marker",

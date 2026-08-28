@@ -1,7 +1,7 @@
 schema_version: 1
 profile_id: harness.business-ddd-strategy-handoff
 template_source: github:iloveZzz/yss-harness-design-agent
-cli_package: create-yss-strategic-design
+cli_package: create-yss-harness-design
 description: >-
   战略设计 Harness 的模板实例分发面。CLI 的 template.manifest.json 必须由此文件投影，
   禁止在 CLI 仓库另写一套 allow/deny。

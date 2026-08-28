@@ -86,7 +86,7 @@
 | 模板实例仓库（`project-instance`） | 由模板初始化后生成、承载某个具体产品战略设计资产的仓库身份。 | — | 不作为通用流程模板的权威来源。本 profile 的本地终点是 Strategic Design Handoff。 |
 | 模板实例分发面 | 模板源中应随 CLI 快照进入 `project-instance` 的共享生命周期、模板、用户指南和验证资产集合。 | — | 不包含模板源审查、研究、发布路线、源仓库专属 ADR 或源仓库 LLM Wiki 编译树。 |
 | 实例分发清单 | 声明本 profile 哪些模板资产进入 `project-instance` 的机器可读 allow/deny。权威文件 `docs/process/instance-distribution-manifest.yaml`。 | — | CLI 的 `template.manifest.json` 是投影，禁止另写一套。 |
-| 战略设计 Harness 实例初始化 CLI | 从本模板源生成 `project-instance` 的独立 npm CLI，包名为 `create-yss-strategic-design`。 | — | 不要与 `create-yss-spec` 混用；后者面向全生命周期模板 `yss-spec-project-template`。 |
+| 战略设计 Harness 实例初始化 CLI | 从本模板源生成 `project-instance` 的独立 npm CLI，包名为 `create-yss-harness-design`。 | — | 不要与 `create-yss-spec` 混用；后者面向全生命周期模板 `yss-spec-project-template`。 |
 | 模板源治理区 | 仅供 `template-source` 使用、保存审查证据、研究记录、跨仓契约、发布路线、源仓库治理决策和源仓库 LLM Wiki 编译树的归档区域。 | — | 不随 CLI 分发；不等于产品实例的研发管理资产。`wiki-root` 为 `.template-source/wiki`。 |
 | 仓库身份清单 | 显式声明仓库身份和清单结构版本的机器可读资产。 | — | 不承载项目名称、团队规模、Tracker 或其他易变业务配置。 |
 | Harness 目标用户画像 | 声明某个 Harness profile 面向哪些职能角色、哪些角色不在本地协作范围内的边界配置。 | — | 不等同于数字人角色注册表；角色职责仍以 `docs/agents/digital-human-roles.yaml` 为准。 |

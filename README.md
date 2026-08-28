@@ -50,14 +50,14 @@ YSS skills 的公开发布投影维护在 [iloveZzz/yss-spec-dev-skills](https:/
 
 ## 模板初始化 CLI
 
-`create-yss-strategic-design` 是本 harness 的实例初始化 CLI，维护位置是独立仓库 [iloveZzz/create-yss-strategic-design](https://github.com/iloveZzz/create-yss-strategic-design)。它不是 `create-yss-spec`：后者面向全生命周期模板 `yss-spec-project-template`。
+`create-yss-harness-design` 是本 harness 的实例初始化 CLI，维护位置是独立仓库 [iloveZzz/create-yss-harness-design](https://github.com/iloveZzz/create-yss-harness-design)。它不是 `create-yss-spec`：后者面向全生命周期模板 `yss-spec-project-template`。
 
-- [create-yss-strategic-design 实践指南](./docs/user-guide/外部命令行工具实践指南.md)
+- [create-yss-harness-design 实践指南](./docs/user-guide/外部命令行工具实践指南.md)
 
 推荐入口：
 
 ```bash
-npm create yss-strategic-design@latest
+npm create yss-harness-design@latest
 ```
 
 首次使用前请先确认独立仓库和 npm 包已完成发布。未完成跨仓验证前，不要把本命令当作已发布入口。

@@ -128,8 +128,8 @@ export function validateInstanceDistribution(
   if (manifest.template_source !== "github:iloveZzz/yss-harness-design-agent") {
     fail("template_source 必须指向 yss-harness-design-agent");
   }
-  if (manifest.cli_package !== "create-yss-strategic-design") {
-    fail("cli_package 必须为 create-yss-strategic-design");
+  if (manifest.cli_package !== "create-yss-harness-design") {
+    fail("cli_package 必须为 create-yss-harness-design");
   }
   requireStringArray(manifest.allow_root_entries, "allow_root_entries");
   requireStringArray(manifest.allow_root_files, "allow_root_files");

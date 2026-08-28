@@ -1,6 +1,6 @@
-# `create-yss-strategic-design` 初始化跨仓库契约
+# `create-yss-harness-design` 初始化跨仓库契约
 
-本文定义本模板源仓库与外部 `create-yss-strategic-design` CLI 之间的身份、分发面、初始化和发布契约。
+本文定义本模板源仓库与外部 `create-yss-harness-design` CLI 之间的身份、分发面、初始化和发布契约。
 
 本 harness **不**履行 [create-yss-spec-repository-mode-contract.md](./create-yss-spec-repository-mode-contract.md)。`create-yss-spec` 绑定全生命周期模板 `yss-spec-project-template`，不得用来生成本 profile 的项目实例。
 
@@ -17,7 +17,7 @@
 ## 空目录初始化
 
 ```bash
-npx create-yss-strategic-design@latest \
+npx create-yss-harness-design@latest \
   --project-name "项目名称" \
   --business-domain "业务领域" \
   --target-dir "./project" \
@@ -28,7 +28,7 @@ npx create-yss-strategic-design@latest \
 
 1. 只使用当前 CLI 包内置快照。
 2. 把 `yss-project.yaml` 转为 `schema_version: 1`、`repository_mode: project-instance`。
-3. 写入 `.yss-strategic-design.json`（不得写入 `.yss-template.json`）。
+3. 写入 `.yss-harness-design.json`（不得写入 `.yss-template.json`）。
 4. 渲染 `AGENTS.md`、`README.md`、`yss-project.yaml`、`docs/agents/issue-tracker.md` 中的项目级字段。
 5. 目标非空默认拒绝；`--force` 才覆盖。`--dry-run` 只预览。
 6. 空 gitlink / detached HEAD / git-submodule 挂载点 fail closed；`--force` 也不能覆盖。

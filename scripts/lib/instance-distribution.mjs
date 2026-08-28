@@ -125,8 +125,8 @@ export function validateInstanceDistribution(
     fail(`实例分发清单 profile_id 必须为 ${STRATEGIC_PROFILE_ID}`);
   }
   requireString(manifest.template_source, "template_source");
-  if (manifest.template_source !== "github:iloveZzz/yss-strategic-design-agent") {
-    fail("template_source 必须指向 yss-strategic-design-agent");
+  if (manifest.template_source !== "github:iloveZzz/yss-harness-design-agent") {
+    fail("template_source 必须指向 yss-harness-design-agent");
   }
   if (manifest.cli_package !== "create-yss-strategic-design") {
     fail("cli_package 必须为 create-yss-strategic-design");

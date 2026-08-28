@@ -82,7 +82,7 @@
 | 实现仓库 | 承载前端、后端或其他运行时代码及其 Git、CI、MR / PR、测试命令和发布流水线的仓库。 | — | 不要把实现仓库的源码所有权混入研发管理仓库。 |
 | Git 子模块分层接入 | 将前端 / 后端实现仓以 Git submodule（gitlink，mode `160000`）挂到 `project-instance` 的 `apps/` 布局下，并登记 `repository_scope: git-submodule`。 | — | 不得与 `harness-apps` 同源 monorepo 或无 gitlink 的 `external-repository` 混用；禁止把实现源码复制进 Harness 冒充 submodule。 |
 | 跨仓库契约变更 | 需要两个或多个独立仓库协同实现、验证和按顺序发布的共享契约变化。 | — | 任一参与仓库未完成契约对齐和集成验证时，不得单独声称整体可发布。 |
-| 模板源仓库（`template-source`） | 承载 `yss-strategic-design-agent` 权威模板资产及其演进规则的仓库身份。 | — | 只管理可复用战略设计模板，不承载某个具体产品的研发生命周期资产。不要与全生命周期模板 `yss-spec-project-template` 混名。 |
+| 模板源仓库（`template-source`） | 承载 `yss-harness-design-agent` 权威模板资产及其演进规则的仓库身份。 | — | 只管理可复用战略设计模板，不承载某个具体产品的研发生命周期资产。不要与全生命周期模板 `yss-spec-project-template` 混名。 |
 | 模板实例仓库（`project-instance`） | 由模板初始化后生成、承载某个具体产品战略设计资产的仓库身份。 | — | 不作为通用流程模板的权威来源。本 profile 的本地终点是 Strategic Design Handoff。 |
 | 模板实例分发面 | 模板源中应随 CLI 快照进入 `project-instance` 的共享生命周期、模板、用户指南和验证资产集合。 | — | 不包含模板源审查、研究、发布路线、源仓库专属 ADR 或源仓库 LLM Wiki 编译树。 |
 | 实例分发清单 | 声明本 profile 哪些模板资产进入 `project-instance` 的机器可读 allow/deny。权威文件 `docs/process/instance-distribution-manifest.yaml`。 | — | CLI 的 `template.manifest.json` 是投影，禁止另写一套。 |

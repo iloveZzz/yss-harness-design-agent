@@ -28,6 +28,7 @@
 | 模板维护强度触发与最低等级 | `docs/process/maintenance-intensity.yaml` |
 | 技能清单、来源、版本、哈希和投影目标 | `skills-lock.json` |
 | 技能分层、别名、默认可发现性和运行时入口 | `docs/agents/yss-skill-registry.yaml`（当前 `status: active`，生命周期消费，Router 不消费） |
+| 视觉令牌与组件视觉变体规范 | 根目录 `DESIGN.md`；`docs/design/design.md` 为中文治理与生命周期适配，`docs/design/tokens/*` 为派生快照 |
 | 实例分发清单 | `docs/process/instance-distribution-manifest.yaml`；CLI `template.manifest.json` 是其投影 |
 | 数字人角色、阶段协作组、运行时绑定与生命周期会签 | `docs/agents/digital-human-roles.yaml`；`docs/agents/digital-human-roles.md` 为操作说明 |
 

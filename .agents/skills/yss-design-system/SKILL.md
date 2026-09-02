@@ -9,10 +9,11 @@ description: Use when YSS 产品设计系统与 Ant Design 企业级 UI 风格�
 
 ## 权威资料
 
-- 项目设计系统文档：`docs/design/design.md`，作为团队可读的唯一规范来源。
-- 项目 token 快照：`docs/design/tokens/theme.json`、`docs/design/tokens/tokens.default.json`、`docs/design/tokens/tokens.dark.json`、`docs/design/tokens/tokens.compact.json`、`docs/design/tokens/variables.css`、`docs/design/tokens/variables.dark.css`。
+- 根目录 `DESIGN.md`：机器可消费的视觉令牌和组件视觉变体唯一规范源；共享章节与主模板通过 `docs/design/design-system-sync.yaml` 同步。
+- 项目设计系统文档：`docs/design/design.md`，作为中文治理与生命周期适配说明，不重复定义规范值。
+- 项目 token 快照：`docs/design/tokens/theme.json`、`docs/design/tokens/tokens.default.json`、`docs/design/tokens/tokens.dark.json`、`docs/design/tokens/tokens.compact.json`、`docs/design/tokens/variables.css`、`docs/design/tokens/variables.dark.css`；这些文件由 `DESIGN.md` 生成，不作为人工规范源。
 - 本技能执行清单：`references/design-system.md`，用于 Agent 执行和评审，不替代 `docs/design/design.md`。
-- 历史输入包：`/Users/zhudaoming/Downloads/Product-Design-System`，只用于追溯首次引入来源，不作为后续工程依赖。
+- 历史输入包只保留在迁移记录中，不作为后续工程依赖。
 - 默认亮色覆盖：项目 Ant Design 5 Less / `:root` 变量已裁定进 `docs/design/design.md` 与 token 快照；原始 Less 不是实现语言。
 - Codex `$design-qa` 项目对照：`references/design-qa-theme.md`，不替代官方 `design-qa` 流程，也不改上游插件正文。
 - 原型阶段合同：`yss-prototype-stage`，用于统一跨 Agent 的原型资产和浏览器验证证据。AntD 事实由 `yss-antd-design` 提供，且只用于原型设计构建。
@@ -22,16 +23,16 @@ description: Use when YSS 产品设计系统与 Ant Design 企业级 UI 风格�
 ## 使用流程
 
 1. 先判断任务阶段：设计系统引入 / 产品设计 / 原型评审 / 前端实现 / UI 改造 / 主题 token 落地。
-2. 读取已有资产：`docs/design/design.md`、相关 Spec、交互说明、状态矩阵、OpenAPI Draft、现有页面代码。
+2. 读取已有资产：`DESIGN.md`、`docs/design/design.md`、相关 Spec、交互说明、状态矩阵、OpenAPI Draft、现有页面代码。
 3. 按设计系统基线约束输出或修改产物：颜色、排版、间距、圆角、动效、组件、状态、响应式。
 4. 若是产品设计阶段，先使用 `yss-prototype-stage`；Codex 以 `product-design:index` 为主入口，其他 Agent 必须交付等价合同资产和证据。
 5. 若是前端实现阶段，配合 `yss-ui`、`yss-components`、`yss-formily`、`yss-page-module-development`，但本技能负责风格与体验一致性门禁。
-6. 若发现现有设计系统文档不足，先更新 `docs/design/design.md`，再让实现或评审引用该文档。
+6. 若发现视觉规范不足，先更新根目录 `DESIGN.md` 并重新生成 token 投影；仅当治理或生命周期说明不足时更新 `docs/design/design.md`。
 
 ## 核心基线
 
 - UI 定位：中后台、数据密集、表单密集、流程密集、可扫描、低装饰。
-- 主色：`#3371ff`（`--primary-color` / `--brand-color-primary`），用于主操作、链接、焦点、选中态和激活导航。
+- 共享视觉令牌以根目录 `DESIGN.md` 为准；不要在本 skill 或 `docs/design/design.md` 复制第二套具体色值。
 - 默认字号：14px；主要字重：400 / 600；字体栈为系统字体，不强制 `Inter`。
 - 默认控件高度：32px；默认圆角 6px。
 - 间距：4px 网格，优先使用 token，不写任意 magic number。
@@ -96,8 +97,9 @@ description: Use when YSS 产品设计系统与 Ant Design 企业级 UI 风格�
 当用户要求“引入设计系统”“形成项目规范”“更新设计系统 skill”时：
 
 1. 分析来源设计系统，不原样堆拷贝。
-2. 将稳定规范落到 `docs/design/design.md`。
-3. 将 Agent 执行入口落到 `.agents/skills/yss-design-system/SKILL.md`。
-4. 将 Agent 执行检查清单更新到 `.agents/skills/yss-design-system/references/design-system.md`。
-5. 更新 `docs/design/README.md` 和必要的 `AGENTS.md` 入口规则。
-6. 运行 `node .agents/skills/yss-design-system/scripts/validate-frontmatter.mjs`、对应 `node --test` 和 markdown/diff 基础检查。
+2. 将稳定视觉规范落到根目录 `DESIGN.md`，再生成 `docs/design/tokens/*`。
+3. 将治理与生命周期适配说明落到 `docs/design/design.md`。
+4. 将 Agent 执行入口落到 `.agents/skills/yss-design-system/SKILL.md`。
+5. 将 Agent 执行检查清单更新到 `.agents/skills/yss-design-system/references/design-system.md`。
+6. 更新 `docs/design/README.md` 和必要的 `AGENTS.md` 入口规则。
+7. 运行 design.md wrapper 的 lint/export/drift、对应 `node --test` 和 markdown/diff 基础检查。

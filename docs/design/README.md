@@ -4,8 +4,10 @@
 
 设计系统基线：
 
-- `docs/design/design.md`：项目设计系统说明。默认亮色覆盖来自项目 Ant Design 5 `:root` / Less 裁定（主色 `#3371ff`、系统字体、6px 圆角），不再只沿用历史 `Product-Design-System` 包；官方 `design.md` 是上游默认，项目 token 是项目覆盖，优先级以该文件为准。
-- `docs/design/tokens/`：随仓库保存的主题、亮色 / 暗色 / 紧凑 token 和 CSS 变量快照，后续实现不得依赖本机 Downloads 目录或原始 Less。
+- 根目录 `DESIGN.md`：机器可消费的视觉令牌和组件视觉变体唯一规范源；共享章节与主模板通过 `docs/design/design-system-sync.yaml` 的版本和摘要同步。
+- `docs/design/design.md`：中文治理与生命周期适配层，说明设计系统如何进入战略设计、原型和 Strategic Design Handoff，不重复定义规范值。
+- `docs/design/tokens/`：由 `DESIGN.md` 生成的默认、暗色、紧凑 token 和 CSS 变量快照，不是人工规范源。
+- `docs/design/preview.html`、`preview-dark.html`：设计系统级视觉、响应式和无障碍验证输入。
 
 产品原型产出默认以 `product-design:index` 为主入口。该 skill 只负责路由，实际按 Product Design plugin 规则进入 `$get-context`、`$ideate`、`$prototype`、`$image-to-code`、`$url-to-code`、`$share` 或 `$design-qa` 等 focused skill；YSS 生命周期仍负责校验低保真评审、高保真 HTML 原型、AntD CLI 校验证据、用户确认和 Spec / OpenAPI 回填。
 

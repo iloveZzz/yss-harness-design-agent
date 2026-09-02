@@ -333,7 +333,7 @@
         "source": "project",
         "sourceType": "local",
         "skillPath": ".agents/skills/yss-design-system/SKILL.md",
-        "effectiveHash": "086955517185dd1f2d663747dcda30a89e0467e085acb18ce2f64efe9ce5eebc",
+        "effectiveHash": "1359f52fa2e106024c1a688e5a815407985fc0fdd27a182f06673b904b05999c",
         "targets": [
           ".agents/skills",
           ".claude/skills",

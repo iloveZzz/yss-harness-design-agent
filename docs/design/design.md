@@ -1,46 +1,38 @@
-# 设计系统引入说明
+# 设计系统治理与战略设计适配
 
-## 来源与定位
+## 职责边界
 
-本文件基于本地设计系统包 `/Users/zhudaoming/Downloads/Product-Design-System` 首次分析整理，并在后续用项目 Ant Design 5 Less / `:root` CSS 变量覆盖默认亮色主题。自本文件落地后，项目内设计系统的权威来源为 `docs/design/design.md` 与 `docs/design/tokens/*`，外部 Downloads 目录和原始 Less 文件仅作为历史输入记录，不作为后续执行依赖，也不作为实现语言。
+根目录 `DESIGN.md` 是本仓库可被 Agent 和工具直接消费的视觉规范源，定义颜色、排版、布局、圆角、间距和组件视觉变体。共享章节与主模板的同步摘要见 `docs/design/design-system-sync.yaml`。
 
-关键来源：
+本文件是中文治理说明，不重新定义颜色、字体、间距或圆角的具体值。实现和原型应引用 `DESIGN.md` 中的 token 名称；`docs/design/tokens/*` 是由维护工具生成的投影，不能手工作为规范源修改。
 
-| 来源 | 作用 | 采用结论 |
-| --- | --- | --- |
-| 历史 `Product-Design-System` 包 | 首次引入 Ant Design 企业级语义、状态矩阵和验收习惯 | 保留原则、组件规则和审查清单 |
-| 项目 Ant Design 5 Less / `:root` 变量 | 默认亮色主题、运行时切换别名、色板与布局 token | **默认主题权威**；冲突时以 `:root` 为准 |
-| `docs/design/tokens/tokens.default.json` | 默认亮色主题派生 token | 作为实现 token 基线 |
-| `docs/design/tokens/tokens.dark.json` | 暗色主题派生 token | 暗色仍走 `darkAlgorithm`；本轮未按新 seed 重派生完整暗色色板 |
-| `docs/design/tokens/tokens.compact.json` | 紧凑密度主题派生 token | 共享亮色 seed，紧凑高度算法保持现状 |
-| `docs/design/tokens/variables.css` | `--brand-*` 与运行时别名 | 前端实现时优先转换为项目 token |
-| `docs/design/tokens/theme.json` | Ant Design `ConfigProvider` theme 配置 | React + Ant Design 项目可直接参考 |
+## 战略设计中的使用方式
 
-同份 Less 输入存在两套互相覆盖的默认值。项目裁定如下，并已写入 token 快照：
+战略设计阶段使用该规范完成：
 
-| 项 | 采用 | 丢弃 |
-| --- | --- | --- |
-| 主色 | `#3371ff`（`--primary-color`） | `#3177ff` fallback、历史 `#1677ff` |
-| 信息色 | `#3371ff` | 历史 `#1677ff` |
-| 错误色 | `#f5222d` | 历史 `#ff4d4f` |
-| 页面背景 | `#f0f2f5` | 历史 `#f5f5f5` |
-| 主文本 / 次文本 | `rgba(0, 0, 0, 0.88)` / `rgba(0, 0, 0, 0.65)` | `#2e2e2e` / `#646464` |
-| 边框 / 分割线 | `#d9d9d9` / `#f0f0f0` | `#dbdbdb` / `#f1f1f1` |
-| 默认圆角 | `6px` | Less 前半 `4px`、历史品牌 `8px` |
-| 字体栈 | 系统栈 | 强制 `Inter` |
-| hover / active | `#4096ff` / `#0958d9`（`:root` 显式值） | 由新主色算法重算 |
+- 产品总体设计、页面地图和低保真结构。
+- Ant Design v6 高保真 HTML 原型的语义 token 映射。
+- 交互说明、状态矩阵和原型视觉验证。
+- Strategic Design Handoff 中的视觉约束与验收引用。
 
-`.m-1` / `.flex-*` 等 utility class、`::-webkit-scrollbar` 定制和原始 `.less` 文件不纳入规范正文，只可作为可选实现备注。
+业务状态、用户流程、权限行为、API 影响、DDD 战略决策和 Handoff 字段仍由对应生命周期资产承载，不写入 `DESIGN.md`。
 
-结论：这不是营销型视觉系统，而是面向中后台、数据密集、表单密集、流程密集产品的 Ant Design 风格企业级设计系统。项目内 UI 默认应以“清晰、确定、低装饰、可扫描、高一致性”为目标。
+## 原型与运行时双轨
 
-## 原型设计依据的优先级
+高保真原型继续使用 React + Ant Design 6.x 事实；生产实现由下游研发 profile 使用 Vue 3 + YSS UI / Ant Design Vue 4.x。两条轨道共享语义 token、状态含义和验收目标，不把任一运行时的实现细节写成跨项目视觉规范。
 
-原型使用 Ant Design 时，`https://ant.design/design.md` 与官方 `antd` CLI 提供的是**上游默认**和组件事实；项目的 `docs/design/design.md`、`docs/design/tokens/*` 是经过确认的**项目覆盖**。当前功能只能在这两层之下完成语义组件映射。若上游默认与项目 token 不同，以项目覆盖为准，并在 `prototype-evidence.yaml` 中记录差异；不得把上游默认直接写回项目实现。
+原型构建前使用 `yss-antd-design` 获取组件事实，构建后记录 CLI、浏览器和无障碍证据。设计系统级预览位于 `preview.html` 与 `preview-dark.html`，不替代产品级原型。
 
-当前项目覆盖与官方默认的主要差异：主色 `#3371ff` ≠ 官方 `#1677ff`，错误色 `#f5222d` ≠ 官方 `#ff4d4f`，页面背景 `#f0f2f5`，文本使用 Ant Design 透明度阶，默认圆角 `6px`。`blue` 等预设色板仍可保留官方蓝谱；**色板预设 ≠ 品牌主色**。
+## 维护与验证
 
-Codex `$design-qa` 的 Colors/tokens 与 Fonts/typography 对照必须以本文件和 `docs/design/tokens/*` 为 source visual truth，而不是官方默认或历史 `#1677ff` / `Inter` / `8px` 品牌圆角。执行清单见 `.agents/skills/yss-design-system/references/design-qa-theme.md`。
+修改设计规范时，在 `.template-source/tooling/node` 使用固定版本的 design.md wrapper：
+
+- `lint` 校验 frontmatter、章节顺序、引用和变体命名。
+- `export` 生成 `theme.json`、默认/暗色/紧凑 token 与 CSS 变量。
+- `drift` 阻断规范源与派生文件之间的未解释漂移。
+- `diff` 区分 token、组件状态和治理文案变化。
+
+共享章节变更必须同步主模板并更新同步摘要；战略设计专属治理文案可以只在本仓库修改。发布仍须通过本仓库的模板验证和 CLI 快照验证，生命周期终点保持 `work-unit.strategic-design-handoff`。
 
 ## 设计原则
 

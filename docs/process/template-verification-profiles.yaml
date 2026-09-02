@@ -19,6 +19,7 @@ core_escalation_patterns:
   - scripts/run-template-verification
   - scripts/lib/template-verification.mjs
   - scripts/verify-template-verification-scenarios
+  - .template-source/tooling/node/scripts/design-md.mjs
   - docs/process/template-verification-profiles.yaml
 required_files:
   - yss-project.yaml
@@ -125,6 +126,8 @@ routing:
     groups: [profile, workspace-fixtures]
   - patterns: [".template-source/**", "scripts/vendor/**"]
     groups: [tooling]
+  - patterns: ["DESIGN.md", "docs/design/**", ".template-source/tooling/node/scripts/design-md.mjs", ".template-source/tooling/node/test/design-md.test.mjs"]
+    groups: [design-system, tooling]
   - patterns: [".github/**"]
     groups: [candidate-integrity]
   - patterns: ["scripts/**"]
@@ -137,6 +140,10 @@ groups:
       - { run: ".template-source/scripts/evidence-index --check", when: template-source }
       - { run: "pnpm --dir .template-source/tooling/node test", when: template-source }
       - { run: "pnpm --dir .template-source/tooling/node check:vendor", when: template-source }
+  design-system:
+    commands:
+      - { run: "node .template-source/tooling/node/scripts/design-md.mjs lint DESIGN.md", when: template-source }
+      - { run: "node .template-source/tooling/node/scripts/design-md.mjs drift", when: template-source }
   skills:
     commands:
       - { run: "scripts/sync-skills --check" }

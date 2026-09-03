@@ -1,0 +1,43 @@
+schema_version: 1
+intensity: L3
+classification_reason: >-
+  canonical skill rename、核心证据 validator、Discovery / Stage Decision 生命周期研究合同、
+  Product Design 平台技能以及本体到战略设计子项目的跨仓同步共同改变行为与发布候选。
+triggers:
+  - lifecycle-gate
+  - cross-repo-contract
+  - core-validator
+  - aggregate-behavior-change
+  - release-candidate
+changed_assets:
+  - .agents/skills/yss-research/
+  - .agents/skills/yss-strategic-design/references/orchestration-contract.yaml
+  - .codex/skills/product-design/skills/research/
+  - docs/agents/yss-skill-registry.yaml
+  - docs/agents/digital-human-roles.yaml
+  - scripts/lib/scenario-checks.mjs
+  - scripts/lib/skill-supply-chain.mjs
+  - skills-lock.json
+verification_evidence:
+  - kind: red
+    command: .template-source/evidence/maintenance/yss-research-sync-l3-red-2026-09-03.md
+    result: pass
+  - kind: green
+    command: .template-source/evidence/maintenance/yss-research-sync-l3-green-2026-09-03.md
+    result: pass
+  - kind: refactor
+    command: .template-source/evidence/maintenance/yss-research-sync-l3-refactor-2026-09-03.md
+    result: pass
+  - kind: pressure-scenario
+    command: .template-source/evidence/maintenance/yss-research-sync-l3-pressure-2026-09-03.md
+    result: pass
+  - kind: fresh-verification
+    command: scripts/verify-template
+    result: pass
+  - kind: formal-independent-review
+    command: .template-source/evidence/maintenance/yss-research-sync-review/formal-independent-review.md
+    result: pass
+review_mode: formal-independent
+escalation: >-
+  none；双轴独立 R2 审查均 PASS。外部 create-yss-harness-design 发布消费不在本次提交范围，
+  不据此宣称该 CLI 已完成集成或可发布。

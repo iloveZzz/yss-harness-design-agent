@@ -191,8 +191,8 @@ task_package:
 matt_invocation_boundary:
   user_invoked_skills: [ask-matt, grill-me, grill-with-docs, handoff, to-spec, to-tickets, triage, wayfinder]
   lifecycle_managed_user_entries: [ask-matt, grill-me, grill-with-docs, to-spec, to-tickets, triage, wayfinder]
-  model_invoked_skills: [code-review, domain-modeling, grilling, prototype-review, research, writing-for-agents]
-  lifecycle_allowed_model_invoked_skills: [domain-modeling, grilling, prototype-review, research]
+  model_invoked_skills: [code-review, competitive-intelligence, domain-modeling, grilling, prototype-review, writing-for-agents, yss-research]
+  lifecycle_allowed_model_invoked_skills: [competitive-intelligence, domain-modeling, grilling, prototype-review, yss-research]
   lifecycle_may_invoke_user_invoked: false
   formal_artifact_owner: explicit-user-entry
   continuous_orchestration: compatibility-prepare-and-validate-only
@@ -218,9 +218,9 @@ work_unit_routes:
   work-unit.discovery-opportunity:
     native: {source: yss-strategic-design, skill: yss-strategic-design, invocation_mode: model-invoked}
     primary_skill: yss-strategic-design
-    supporting_skills: [competitive-intelligence, research]
-    skills: [competitive-intelligence, research]
-    route_by: {market_or_competitor_fact: competitive-intelligence, technical_or_standard_fact: research, no_external_fact: yss-strategic-design}
+    supporting_skills: [competitive-intelligence, yss-research]
+    skills: [competitive-intelligence, yss-research]
+    route_by: {market_or_competitor_fact: competitive-intelligence, technical_or_standard_fact: yss-research:technical-evidence, strategy_fact: yss-research:strategy-evidence, no_external_fact: yss-strategic-design}
     applies_when: opportunity_or_external_fact_requires_validation
     not_applicable_reason: no_external_fact
   work-unit.discovery-requirements:
@@ -233,16 +233,18 @@ work_unit_routes:
   work-unit.domain-strategy-design:
     native: {source: yss-strategic-design, skill: yss-stage-decision, invocation_mode: model-invoked}
     primary_skill: yss-stage-decision
-    supporting_skills: [domain-modeling, research, grilling]
-    skills: [yss-stage-decision, domain-modeling, research, grilling]
+    supporting_skills: [domain-modeling, yss-research, grilling]
+    skills: [yss-stage-decision, domain-modeling, yss-research, grilling]
+    research_contract: {profile: strategy-evidence, mode_before_gate: evidence-audited, artifact_owner: yss-research, downstream_owner: yss-stage-decision}
     human_gate: domain-strategy-approved
     applies_when: domain_boundary_or_language_or_core_rule_impact
     not_applicable_reason: no_domain_strategy_impact
   work-unit.stage-decision:
     native: {source: yss-strategic-design, skill: yss-stage-decision, invocation_mode: model-invoked}
     primary_skill: yss-stage-decision
-    supporting_skills: [domain-modeling]
-    skills: [yss-stage-decision, domain-modeling]
+    supporting_skills: [domain-modeling, yss-research]
+    skills: [yss-stage-decision, domain-modeling, yss-research]
+    research_contract: {profile: strategy-evidence, mode_before_gate: evidence-audited, artifact_owner: yss-research, downstream_owner: yss-stage-decision}
     human_gate: stage-decision-package-approved
     applies_when: discovery_to_spec_requires_stable_decision_package
     not_applicable_reason: existing_approved_stage_decision_current
@@ -373,7 +375,7 @@ transition_graph:
 grill_exit:
   required: [frontier_empty, facts_resolved_or_routed, decisions_confirmed, shared_understanding_confirmed, no_unresolved_runnable_blocker]
   facts_resolved_or_routed:
-    technical_fact: research
+    technical_fact: yss-research
     runnable_question: handoff-prototype-handoff
     external_decision: external-input-required
   user_confirmation_required: true

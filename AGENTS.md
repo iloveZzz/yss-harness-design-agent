@@ -77,7 +77,7 @@ Strategic Design Handoff 批准后，下游团队用 `yss-tactical-design` 接�
 
 | 触发情形 | 必须使用 |
 |---|---|
-| 技术事实、标准、第三方 API 或框架行为影响决策 | `research` 或等价的一手资料记录 |
+| 技术事实、标准、第三方 API 或框架行为影响决策，或外部证据进入领域战略 / 阶段决策 | `yss-research`；技术事实使用 `technical-evidence`，战略决策证据使用 `strategy-evidence`；旧名 `research` 仅为 deprecated alias |
 | 竞品、市场或用户口碑事实 | `competitive-intelligence` |
 | UI 设计、原型、组件或主题 | `yss-design-system` 后使用 `yss-prototype-stage`；Codex 再路由 `product-design:index`，其他 Agent 交付等价合同资产；原型产出前后用 `yss-antd-design` 记录 Ant Design v6 事实与浏览器验证。生产前端由下游研发 profile 落地。 |
 | merge / rebase 冲突 | `resolving-merge-conflicts` |

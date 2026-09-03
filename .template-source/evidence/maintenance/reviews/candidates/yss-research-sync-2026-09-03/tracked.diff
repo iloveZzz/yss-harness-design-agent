@@ -1,0 +1,705 @@
+diff --git a/.agents/skills/ask-matt/SKILL.md b/.agents/skills/ask-matt/SKILL.md
+index b29d6d88eb267dda64de58eeba617b34a27fc2c3..85bd6b1c9f48d9f153372f3a70858f7bd9f57e64 100644
+--- a/.agents/skills/ask-matt/SKILL.md
++++ b/.agents/skills/ask-matt/SKILL.md
+@@ -84,7 +84,7 @@ Off the main flow entirely.
+ - **`/grilling`** — the interview primitive itself: rounds, the frontier, facts are the agent's job and decisions are yours. `/grill-me` and `/grill-with-docs` are the two named ways in, and `/triage`, `/wayfinder` and `/improve-codebase-architecture` all run it internally. Reach for it directly only when you want the interview with no wrapper around it.
+ - **`/resolving-merge-conflicts`** — work an in-progress merge or rebase conflict hunk by hunk, resolving by **intent** traced to each side's primary source rather than by picking lines, then finish the operation. It never runs `--abort`. Standalone and off every flow: reach for it when you are already mid-conflict.
+ - **`/prototype`** — a small, throwaway program that answers one design question: does this state model feel right, or what should this UI look like. Throwaway is a constraint on how the code is written, not a promise to destroy it: the answer folds into the real code, and the prototype itself is kept as a **primary source** on a `prototype/<name>` branch out of main, pointed at from the implementation issue. It's the detour in step 2 of the main flow, but reach for it any time a design question is hard to settle on paper.
+-- **`/research`** — delegate reading legwork to a **background agent**: it investigates a question against **primary sources**, then leaves a cited Markdown file in the repo. Keep working while it reads. The file it produces is something to take *into* the main flow at `/grill-with-docs` — research feeds the thinking, it doesn't replace it.
++- **`/yss-research`** — investigate technical or strategy evidence using `technical-evidence` / `strategy-evidence` and `quick` / `evidence-audited` modes. Use a background agent when the runtime supports it and parallel reading is useful; delegation is not a trust guarantee. The old `/research` name is a deprecated alias. Research feeds `/grill-with-docs` and lifecycle decisions; it does not approve them.
+ - **`/to-questionnaire`** — when the thing blocking you isn't in your head or the codebase but in **someone else's**, this writes them a questionnaire to fill in. It's the inverse of `/grill-me`: instead of interviewing you about the subject, it interviews you about the **send** — who it's going to, what you need back — and aims the questions at the gap. What comes back is material for `/grill-with-docs` or `/to-spec`.
+ - **`/wait-what`** — the corrective for a message that didn't land. Use it mid-conversation, inside any other skill, and the agent re-pitches what it just said with the context you were missing, in plain English, using the `CONTEXT.md` vocabulary. It works after the fact; `/grill-with-docs` is the upfront cure, because a shared language agreed early is what stops the jargon arriving at all.
+ - **`/teach`** — learn a concept over multiple sessions, using the current directory as a stateful workspace.
+diff --git a/.agents/skills/research/SKILL.md b/.agents/skills/research/SKILL.md
+deleted file mode 100644
+index 0ba594a07f306479baa67104381f48e209ab6aae..0000000000000000000000000000000000000000
+--- a/.agents/skills/research/SKILL.md
++++ /dev/null
+@@ -1,12 +0,0 @@
+----
+-name: research
+-description: Investigate a question against high-trust primary sources and capture the findings as a Markdown file in the repo. Use when the user wants a topic researched, docs or API facts gathered, or reading legwork delegated to a background agent.
+----
+-
+-Spin up a **background agent** to do the research, so you keep working while it reads.
+-
+-Its job:
+-
+-1. Investigate the question against **primary sources** — official docs, source code, specs, first-party APIs — not a secondary write-up of them. Follow every claim back to the source that owns it.
+-2. Write the findings to a single Markdown file, citing each claim's source.
+-3. Save it where the repo already keeps such notes; match the existing convention, and if there is none, put it somewhere sensible and say where.
+diff --git a/.agents/skills/research/agents/openai.yaml b/.agents/skills/research/agents/openai.yaml
+deleted file mode 100644
+index e18b96ca0ccc1003889d5d6991386207c2454bc2..0000000000000000000000000000000000000000
+--- a/.agents/skills/research/agents/openai.yaml
++++ /dev/null
+@@ -1,3 +0,0 @@
+-interface:
+-  display_name: "Research"
+-  short_description: "Research from high-trust sources"
+diff --git a/.agents/skills/wayfinder/SKILL.md b/.agents/skills/wayfinder/SKILL.md
+index 7e12fd0c3accf2c1e14760de214ab9a598483594..ef39db8e46575a87caaa1f69a38294619ad7662a 100644
+--- a/.agents/skills/wayfinder/SKILL.md
++++ b/.agents/skills/wayfinder/SKILL.md
+@@ -74,7 +74,7 @@ The answer isn't part of the body — it's recorded on resolution (see [Work thr
+ 
+ Every ticket is either **HITL** — human in the loop, worked _with_ a human who speaks for themselves — or **AFK**, driven by the agent alone. A HITL ticket only resolves through that live exchange; the agent never stands in for the human's side of it (a grilling agent that answers its own questions has broken this).
+ 
+-- **Research** (AFK): Reading documentation, third-party APIs, or local resources like knowledge bases to surface a fact a decision waits on. Resolved by a `/research` **subagent**. Use when knowledge outside the current working directory is required.
++- **Research** (AFK): Reading documentation, third-party APIs, or local resources like knowledge bases to surface a fact a decision waits on. Resolved by a `/yss-research` **subagent** (`/research` is a deprecated alias). Use when knowledge outside the current working directory is required.
+ - **Prototype** (HITL): Raise the fidelity of the discussion by making a cheap, rough, concrete artifact to react to — an outline, a rough take, a stub, or UI/logic code via the /prototype skill. Links the prototype as an asset. Use when "how should it look" or "how should it behave" is the key question.
+ - **Grilling** (HITL): Conversation. The default case. Always invoke the /grilling and /domain-modeling skills.
+ - **Task** (HITL or AFK): Manual work that must happen before a _decision_ can be made — nothing to decide, prototype, or research, but the discussion is blocked until it's done. Signing up for a service so its API can be judged, provisioning access, moving data so its shape can be seen. This is the one type that _does_ rather than decides — and it earns its place by unblocking a decision, not by delivering the destination. The agent drives it alone where it can (AFK); otherwise it hands the human a precise checklist (HITL). Resolved when the work is done; the answer records what was done and any resulting facts (credentials location, new URLs, row counts) later tickets depend on.
+@@ -112,7 +112,7 @@ User invokes with a loose idea.
+ 2. **Map the frontier.** Grill again, **breadth-first** this time: fan out across the whole space rather than deep on any one thread, surfacing the open decisions and the first steps takeable now. **If this surfaces no fog** — the way to the destination is already clear, the whole journey small enough for one session — you don't need a map. Stop and ask the user how they'd like to proceed.
+ 3. **Create the map** (label `wayfinder:map`): Destination and Notes filled in, Decisions-so-far empty, the fog sketched into **Not yet specified**.
+ 4. **Create the tickets you can specify now** as child issues of the map — then wire blocking edges in a **second pass** (issues need ids before they can reference each other). Wiring sorts them into the frontier and the blocked; everything you can't yet specify stays in the fog — the **Not yet specified** section.
+-5. **Fire the research subagents.** For each `research` ticket you just created, spin up a `/research` subagent to resolve it in parallel, capturing its findings on a throwaway `research/<name>` branch with a context pointer from the ticket.
++5. **Fire the research subagents.** For each `research` ticket you just created, spin up a `/yss-research` subagent to resolve it in parallel, capturing its findings on a throwaway `research/<name>` branch with a context pointer from the ticket. `/research` remains only as a deprecated compatibility alias.
+ 6. Stop — charting is one session's work; it hand-resolves nothing.
+ 
+ ### Work through the map
+diff --git a/.agents/skills/yss-stage-decision/SKILL.md b/.agents/skills/yss-stage-decision/SKILL.md
+index 4a7384f101b3bf74c40938bc5d134532efd62691..13b080c31145d9198d614bc202e947b0566373b0 100644
+--- a/.agents/skills/yss-stage-decision/SKILL.md
++++ b/.agents/skills/yss-stage-decision/SKILL.md
+@@ -17,7 +17,7 @@ description: 编排 Discovery 到 Spec 入口的阶段决策与 DDD 战略设计
+ ## 执行顺序
+ 
+ 1. 读取 `yss-project.yaml`、`CONTEXT.md`、既有 Discovery/Spec、ADR 和父 Ticket/checkpoint。
+-2. 分离事实、决策、假设、约束和未决项；技术事实走 `research`，市场/竞品事实走 `competitive-intelligence`。
++2. 分离事实、决策、假设、约束和未决项；技术事实走 `yss-research` 的 `technical-evidence`，领域边界、业务规则、MVP、非目标、成功标准或阶段推进依据等决策证据走 `strategy-evidence`，市场/竞品事实走 `competitive-intelligence`。
+ 3. 从业务场景、事件、规则、责任人和失败路径识别子域及限界上下文，不从数据库表或调用链直接反推边界。
+ 4. 为每个上下文建立本地统一语言；为跨上下文关系记录语义上游/下游、业务决策权、技术传输方向和翻译责任。
+ 5. 记录核心领域概念候选，不提前锁定 Entity 或 Aggregate。
+@@ -33,6 +33,7 @@ description: 编排 Discovery 到 Spec 入口的阶段决策与 DDD 战略设计
+ ## 产物与批准
+ 
+ - DDD 资产是事实源，阶段决策包只通过 `domain_strategy_ref` 引用它们。
++- 进入 `gate.domain-strategy-approved` 或 `gate.stage-decision-package-approved` 的外部决策证据必须引用通过校验的 `yss-research` `evidence-audited` 研究包；研究包只提供证据，不得直接修改本技能资产或批准门禁。
+ - `stage_decision_package` 必须经过 `draft → ready-for-human → approved`；起草者不得自签。
+ - 建议门禁为 `gate.domain-strategy-approved` 和 `gate.stage-decision-package-approved`，实际状态由 `yss-strategic-design` 维护；阶段包批准引用必须通过 `scripts/verify-approval-record`，不得用不可读路径或聊天确认替代。
+ - 下游只能消费批准且版本当前的包；发现语义冲突返回 `drift` / `new_impacts`，不得静默修改上游。
+diff --git a/.agents/skills/yss-strategic-design/SKILL.md b/.agents/skills/yss-strategic-design/SKILL.md
+index 2c060b5672eec190469a2619a7e1bf71528c3f34..6d04b499feb930c9c4fbaecb63f2d93d4da1b550 100644
+--- a/.agents/skills/yss-strategic-design/SKILL.md
++++ b/.agents/skills/yss-strategic-design/SKILL.md
+@@ -24,7 +24,7 @@ description: 编排 YSS 产品或模块从机会调研到 Spec、页面原型、
+ 
+ 交付包必须同时引用已批准且版本当前的 `artifact.domain-strategy`、`artifact.stage-decision-package`、Spec、页面原型和业务级 Ticket 集，并以 `docs/templates/strategic-design-handoff-template.yaml` / `docs/process/schemas/strategic-design-handoff.schema.json` 的结构交给下游研发团队。下游团队的下一工作单元是外部 `yss-tactical-design`；本 profile 不生成 OpenAPI、Tactical DDD、Slice Implementation Contract、代码或发布资产。需要继续推进时，必须新建或切换到下游研发团队的 project profile，不能在本 profile 中越过 `work-unit.strategic-design-handoff`。
+ 
+-Matt 的 `ask-matt`、`grill-me`、`grill-with-docs`、`to-spec`、`to-tickets`、`triage` 和 `wayfinder` 保留为显式兼容入口；`implement` 已从本分支移除。默认路径是本 skill 持有的原生工作单元，由本编排器创建正式资产、维护状态并在会签门禁暂停。兼容入口不得自动调用或代替正式资产创建；任何写入前回交本编排器。
++Matt 的 `ask-matt`、`grill-me`、`grill-with-docs`、`to-spec`、`to-tickets`、`triage` 和 `wayfinder` 保留为显式兼容入口；`implement` 已从本分支移除。默认路径是本 skill 持有的原生工作单元，由本编排器创建正式资产、维护状态并在会签门禁暂停。兼容入口不得自动调用它们或代替其创建正式资产；Matt 只导航，不得写生命周期资产或改变门禁/Ticket 状态；任何写入前回交本编排器。
+ 
+ ## 不可裁剪的主链
+ 
+@@ -39,7 +39,7 @@ Matt 的 `ask-matt`、`grill-me`、`grill-with-docs`、`to-spec`、`to-tickets`
+ | 阶段 | 必需产物/门禁 | 工作单元与技能 | 通过条件 |
+ |---|---|---|---|
+ | 入口分诊 | 身份、影响面、最近可信阶段 | `yss-strategic-design` + `triage` / `wayfinder`（兼容入口） | `yss-project.yaml` 合法且影响面可解释 |
+-| 机会调研/需求分析 | Discovery、用户/MVP/非目标/成功标准、测试 seam；命中 DDD 影响时补充领域战略设计与阶段决策包 | `work-unit.discovery-opportunity` + `work-unit.discovery-requirements` + `work-unit.domain-strategy-design` + `work-unit.stage-decision`；市场/竞品事实用 `competitive-intelligence`，技术/标准事实用 `research`；领域建模用 `domain-modeling`；`grill-with-docs` 为兼容入口 | 未决事实已 research 或 handoff，领域边界和统一语言可审查，阶段决策包完成必要批准 |
++| 机会调研/需求分析 | Discovery、用户/MVP/非目标/成功标准、测试 seam；命中 DDD 影响时补充领域战略设计与阶段决策包 | `work-unit.discovery-opportunity` + `work-unit.discovery-requirements` + `work-unit.domain-strategy-design` + `work-unit.stage-decision`；市场/竞品事实用 `competitive-intelligence`，技术/标准事实用 `yss-research:technical-evidence`，领域战略与阶段决策证据用 `yss-research:strategy-evidence`；领域建模用 `domain-modeling`；`grill-with-docs` 为兼容入口 | 未决事实已由 `yss-research` 核验或 handoff，进入战略 / 阶段门禁的决策证据已 `evidence-audited`，领域边界和统一语言可审查，阶段决策包完成必要批准 |
+ | Spec/功能架构 | Spec、产品总体设计、功能架构；必要时 Spec Delta | 原生 `work-unit.spec-synthesis`；`to-spec` 为兼容入口 | 初稿先为 `ready-for-human`；只有 Spec baseline 会签批准后资产才为 `approved` 并进入下游 |
+ | 原型设计 | 交互说明、低保真、状态矩阵、高保真 HTML、评审记录 | `yss-design-system` → `yss-prototype-stage` → `yss-antd-design`（仅原型事实）→ Codex `product-design:index`（非 Codex 交付等价合同） | `gate.prototype-reviewed`、`gate.prototype-verified`、`gate.user-confirmation` 均有证据 |
+ | 战略设计交付 | Strategic Design Handoff、下游战术设计问题和证据索引 | `yss-stage-decision` + `yss-strategic-design`；下游研发团队接管 Tactical Design | `artifact.domain-strategy`、`artifact.stage-decision-package`、Spec、页面原型和业务级 Ticket 已批准且版本当前，交付包字段完整；本地不生成战术模型 |
+@@ -49,7 +49,7 @@ Matt 的 `ask-matt`、`grill-me`、`grill-with-docs`、`to-spec`、`to-tickets`
+ 
+ ## 结果与暂停
+ 
+-凡主控向数字人角色或独立运行时正式派发生命周期工作单元，都必须通过结构化任务包派发，并返回 `Workflow Execution Result`（workflow reference、skill、changed files、evidence refs、actual verification、deferred seams、drift/new impacts）。任务包使用 `docs/process/schemas/digital-human-task-package.schema.json`，由 `scripts/verify-digital-human-task-package` 校验；其中 `role_id`、`runtime_id`、`execution_state`、`contract.kind/id/version`、允许写路径、预期证据和汇合引用必须完整。Discovery、Spec、原型、业务 Ticket、Strategic Design Handoff 和模板维护分别绑定各自的生命周期资产或维护 checkpoint。Slice Implementation Contract、代码和发布均属于下游 profile，不得在本地任务包中创建。缺少可读证据、`stale`、`violation`、`drift`、`new_impacts` 或阻塞信号时不得标记 completed。
++凡主控向数字人角色或独立运行时正式派发生命周期工作单元，都必须通过结构化任务包派发，并返回 `Workflow Execution Result`（workflow reference、skill、changed files、evidence refs、actual verification、deferred seams、drift/new impacts）。任务包使用 `docs/process/schemas/digital-human-task-package.schema.json`，由 `scripts/verify-digital-human-task-package` 校验；其中 `role_id`、`runtime_id`、`execution_state`、`contract.kind/id/version`、允许写路径、预期证据和汇合引用必须完整。Discovery、Spec、原型、业务 Ticket、Strategic Design Handoff 和模板维护分别绑定各自的生命周期资产或维护 checkpoint。Slice Implementation Contract、代码和发布均属于下游 profile，不得在本地任务包中创建。缺少可读证据、`stale`、`violation`、`drift`、`new_impacts` 或阻塞信号时不得标记 completed。实现授权不包含 Git commit/push 授权；“做完提交”等自然语言意向不构成上述结构化 Git 授权。
+ 
+ 输出固定包含：模式、当前阶段、影响面、资产/门禁状态、证据、业务 Ticket 状态、阻塞项、本轮动作、下一工作单元、暂停/继续理由、Ticket 同步和 Git checkpoint 判断。启用本 profile 时，`work-unit.strategic-design-handoff` 完成后 `next_route` 必须为 `null`；不得生成垂直切片、`ready-for-agent`、OpenAPI、Tactical Design 或实现资产。兼容入口的输入必须回交本编排器验收；`implement` 请求直接 `blocked` 并转交下游研发团队。暂停会签时必须输出门禁 ID、指定 `role_id`、`runtime_id` 和会签文件路径。任务包的 `core_skills` / `forbidden_skills` 必须从角色注册表复制。
+ 
+diff --git a/.agents/skills/yss-strategic-design/references/matt-yss-adapter.md b/.agents/skills/yss-strategic-design/references/matt-yss-adapter.md
+index e5052e4217115713078eddee31c4c094e9c0a667..7fde14b5fd7a49dca5a795bd11dc22461dde24c4 100644
+--- a/.agents/skills/yss-strategic-design/references/matt-yss-adapter.md
++++ b/.agents/skills/yss-strategic-design/references/matt-yss-adapter.md
+@@ -20,7 +20,7 @@ Matt skills 决定如何工作；YSS Strategic Design 决定是否允许推进
+ | 需求澄清 | `grill-with-docs`（用户显式）或 `grilling`、`domain-modeling`（生命周期原语） | 按退出判定检查未决项和回流 |
+ | 信息在其他人手中 | `to-questionnaire` | 使用 `external-input-required` 暂停；答案回流后记录 response、重新分类影响面，再进入 `grill-with-docs` 或 `to-spec` |
+ | 大型模糊工作 | `wayfinder` | map 真正完成后 `handoff → to-spec` |
+-| 技术事实 | `research` | 一手资料回填 Spec/OpenAPI/架构/ADR |
++| 技术或战略事实 | `yss-research`（`research` 为 deprecated alias） | `technical-evidence` 核验一手技术资料；`strategy-evidence` 为领域战略和阶段决策提供可审计证据；研究包不得自行修改或批准下游资产 |
+ | runnable 问题 | `prototype` | 生成单文件可分享 HTML，保留 `prototype/<name>` 分支作为主来源；必须 source/return handoff 和结论回填，不得替代阶段 4 的低保真评审、Ant Design v6 高保真 HTML、AntD CLI 证据和用户确认 |
+ | Spec 综合 | 原生 `work-unit.spec-synthesis`；`to-spec`（用户显式兼容） | 初稿进入 `ready-for-human`，不得直接实现 |
+ | 业务级 Ticket | 原生 `work-unit.business-ticket-formalization`；`to-tickets`（用户显式兼容） | 形成业务能力/用户行为级 Ticket，初始状态为 `ready-for-human` |
+@@ -72,7 +72,7 @@ Router 状态映射为：`draft → completed`、`blocked → blocked`、`ready-
+ | `to-tickets`（用户显式） | 必要门禁、业务范围、验收标准、依赖和风险均已明确 | 生命周期只准备/验收；只能生成业务级 Ticket，初始统一为 `ready-for-human` |
+ | `implement`（已移除） | 不适用 | 直接返回 `blocked`，转交下游研发 profile |
+ 
+-`grill_exit` 不是“已经聊过”的自然语言声明。它必须同时证明 frontier 为空、事实已解决或分别路由到 `research` / prototype / external input、用户决策已确认、双方共同理解已确认，并且没有未回流的 runnable blocker。
++`grill_exit` 不是“已经聊过”的自然语言声明。它必须同时证明 frontier 为空、事实已解决或分别路由到 `yss-research` / prototype / external input、用户决策已确认、双方共同理解已确认，并且没有未回流的 runnable blocker。
+ 
+ ## Review 候选与 Git 授权
+ 
+diff --git a/.agents/skills/yss-strategic-design/references/orchestration-contract.yaml b/.agents/skills/yss-strategic-design/references/orchestration-contract.yaml
+index 44442034c8a221933847ad21d92f0d13406c71bb..013f52c8065e91bee716ffdfeb8902636b974b14 100644
+--- a/.agents/skills/yss-strategic-design/references/orchestration-contract.yaml
++++ b/.agents/skills/yss-strategic-design/references/orchestration-contract.yaml
+@@ -191,8 +191,8 @@ task_package:
+ matt_invocation_boundary:
+   user_invoked_skills: [ask-matt, grill-me, grill-with-docs, handoff, to-spec, to-tickets, triage, wayfinder]
+   lifecycle_managed_user_entries: [ask-matt, grill-me, grill-with-docs, to-spec, to-tickets, triage, wayfinder]
+-  model_invoked_skills: [code-review, domain-modeling, grilling, prototype-review, research, writing-for-agents]
+-  lifecycle_allowed_model_invoked_skills: [domain-modeling, grilling, prototype-review, research]
++  model_invoked_skills: [code-review, competitive-intelligence, domain-modeling, grilling, prototype-review, writing-for-agents, yss-research]
++  lifecycle_allowed_model_invoked_skills: [competitive-intelligence, domain-modeling, grilling, prototype-review, yss-research]
+   lifecycle_may_invoke_user_invoked: false
+   formal_artifact_owner: explicit-user-entry
+   continuous_orchestration: compatibility-prepare-and-validate-only
+@@ -218,9 +218,9 @@ work_unit_routes:
+   work-unit.discovery-opportunity:
+     native: {source: yss-strategic-design, skill: yss-strategic-design, invocation_mode: model-invoked}
+     primary_skill: yss-strategic-design
+-    supporting_skills: [competitive-intelligence, research]
+-    skills: [competitive-intelligence, research]
+-    route_by: {market_or_competitor_fact: competitive-intelligence, technical_or_standard_fact: research, no_external_fact: yss-strategic-design}
++    supporting_skills: [competitive-intelligence, yss-research]
++    skills: [competitive-intelligence, yss-research]
++    route_by: {market_or_competitor_fact: competitive-intelligence, technical_or_standard_fact: yss-research:technical-evidence, strategy_fact: yss-research:strategy-evidence, no_external_fact: yss-strategic-design}
+     applies_when: opportunity_or_external_fact_requires_validation
+     not_applicable_reason: no_external_fact
+   work-unit.discovery-requirements:
+@@ -233,8 +233,9 @@ work_unit_routes:
+   work-unit.domain-strategy-design:
+     native: {source: yss-strategic-design, skill: yss-stage-decision, invocation_mode: model-invoked}
+     primary_skill: yss-stage-decision
+-    supporting_skills: [domain-modeling, research, grilling]
+-    skills: [yss-stage-decision, domain-modeling, research, grilling]
++    supporting_skills: [domain-modeling, yss-research, grilling]
++    skills: [yss-stage-decision, domain-modeling, yss-research, grilling]
++    research_contract: {profile: strategy-evidence, mode_before_gate: evidence-audited, artifact_owner: yss-research, downstream_owner: yss-stage-decision}
+     human_gate: domain-strategy-approved
+     applies_when: domain_boundary_or_language_or_core_rule_impact
+     not_applicable_reason: no_domain_strategy_impact
+@@ -373,7 +374,7 @@ transition_graph:
+ grill_exit:
+   required: [frontier_empty, facts_resolved_or_routed, decisions_confirmed, shared_understanding_confirmed, no_unresolved_runnable_blocker]
+   facts_resolved_or_routed:
+-    technical_fact: research
++    technical_fact: yss-research
+     runnable_question: handoff-prototype-handoff
+     external_decision: external-input-required
+   user_confirmation_required: true
+diff --git a/.agents/skills/yss-strategic-design/references/orchestration.md b/.agents/skills/yss-strategic-design/references/orchestration.md
+index 5db3da9c50ee60a78fbff25e16530e76d7f69731..d77aba8067f7ff637b06db3cf01d90f342a05840 100644
+--- a/.agents/skills/yss-strategic-design/references/orchestration.md
++++ b/.agents/skills/yss-strategic-design/references/orchestration.md
+@@ -53,7 +53,7 @@ tracker 选择和冲突按 `docs/agents/issue-tracker.md` 裁决：已持久化
+ 
+ - `work-unit.technical-analysis` 是下游研发 profile 的接管工作单元；本 profile 仅在 Strategic Design Handoff 中记录待下游确认的技术问题，不生成 Tactical DDD 或 OpenAPI 资产。
+ 
+-- `work-unit.discovery-requirements` 实际调用 `grilling` 和 `domain-modeling`；`work-unit.discovery-opportunity` 按事实类型路由 `competitive-intelligence` 或 `research`。战略编排器原生负责 Spec、页面原型、业务 Ticket 和 Strategic Design Handoff；`ask-matt`、`grill-me`、`grill-with-docs`、`to-spec`、`to-tickets`、`triage`、`wayfinder` 仅保留为显式兼容入口，结果必须回交战略编排器验收。
++- `work-unit.discovery-requirements` 实际调用 `grilling` 和 `domain-modeling`；`work-unit.discovery-opportunity` 按事实类型路由 `competitive-intelligence` 或 `yss-research`。`yss-research:quick` 只用于探索；外部证据进入领域战略、阶段决策或其他生命周期批准输入前必须升级为 `evidence-audited`。战略编排器原生负责 Spec、页面原型、业务 Ticket 和 Strategic Design Handoff；`ask-matt`、`grill-me`、`grill-with-docs`、`to-spec`、`to-tickets`、`triage`、`wayfinder` 仅保留为显式兼容入口，结果必须回交战略编排器验收。
+ - `harness.business-ddd-strategy-handoff` profile 的 `work-unit.strategic-design-handoff` 是本地终点；它必须引用批准的 `domain-strategy`、`stage-decision-package`、Spec、页面原型和业务级 Ticket 集，并把 Tactical DDD 问题交给下游研发团队。profile 内不得生成或批准 `artifact.tactical-design`。
+ - `work-unit.business-ticket-formalization` 只生成业务能力/用户行为级 Ticket，保持 `ready-for-human`，不创建垂直切片、Slice Contract 或 `ready-for-agent`。
+ - `Workflow Execution Result.next_route` 必须通过生命周期转换校验；Spec → 原型 → 业务 Ticket → Strategic Design Handoff 是本 profile 的唯一主路径。
+@@ -97,7 +97,7 @@ Decision ticket 产生决策，不是实现切片，不得标记 `ready-for-agen
+ 
+ ## `grill-with-docs` 退出判定
+ 
+-进入 `to-spec` 前必须区分已确认项与未决项，并确认用户、问题、MVP、非目标、成功标准、术语/ADR 候选和测试 seam。事实问题走 `research`；需 runnable 反馈的问题走 `handoff → prototype → handoff`。存在未回流 blocker 时不得进入 Spec baseline。
++进入 `to-spec` 前必须区分已确认项与未决项，并确认用户、问题、MVP、非目标、成功标准、术语/ADR 候选和测试 seam。事实问题走 `yss-research`；需 runnable 反馈的问题走 `handoff → prototype → handoff`。存在未回流 blocker 时不得进入 Spec baseline。
+ 
+ Prototype 回流必须有可核验证据：来源 handoff、prototype 资产或运行记录、结论、被更新的 Spec/设计/ADR/Ticket 引用、剩余未决项和返回 handoff。仅在对话中声称“已验证”不算回流完成。
+ 
+diff --git a/.claude/skills/research b/.claude/skills/research
+deleted file mode 120000
+index 7a555b656c1ca70ae2791aaa5926f3ced5fd3463..0000000000000000000000000000000000000000
+--- a/.claude/skills/research
++++ /dev/null
+@@ -1 +0,0 @@
+-../../.agents/skills/research
+\ No newline at end of file
+diff --git a/.codex/skills/product-design/package.json b/.codex/skills/product-design/package.json
+index fc72f0b829ff1a4ff86a736fb442d78f3cfa0917..cbaee0df2d753f651cc3f7b461370b19a406ff95 100644
+--- a/.codex/skills/product-design/package.json
++++ b/.codex/skills/product-design/package.json
+@@ -1,11 +1,13 @@
+ {
+   "name": "product-design",
+-  "version": "0.1.41",
++  "version": "0.1.42",
+   "private": true,
+   "type": "module",
+   "description": "The Product Design plugin is built for turning early ideas into prototypes teams can review. It starts design and build work by confirming the brief, then helps teams explore product directions, audit user flows, prototype from a live URL, and make static screenshots interactive.",
+   "repository": "https://github.com/openai/role-specific-plugins/tree/main/plugins/product-design",
+   "scripts": {
+-    "prototype:bootstrap": "node scripts/bootstrap-prototype.mjs"
++    "prototype:bootstrap": "node scripts/bootstrap-prototype.mjs",
++    "research:test": "node skills/research/tests/run-scenarios.mjs",
++    "research:validate": "node skills/research/scripts/validate-research-package.mjs"
+   }
+ }
+diff --git a/.codex/skills/product-design/skills/research/SKILL.md b/.codex/skills/product-design/skills/research/SKILL.md
+index a904833cea9775c2a40d2f76a4fe0316520713e7..3d1e6878afb4ffc88ac3fb6dc1c18da3b009edd4 100644
+--- a/.codex/skills/product-design/skills/research/SKILL.md
++++ b/.codex/skills/product-design/skills/research/SKILL.md
+@@ -9,6 +9,13 @@ Run a fresh UX research scan for the product the user specifies.
+ 
+ Focus on current, evidence-backed user problems. Prioritize logged-in product experience, self-serve flows, onboarding, docs/help, developer experience, support friction, and product workflows.
+ 
++## Modes
++
++- `quick` is the default. It produces a sharp in-chat brief from the best available current evidence.
++- `evidence-audited` is opt-in. Use it only when the user explicitly asks for deep, strict, auditable, or `evidence-audited` research. For consequential product or investment decisions, recommend this mode but do not switch silently.
++
++Both modes remain UX research workflows. Do not import academic-paper writing, peer-review, publication, or multi-agent ceremony.
++
+ ## Critical Overrides
+ 
+ - Refer to the Plugin router [$index](../index/SKILL.md) before proceeding.
+@@ -25,7 +32,9 @@ Do not inspect every saved reference. Inspect only what the current task needs.
+ ## Contract
+ 
+ - Restate the product, audience, time horizon, and research scope before scanning.
++- State the active mode. In `evidence-audited`, also state the planned source classes and inclusion/exclusion criteria before searching.
+ - Use public sources by default. Use internal sources when the connectors are available and the user request allows it.
++- Search user-provided or saved material first, apply the same inclusion criteria to it, then search externally to fill material gaps. Never silently omit supplied material; report exclusions or access failures.
+ - Cite sources wherever available.
+ - Separate observed evidence from inference.
+ - Do not overclaim from anecdotes.
+@@ -70,6 +79,8 @@ Do not inspect every saved reference. Inspect only what the current task needs.
+ 
+ 7. Tell a clear product story.
+ 
++For `evidence-audited` mode, follow [evidence-audited.md](references/evidence-audited.md) after scope restatement. This adds a reproducible Search Log, an Evidence Ledger, key-claim audit, counter-signal handling, and an explicit failure policy. It does not require sentence-by-sentence auditing.
++
+ ## Output
+ 
+ Default to an in-chat research brief unless the user asks for another format.
+@@ -81,6 +92,14 @@ Include:
+ - Source map: what was searched, what each source contributed, and where signal was weak.
+ - Opportunity map: group recommendations into fix this week, fix this quarter, and needs deeper research.
+ 
++When the user explicitly asks to persist an `evidence-audited` result, create two adjacent files named `<slug>-research-brief.md` and `<slug>-evidence.yaml`. Start from [research-brief-template.md](assets/research-brief-template.md) and [evidence-template.yaml](assets/evidence-template.yaml), then run:
++
++```bash
++node scripts/validate-research-package.mjs <slug>-research-brief.md <slug>-evidence.yaml
++```
++
++Run the command from this skill directory. Do not persist research files merely because `evidence-audited` mode is active.
++
+ ## Rules
+ 
+ - Use citations wherever available.
+@@ -89,4 +108,7 @@ Include:
+ - Separate UX friction from missing features.
+ - Separate reliability/performance issues from UX workflow issues.
+ - Mark internal-only evidence separately from public evidence.
++- Do not equate source count with frequency. State whether frequency is measured, repeated across independent sources, or anecdotal.
++- In `evidence-audited` mode, audit the key claims for every ranked problem: problem existence, impact, frequency characterization, and the evidence basis for the recommended move. Audit every high-severity key claim; for lower-severity problems include at least one primary supporting item and one counter-signal or an explicit `none-found` search result.
++- Unsupported key claims must use `needs-deeper-research`; partially supported claims must be qualified. Never label a persisted package audited when its validator has not passed.
+ - Keep the brief sharp, specific, and easy to consume.
+diff --git a/.codex/skills/research b/.codex/skills/research
+deleted file mode 120000
+index 7a555b656c1ca70ae2791aaa5926f3ced5fd3463..0000000000000000000000000000000000000000
+--- a/.codex/skills/research
++++ /dev/null
+@@ -1 +0,0 @@
+-../../.agents/skills/research
+\ No newline at end of file
+diff --git a/.cursor/skills/research b/.cursor/skills/research
+deleted file mode 120000
+index 7a555b656c1ca70ae2791aaa5926f3ced5fd3463..0000000000000000000000000000000000000000
+--- a/.cursor/skills/research
++++ /dev/null
+@@ -1 +0,0 @@
+-../../.agents/skills/research
+\ No newline at end of file
+diff --git a/.hermes/skills/research b/.hermes/skills/research
+deleted file mode 120000
+index 7a555b656c1ca70ae2791aaa5926f3ced5fd3463..0000000000000000000000000000000000000000
+--- a/.hermes/skills/research
++++ /dev/null
+@@ -1 +0,0 @@
+-../../.agents/skills/research
+\ No newline at end of file
+diff --git a/.pi/skills/research b/.pi/skills/research
+deleted file mode 120000
+index 7a555b656c1ca70ae2791aaa5926f3ced5fd3463..0000000000000000000000000000000000000000
+--- a/.pi/skills/research
++++ /dev/null
+@@ -1 +0,0 @@
+-../../.agents/skills/research
+\ No newline at end of file
+diff --git a/.qoder/skills/ask-matt/SKILL.md b/.qoder/skills/ask-matt/SKILL.md
+index b29d6d88eb267dda64de58eeba617b34a27fc2c3..85bd6b1c9f48d9f153372f3a70858f7bd9f57e64 100644
+--- a/.qoder/skills/ask-matt/SKILL.md
++++ b/.qoder/skills/ask-matt/SKILL.md
+@@ -84,7 +84,7 @@ Off the main flow entirely.
+ - **`/grilling`** — the interview primitive itself: rounds, the frontier, facts are the agent's job and decisions are yours. `/grill-me` and `/grill-with-docs` are the two named ways in, and `/triage`, `/wayfinder` and `/improve-codebase-architecture` all run it internally. Reach for it directly only when you want the interview with no wrapper around it.
+ - **`/resolving-merge-conflicts`** — work an in-progress merge or rebase conflict hunk by hunk, resolving by **intent** traced to each side's primary source rather than by picking lines, then finish the operation. It never runs `--abort`. Standalone and off every flow: reach for it when you are already mid-conflict.
+ - **`/prototype`** — a small, throwaway program that answers one design question: does this state model feel right, or what should this UI look like. Throwaway is a constraint on how the code is written, not a promise to destroy it: the answer folds into the real code, and the prototype itself is kept as a **primary source** on a `prototype/<name>` branch out of main, pointed at from the implementation issue. It's the detour in step 2 of the main flow, but reach for it any time a design question is hard to settle on paper.
+-- **`/research`** — delegate reading legwork to a **background agent**: it investigates a question against **primary sources**, then leaves a cited Markdown file in the repo. Keep working while it reads. The file it produces is something to take *into* the main flow at `/grill-with-docs` — research feeds the thinking, it doesn't replace it.
++- **`/yss-research`** — investigate technical or strategy evidence using `technical-evidence` / `strategy-evidence` and `quick` / `evidence-audited` modes. Use a background agent when the runtime supports it and parallel reading is useful; delegation is not a trust guarantee. The old `/research` name is a deprecated alias. Research feeds `/grill-with-docs` and lifecycle decisions; it does not approve them.
+ - **`/to-questionnaire`** — when the thing blocking you isn't in your head or the codebase but in **someone else's**, this writes them a questionnaire to fill in. It's the inverse of `/grill-me`: instead of interviewing you about the subject, it interviews you about the **send** — who it's going to, what you need back — and aims the questions at the gap. What comes back is material for `/grill-with-docs` or `/to-spec`.
+ - **`/wait-what`** — the corrective for a message that didn't land. Use it mid-conversation, inside any other skill, and the agent re-pitches what it just said with the context you were missing, in plain English, using the `CONTEXT.md` vocabulary. It works after the fact; `/grill-with-docs` is the upfront cure, because a shared language agreed early is what stops the jargon arriving at all.
+ - **`/teach`** — learn a concept over multiple sessions, using the current directory as a stateful workspace.
+diff --git a/.qoder/skills/research/SKILL.md b/.qoder/skills/research/SKILL.md
+deleted file mode 100644
+index 0ba594a07f306479baa67104381f48e209ab6aae..0000000000000000000000000000000000000000
+--- a/.qoder/skills/research/SKILL.md
++++ /dev/null
+@@ -1,12 +0,0 @@
+----
+-name: research
+-description: Investigate a question against high-trust primary sources and capture the findings as a Markdown file in the repo. Use when the user wants a topic researched, docs or API facts gathered, or reading legwork delegated to a background agent.
+----
+-
+-Spin up a **background agent** to do the research, so you keep working while it reads.
+-
+-Its job:
+-
+-1. Investigate the question against **primary sources** — official docs, source code, specs, first-party APIs — not a secondary write-up of them. Follow every claim back to the source that owns it.
+-2. Write the findings to a single Markdown file, citing each claim's source.
+-3. Save it where the repo already keeps such notes; match the existing convention, and if there is none, put it somewhere sensible and say where.
+diff --git a/.qoder/skills/research/agents/openai.yaml b/.qoder/skills/research/agents/openai.yaml
+deleted file mode 100644
+index e18b96ca0ccc1003889d5d6991386207c2454bc2..0000000000000000000000000000000000000000
+--- a/.qoder/skills/research/agents/openai.yaml
++++ /dev/null
+@@ -1,3 +0,0 @@
+-interface:
+-  display_name: "Research"
+-  short_description: "Research from high-trust sources"
+diff --git a/.qoder/skills/wayfinder/SKILL.md b/.qoder/skills/wayfinder/SKILL.md
+index 7e12fd0c3accf2c1e14760de214ab9a598483594..ef39db8e46575a87caaa1f69a38294619ad7662a 100644
+--- a/.qoder/skills/wayfinder/SKILL.md
++++ b/.qoder/skills/wayfinder/SKILL.md
+@@ -74,7 +74,7 @@ The answer isn't part of the body — it's recorded on resolution (see [Work thr
+ 
+ Every ticket is either **HITL** — human in the loop, worked _with_ a human who speaks for themselves — or **AFK**, driven by the agent alone. A HITL ticket only resolves through that live exchange; the agent never stands in for the human's side of it (a grilling agent that answers its own questions has broken this).
+ 
+-- **Research** (AFK): Reading documentation, third-party APIs, or local resources like knowledge bases to surface a fact a decision waits on. Resolved by a `/research` **subagent**. Use when knowledge outside the current working directory is required.
++- **Research** (AFK): Reading documentation, third-party APIs, or local resources like knowledge bases to surface a fact a decision waits on. Resolved by a `/yss-research` **subagent** (`/research` is a deprecated alias). Use when knowledge outside the current working directory is required.
+ - **Prototype** (HITL): Raise the fidelity of the discussion by making a cheap, rough, concrete artifact to react to — an outline, a rough take, a stub, or UI/logic code via the /prototype skill. Links the prototype as an asset. Use when "how should it look" or "how should it behave" is the key question.
+ - **Grilling** (HITL): Conversation. The default case. Always invoke the /grilling and /domain-modeling skills.
+ - **Task** (HITL or AFK): Manual work that must happen before a _decision_ can be made — nothing to decide, prototype, or research, but the discussion is blocked until it's done. Signing up for a service so its API can be judged, provisioning access, moving data so its shape can be seen. This is the one type that _does_ rather than decides — and it earns its place by unblocking a decision, not by delivering the destination. The agent drives it alone where it can (AFK); otherwise it hands the human a precise checklist (HITL). Resolved when the work is done; the answer records what was done and any resulting facts (credentials location, new URLs, row counts) later tickets depend on.
+@@ -112,7 +112,7 @@ User invokes with a loose idea.
+ 2. **Map the frontier.** Grill again, **breadth-first** this time: fan out across the whole space rather than deep on any one thread, surfacing the open decisions and the first steps takeable now. **If this surfaces no fog** — the way to the destination is already clear, the whole journey small enough for one session — you don't need a map. Stop and ask the user how they'd like to proceed.
+ 3. **Create the map** (label `wayfinder:map`): Destination and Notes filled in, Decisions-so-far empty, the fog sketched into **Not yet specified**.
+ 4. **Create the tickets you can specify now** as child issues of the map — then wire blocking edges in a **second pass** (issues need ids before they can reference each other). Wiring sorts them into the frontier and the blocked; everything you can't yet specify stays in the fog — the **Not yet specified** section.
+-5. **Fire the research subagents.** For each `research` ticket you just created, spin up a `/research` subagent to resolve it in parallel, capturing its findings on a throwaway `research/<name>` branch with a context pointer from the ticket.
++5. **Fire the research subagents.** For each `research` ticket you just created, spin up a `/yss-research` subagent to resolve it in parallel, capturing its findings on a throwaway `research/<name>` branch with a context pointer from the ticket. `/research` remains only as a deprecated compatibility alias.
+ 6. Stop — charting is one session's work; it hand-resolves nothing.
+ 
+ ### Work through the map
+diff --git a/.template-source/evidence/maintenance/create-yss-strategic-design-init-review-task.yaml b/.template-source/evidence/maintenance/create-yss-strategic-design-init-review-task.yaml
+index 5517954a775c4e5bdab2f5bfa948ea5620231dad..f8e7e452d213c8a75e593dcba1325fa1c4c611bf 100644
+--- a/.template-source/evidence/maintenance/create-yss-strategic-design-init-review-task.yaml
++++ b/.template-source/evidence/maintenance/create-yss-strategic-design-init-review-task.yaml
+@@ -11,7 +11,7 @@ profile_id: harness.business-ddd-strategy-handoff
+ skill_source:
+   registry_ref: docs/agents/digital-human-roles.yaml
+   defaults_ref: taskPackageDefaults(role.requirements-manager)
+-  core_skills: [grilling, domain-modeling, research, competitive-intelligence, grill-with-docs]
++  core_skills: [grilling, domain-modeling, yss-research, competitive-intelligence, grill-with-docs]
+   forbidden_skills: []
+ contract:
+   kind: template-maintenance
+diff --git a/.template-source/evidence/maintenance/digital-human-task-package-review-task.yaml b/.template-source/evidence/maintenance/digital-human-task-package-review-task.yaml
+index d3890ec0471011fceac3399f6144fe8716c8f49f..d25f6c83336f41ee90bdb88fa3dc925a3cf52add 100644
+--- a/.template-source/evidence/maintenance/digital-human-task-package-review-task.yaml
++++ b/.template-source/evidence/maintenance/digital-human-task-package-review-task.yaml
+@@ -9,7 +9,7 @@ workflow_status: active
+ skill_source:
+   registry_ref: docs/agents/digital-human-roles.yaml
+   defaults_ref: taskPackageDefaults(role.requirements-manager)
+-  core_skills: [grilling, domain-modeling, research, competitive-intelligence, grill-with-docs]
++  core_skills: [grilling, domain-modeling, yss-research, competitive-intelligence, grill-with-docs]
+   forbidden_skills: []
+ contract:
+   kind: template-maintenance
+diff --git a/.template-source/evidence/maintenance/lifecycle-ticket-transition-review-task-package.yaml b/.template-source/evidence/maintenance/lifecycle-ticket-transition-review-task-package.yaml
+index a10077c54fc8eb4b6f4c26ba2b9d1f90c0a583fd..6055104fded0a8069ab1163f14f1bd43b5ded87b 100644
+--- a/.template-source/evidence/maintenance/lifecycle-ticket-transition-review-task-package.yaml
++++ b/.template-source/evidence/maintenance/lifecycle-ticket-transition-review-task-package.yaml
+@@ -10,7 +10,7 @@ workflow_status: active
+ skill_source:
+   registry_ref: docs/agents/digital-human-roles.yaml
+   defaults_ref: taskPackageDefaults(role.requirements-manager)
+-  core_skills: [grilling, domain-modeling, research, competitive-intelligence, grill-with-docs]
++  core_skills: [grilling, domain-modeling, yss-research, competitive-intelligence, grill-with-docs]
+   forbidden_skills: []
+ contract:
+   kind: template-maintenance
+diff --git a/.template-source/evidence/maintenance/strategic-design-handoff-review-task-package.yaml b/.template-source/evidence/maintenance/strategic-design-handoff-review-task-package.yaml
+index 828eac1137c9e28211e3670f4e956bf14c3ef52b..69aa2796fa306521c6edfe84831c392e052ff14a 100644
+--- a/.template-source/evidence/maintenance/strategic-design-handoff-review-task-package.yaml
++++ b/.template-source/evidence/maintenance/strategic-design-handoff-review-task-package.yaml
+@@ -9,7 +9,7 @@ workflow_status: active
+ skill_source:
+   registry_ref: docs/agents/digital-human-roles.yaml
+   defaults_ref: taskPackageDefaults(role.requirements-manager)
+-  core_skills: [grilling, domain-modeling, research, competitive-intelligence, grill-with-docs]
++  core_skills: [grilling, domain-modeling, yss-research, competitive-intelligence, grill-with-docs]
+   forbidden_skills: []
+ contract:
+   kind: template-maintenance
+diff --git a/.trae/skills/research b/.trae/skills/research
+deleted file mode 120000
+index 7a555b656c1ca70ae2791aaa5926f3ced5fd3463..0000000000000000000000000000000000000000
+--- a/.trae/skills/research
++++ /dev/null
+@@ -1 +0,0 @@
+-../../.agents/skills/research
+\ No newline at end of file
+diff --git a/AGENTS.md b/AGENTS.md
+index 5eb9b8dba91a5ac6e32b4193ebc4d9304cd0a7ba..320faa1189acdaee03730da2db4768e62c8e8da4 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -77,7 +77,7 @@ Strategic Design Handoff 批准后，下游团队用 `yss-tactical-design` 接
+ 
+ | 触发情形 | 必须使用 |
+ |---|---|
+-| 技术事实、标准、第三方 API 或框架行为影响决策 | `research` 或等价的一手资料记录 |
++| 技术事实、标准、第三方 API 或框架行为影响决策，或外部证据进入领域战略 / 阶段决策 | `yss-research`；技术事实使用 `technical-evidence`，战略决策证据使用 `strategy-evidence`；旧名 `research` 仅为 deprecated alias |
+ | 竞品、市场或用户口碑事实 | `competitive-intelligence` |
+ | UI 设计、原型、组件或主题 | `yss-design-system` 后使用 `yss-prototype-stage`；Codex 再路由 `product-design:index`，其他 Agent 交付等价合同资产；原型产出前后用 `yss-antd-design` 记录 Ant Design v6 事实与浏览器验证。生产前端由下游研发 profile 落地。 |
+ | merge / rebase 冲突 | `resolving-merge-conflicts` |
+diff --git a/CONTEXT.md b/CONTEXT.md
+index e42b77912dbcdf7c5dbf853d8e731ca4af79dafa..ab3e41de905d9ff80c7553a92dca8723bd408953 100644
+--- a/CONTEXT.md
++++ b/CONTEXT.md
+@@ -76,7 +76,7 @@
+ | 显式兼容入口 | 为已有用户操作习惯保留的 user-invoked 工作流入口，写入前由生命周期编排器预检，结果回交其验收。 | — | 不是默认路径、过时别名或可以越过门禁的第二套生命周期。 |
+ | 技能成熟度 | 描述技能从 `draft`、`verified`、`supported` 到 `deprecated` 的治理状态。 | — | 不等同于文件存在、已被投影或能够安装。 |
+ | 技能注册表 | 记录技能身份、别名、分层、适用影响面、成熟度、默认可发现性和 Agent 运行时入口的机器可读路由资产。 | — | 不替代 `skills-lock.json` 的来源、hash 和投影完整性职责。当前 `docs/agents/yss-skill-registry.yaml` 为 `active`，生命周期消费其发现面，Router 不消费。 |
+-| LLM Wiki | 由 `raw/`、`wiki/` 与 `.wiki-manifest.json` 组成的本地持久知识库。 | — | 不是 `research` 一次性笔记，也不替代权威源。`ingest` 只把用户点名的外源或已落盘研究笔记编进 IR，不改 live 权威文件。 |
++| LLM Wiki | 由 `raw/`、`wiki/` 与 `.wiki-manifest.json` 组成的本地持久知识库。 | — | 不是 `yss-research` 一次性研究包，也不替代权威源。`ingest` 只把用户点名的外源或已落盘研究笔记编进 IR，不改 live 权威文件。 |
+ | 生态发布清单 | 关联模板 schema 与 commit、CLI 版本与快照、公开技能来源与导出 hash 的跨仓发布证据。 | — | 不要求尚未生成的仓库 commit 互相循环引用。 |
+ | 研发管理仓库 | 承载 Spec、OpenAPI、架构、Ticket、验证、发布和复盘等研发管理资产的仓库。 | — | 不等同于前端 / 后端代码 monorepo。 |
+ | 实现仓库 | 承载前端、后端或其他运行时代码及其 Git、CI、MR / PR、测试命令和发布流水线的仓库。 | — | 不要把实现仓库的源码所有权混入研发管理仓库。 |
+diff --git a/docs/agents/digital-human-roles.yaml b/docs/agents/digital-human-roles.yaml
+index 38b2e69f2f73b1552064d3c6d05d187d28cf9bfc..3fbea0aff017bcd236f9d7471a9cd614ea2241be 100644
+--- a/docs/agents/digital-human-roles.yaml
++++ b/docs/agents/digital-human-roles.yaml
+@@ -85,7 +85,7 @@ roles:
+     title: YSS 需求经理
+     stages: [stage.discovery, stage.spec-architecture, stage.product-design, stage.ticket-formalization]
+     draft_artifact_ids: [artifact.discovery-record, artifact.spec]
+-    core_skills: [grilling, domain-modeling, research, competitive-intelligence, grill-with-docs]
++    core_skills: [grilling, domain-modeling, yss-research, competitive-intelligence, grill-with-docs]
+     forbidden_skills: []
+     description: >-
+       Own Discovery language, users, MVP, non-goals, success criteria, test
+@@ -112,7 +112,7 @@ roles:
+     title: YSS 商务
+     stages: [stage.discovery]
+     draft_artifact_ids: [artifact.discovery-record]
+-    core_skills: [yss-strategic-design, competitive-intelligence, research]
++    core_skills: [yss-strategic-design, competitive-intelligence, yss-research]
+     forbidden_skills: [to-spec, to-tickets]
+     description: >-
+       Own commercial constraints, delivery promises, and business non-goals in
+diff --git a/docs/agents/yss-skill-registry.yaml b/docs/agents/yss-skill-registry.yaml
+index 13747f5bab61dd9fe3b8a56d707f1015b205f4d6..9be0cfb2e47ab37f34333b9ae7b23620c8fa5a9a 100644
+--- a/docs/agents/yss-skill-registry.yaml
++++ b/docs/agents/yss-skill-registry.yaml
+@@ -29,7 +29,7 @@ skills:
+   - { id: handoff, layer: core, maturity: supported, instance_default_discoverable: true, aliases: [], impacts: [lifecycle] }
+   - { id: maintaining-skills, layer: maintainer-only, maturity: supported, instance_default_discoverable: false, aliases: [], impacts: [template-maintenance] }
+   - { id: prototype-review, layer: core, maturity: supported, instance_default_discoverable: true, aliases: [], impacts: [prototype] }
+-  - { id: research, layer: core, maturity: supported, instance_default_discoverable: true, aliases: [], impacts: [discovery] }
++  - { id: yss-research, layer: core, maturity: supported, instance_default_discoverable: true, aliases: [research], impacts: [discovery] }
+   - { id: to-spec, layer: compatibility, maturity: supported, instance_default_discoverable: false, aliases: [], impacts: [lifecycle] }
+   - { id: to-tickets, layer: compatibility, maturity: supported, instance_default_discoverable: false, aliases: [], impacts: [lifecycle] }
+   - { id: triage, layer: compatibility, maturity: supported, instance_default_discoverable: false, aliases: [], impacts: [lifecycle] }
+diff --git a/docs/process/MATT-POCOCK-ENGINEERING-SKILLS.md b/docs/process/MATT-POCOCK-ENGINEERING-SKILLS.md
+index e951f1411c318d4fd52f7d76ce9f6afb8800a5c3..a735ffecbbffee1e0e511aa40a7ffe595a0f1e4a 100644
+--- a/docs/process/MATT-POCOCK-ENGINEERING-SKILLS.md
++++ b/docs/process/MATT-POCOCK-ENGINEERING-SKILLS.md
+@@ -6,4 +6,5 @@ Matt Pocock Engineering Skills 提供轻量的澄清、实现、TDD、诊断和
+ 
+ - 当前战略设计 Harness 保留 `ask-matt`、`grill-me`、`grill-with-docs`、`to-spec`、`to-tickets`、`triage` 和 `wayfinder` 作为用户显式兼容入口；任何 skill 不得自动调用它们，结果必须回交 `yss-strategic-design` 验收。`implement` 已移除，需转交下游研发 profile。
+ - `template-source` 只执行模板维护流程，不生成具体产品 Spec、原型、OpenAPI 或垂直切片 Ticket。
++- Matt 的 `research` 已适配为 canonical `yss-research`，旧名只作为 deprecated alias。YSS 版本提供 `technical-evidence` / `strategy-evidence` profile、`quick` / `evidence-audited` 模式、证据合同和确定性校验，同时保留上游 revision 与原始 hash 以便追溯。
+ - Agent 完成工作单元后返回可核验的 evidence refs、变更资产、验证命令、残余风险和下一路由。
+diff --git a/docs/user-guide/产品生命周期工作流.md b/docs/user-guide/产品生命周期工作流.md
+index ef29611f3e5d12e0e9c2961a723976f13b4bf453..a3b02dc6d6266d6b319a17d301c5593d8d3d884c 100644
+--- a/docs/user-guide/产品生命周期工作流.md
++++ b/docs/user-guide/产品生命周期工作流.md
+@@ -44,6 +44,7 @@ docs/implementation/
+ |---|---|---|
+ | `yss-strategic-design` | 判断战略设计阶段、缺失资产、最近可信阶段和最小 skill 集合 | 不确定当前应补 Discovery、DDD 战略、Spec、原型、业务 Ticket 还是交接时 |
+ | `competitive-intelligence` | 竞品、替代方案、定价、定位、用户口碑和市场事实研究 | 进入 Discovery / Spec 前需要外部事实支撑时 |
++| `yss-research` | 以 `technical-evidence` 或 `strategy-evidence` 核验技术事实和战略决策证据 | 技术事实需要一手来源，或领域战略 / 阶段决策需要 `evidence-audited` 研究包时；`research` 仅为兼容旧名 |
+ | Matt Engineering Skills | 澄清、Spec、Ticket、实现、TDD、诊断、审查、架构治理 | 大部分通用工程流程 |
+ | YSS skills | DDD、UI、OpenAPI、Repository、Controller、DTO、组件规范 | 进入具体前后端实现或专项审查时 |
+ | OpenAPI 3.1 | 前后端 API 契约 | 任何接口路径、schema、错误、分页、并发，或需求明确的认证 / 授权语义变化时 |
+diff --git a/scripts/lib/scenario-checks.mjs b/scripts/lib/scenario-checks.mjs
+index 1c463196fb60b734cab22f284a33f0749420d54c..134bbb44167fdd8fae8d907bcdbd2c1398e4a5b7 100644
+--- a/scripts/lib/scenario-checks.mjs
++++ b/scripts/lib/scenario-checks.mjs
+@@ -24,7 +24,7 @@ function validateMattContract(data) {
+   ensure(includesAll(setup?.preserves, ["lifecycle.status", "gate.status", "ticket.role"]) && setup?.legacy_artifacts_detected?.action === "migration-check" && setup.legacy_artifacts_detected.setup === "forbidden" && setup.legacy_artifacts_detected.write === "paused", "setup 暂停或旧资产迁移暂停契约不完整");
+   const grill = data.grill_exit;
+   ensure(includesAll(grill?.required, ["frontier_empty", "facts_resolved_or_routed", "decisions_confirmed", "shared_understanding_confirmed", "no_unresolved_runnable_blocker"]) && grill?.user_confirmation_required === true, "grill_exit 缺少 frontier、事实路由、决策、共同理解、用户确认或 runnable blocker 条件");
+-  ensure(grill?.facts_resolved_or_routed?.technical_fact === "research" && grill.facts_resolved_or_routed.runnable_question === "handoff-prototype-handoff" && grill.facts_resolved_or_routed.external_decision === "external-input-required", "grill_exit 的事实、runnable 问题或外部决策路由不完整");
++  ensure(grill?.facts_resolved_or_routed?.technical_fact === "yss-research" && grill.facts_resolved_or_routed.runnable_question === "handoff-prototype-handoff" && grill.facts_resolved_or_routed.external_decision === "external-input-required", "grill_exit 的事实、runnable 问题或外部决策路由不完整");
+   const git = data.git_authorization;
+   for (const action of ["commit", "push"]) {
+     const prefix = action === "commit" ? "commit" : "push";
+@@ -40,8 +40,8 @@ function validateMattContract(data) {
+ function validateInvocationBoundary(data) {
+   const boundary = data.matt_invocation_boundary;
+   const expectedUserInvoked = ["ask-matt", "grill-me", "grill-with-docs", "handoff", "to-spec", "to-tickets", "triage", "wayfinder"];
+-  const expectedModelInvoked = ["competitive-intelligence", "domain-modeling", "grilling", "prototype-review", "research", "writing-for-agents"];
+-  const expectedLifecycleModelInvoked = ["domain-modeling", "grilling", "prototype-review", "research"];
++  const expectedModelInvoked = ["code-review", "competitive-intelligence", "domain-modeling", "grilling", "prototype-review", "writing-for-agents", "yss-research"];
++  const expectedLifecycleModelInvoked = ["competitive-intelligence", "domain-modeling", "grilling", "prototype-review", "yss-research"];
+   ensure(JSON.stringify(boundary?.user_invoked_skills) === JSON.stringify(expectedUserInvoked), "Matt user-invoked skills 清单不完整或已漂移");
+   ensure(JSON.stringify(boundary?.lifecycle_managed_user_entries) === JSON.stringify(["ask-matt", "grill-me", "grill-with-docs", "to-spec", "to-tickets", "triage", "wayfinder"]), "生命周期管理的显式用户入口清单不完整");
+   ensure(boundary?.lifecycle_may_invoke_user_invoked === false && boundary?.formal_artifact_owner === "explicit-user-entry", "生命周期仍可能自动调用 user-invoked skill 或产出其正式资产");
+@@ -56,10 +56,12 @@ function validateInvocationBoundary(data) {
+   ensure(includesAll(result?.required, ["result_schema", "work_unit", "workflow_reference", "result", "evidence_refs", "changed_artifacts", "new_impacts", "stale_candidates", "next_route", "blocking_signals"]) && includesAll(result?.result_values, ["completed", "blocked", "needs-human", "failed"]) && includesAll(result?.blocking_signals, ["drift", "new_impacts", "violation", "missing_evidence", "stale_candidates"]) && includesAll(result?.completed_requires_empty, ["new_impacts", "stale_candidates"]) && includesAll(result?.completed_requires_non_empty, ["evidence_refs"]) && result?.completed_requires_readable_evidence_refs === true && result?.evidence_ref_validation === "readable-or-resolvable" && result?.completed_requires_no_blocking_signals === true && includesAll(result?.workflow_reference?.required, ["source", "skill", "invocation_mode"]), "Workflow Execution Result 的完成态证据、阻断信号或 workflow_reference 契约不完整");
+   const native = data.lifecycle_native_entries;
+   ensure(native?.default_entry === "yss-strategic-design" && native?.formal_artifact_owner === "yss-strategic-design", "战略编排原生入口未持有默认正式资产所有权");
+-  ensure(JSON.stringify(native?.user_confirmation_required_at) === JSON.stringify(["spec-baseline", "prototype-confirmation"]), "战略设计人工门禁集合已漂移");
++  ensure(JSON.stringify(native?.user_confirmation_required_at) === JSON.stringify(["spec-baseline", "prototype-confirmation", "strategic-design-handoff"]), "战略设计人工门禁集合已漂移");
+   const routes = data.work_unit_routes;
+   ensure(routes?.["work-unit.discovery-requirements"]?.skills?.includes("grilling") && routes?.["work-unit.discovery-requirements"]?.skills?.includes("domain-modeling"), "需求分析工作单元缺少 grilling/domain-modeling");
+-  ensure(routes?.["work-unit.discovery-opportunity"]?.route_by?.market_or_competitor_fact === "competitive-intelligence" && routes["work-unit.discovery-opportunity"].route_by.technical_or_standard_fact === "research", "机会调研事实路由不准确");
++  ensure(routes?.["work-unit.discovery-opportunity"]?.route_by?.market_or_competitor_fact === "competitive-intelligence" && routes["work-unit.discovery-opportunity"].route_by.technical_or_standard_fact === "yss-research:technical-evidence" && routes["work-unit.discovery-opportunity"].route_by.strategy_fact === "yss-research:strategy-evidence", "机会调研事实路由不准确");
++  const strategyResearch = routes?.["work-unit.domain-strategy-design"]?.research_contract;
++  ensure(strategyResearch?.profile === "strategy-evidence" && strategyResearch.mode_before_gate === "evidence-audited" && strategyResearch.artifact_owner === "yss-research" && strategyResearch.downstream_owner === "yss-stage-decision", "领域战略研究合同缺少 profile、门禁前审计或资产所有权边界");
+   ensure(routes?.["work-unit.business-ticket-formalization"]?.native?.skill === "yss-strategic-design" && routes?.["work-unit.business-ticket-formalization"]?.compatibility?.skill === "to-tickets", "业务 Ticket 正式化未绑定战略编排与兼容入口");
+   ensure(routes?.["work-unit.slice-implementation"]?.downstream === true && routes?.["work-unit.technical-analysis"]?.downstream === true, "下游技术工作单元未明确标记为 downstream");
+   for (const id of ["work-unit.spec-synthesis", "work-unit.prototype-design", "work-unit.business-ticket-formalization"]) {
+@@ -227,6 +229,7 @@ export function runScenario(name) {
+     validateInvocationBoundary(data);
+     const validResult = {
+       result_schema: "workflow-execution-result-v1",
++      profile_id: "harness.business-ddd-strategy-handoff",
+       work_unit: "work-unit.spec-synthesis",
+       workflow_reference: { source: "yss-strategic-design", skill: "yss-strategic-design", invocation_mode: "model-invoked" },
+       result: "completed",
+diff --git a/scripts/lib/skill-supply-chain.mjs b/scripts/lib/skill-supply-chain.mjs
+index 9d7f4e4c7c4d575aa7747df77ddb64f9339db4e1..3c2a24393c7f0ac2489ca711e3c289a35762047b 100644
+--- a/scripts/lib/skill-supply-chain.mjs
++++ b/scripts/lib/skill-supply-chain.mjs
+@@ -1,5 +1,5 @@
+ import { createHash } from "node:crypto";
+-import { cpSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
++import { cpSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from "node:fs";
+ import { spawnSync } from "node:child_process";
+ import path from "node:path";
+ import { fileURLToPath } from "node:url";
+@@ -8,7 +8,7 @@ export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "
+ const SOURCE_ROOT = path.join(ROOT, ".agents/skills");
+ const LOCK_PATH = path.join(ROOT, "skills-lock.json");
+ export const PROJECTION_ROOTS = [".claude/skills", ".codex/skills", ".cursor/skills", ".hermes/skills", ".pi/skills", ".qoder/skills", ".trae/skills"];
+-export const OBSOLETE = new Set(["to-" + "prd", "to-" + "issues", "design-an-interface", "qa", "request-refactor-plan", "ubiquitous-language", "edit-article", "obsidian-vault", "writing-great-skills", "code-review-process", "yss-domain-modeling", "yss-dir", "yss-duckdb", "yss-file", "yss-filerunner", "yss-db2mybatis", "yss-mail", "yss-mapper-dynamic", "yss-quality", "yss-sql-condition", "yss-sql-tpl", "yss-valuation", "yss-variable", "yss-openapi", "web-design-engineer", "web-video-presentation", "wireframe-prototype", "wizard", "git-guardrails-claude-code", "claude-handoff", "batch-grill-me", "product-design-prototype", "yss-dictionary", "yss-jdbc", "yss-log", "yss-taskflow", "yss-backend-scaffold-application", "yss-backend-scaffold-domain", "yss-backend-scaffold-infrastructure", "yss-backend-scaffold-web"]);
++export const OBSOLETE = new Set(["to-" + "prd", "to-" + "issues", "design-an-interface", "qa", "request-refactor-plan", "ubiquitous-language", "edit-article", "obsidian-vault", "writing-great-skills", "code-review-process", "yss-domain-modeling", "yss-dir", "yss-duckdb", "yss-file", "yss-filerunner", "yss-db2mybatis", "yss-mail", "yss-mapper-dynamic", "yss-quality", "yss-sql-condition", "yss-sql-tpl", "yss-valuation", "yss-variable", "yss-openapi", "web-design-engineer", "web-video-presentation", "wireframe-prototype", "wizard", "git-guardrails-claude-code", "claude-handoff", "batch-grill-me", "product-design-prototype", "research", "yss-dictionary", "yss-jdbc", "yss-log", "yss-taskflow", "yss-backend-scaffold-application", "yss-backend-scaffold-domain", "yss-backend-scaffold-infrastructure", "yss-backend-scaffold-web"]);
+ export function obsoleteCanonicalResidues(names, obsolete = OBSOLETE) {
+   return names.filter((name) => obsolete.has(name)).sort();
+ }
+@@ -91,6 +91,7 @@ export function syncSkills({ check = false } = {}) {
+     for (const name of OBSOLETE) {
+       const target = path.join(projection, name);
+       if (check) { if (existsSync(target) || lstatSafe(target)?.isSymbolicLink()) drift.push(`obsolete projection: ${relative(target)}`); }
++      else if (lstatSafe(target)?.isSymbolicLink()) unlinkSync(target);
+       else rmSync(target, { recursive: true, force: true });
+     }
+   }
+diff --git a/skills-lock.json b/skills-lock.json
+index 5a15ca69a4c8c0b590e32d3294275e519559cb71..4af5cc759bdfe663a05ad132e75e2395bafe0dd6 100644
+--- a/skills-lock.json
++++ b/skills-lock.json
+@@ -22,7 +22,7 @@
+         "source": "mattpocock/skills",
+         "sourceType": "github",
+         "skillPath": "skills/engineering/ask-matt/SKILL.md",
+-        "effectiveHash": "8a8818ec83e3e795619aadb262b48a4a6016bb534a32c3bd6e16030f70578922",
++        "effectiveHash": "485b2180230d2696990d7379deb7efe4660c8d5196877acb103254457fa1cdf9",
+         "sourceRevision": "0ab1b63a410a03d3627979a109c8695de27af954",
+         "upstreamHash": "0261a2abbd43cc5bb391878106cda2eb7c4eabdde9ba5701b51d831f6e98f658",
+         "adaptationRef": "docs/process/MATT-POCOCK-ENGINEERING-SKILLS.md",
+@@ -199,25 +199,6 @@
+           ".trae/skills"
+         ]
+       },
+-      "research": {
+-        "source": "mattpocock/skills",
+-        "sourceType": "github",
+-        "skillPath": "skills/engineering/research/SKILL.md",
+-        "effectiveHash": "fb6fc6446ea4dc9db6e7863b89b77a0b4b0f1beca4a08c23d0d319fe96cd08c8",
+-        "sourceRevision": "0ab1b63a410a03d3627979a109c8695de27af954",
+-        "upstreamHash": "75b7f9bbd7ccff6755a006f8b25d319a46ecbf6bd4b4c3323965ed9cb65e78ff",
+-        "adaptationRef": "docs/process/MATT-POCOCK-ENGINEERING-SKILLS.md",
+-        "targets": [
+-          ".agents/skills",
+-          ".claude/skills",
+-          ".codex/skills",
+-          ".cursor/skills",
+-          ".hermes/skills",
+-          ".pi/skills",
+-          ".qoder/skills",
+-          ".trae/skills"
+-        ]
+-      },
+       "to-spec": {
+         "source": "mattpocock/skills",
+         "sourceType": "github",
+@@ -279,7 +260,7 @@
+         "source": "mattpocock/skills",
+         "sourceType": "github",
+         "skillPath": "skills/engineering/wayfinder/SKILL.md",
+-        "effectiveHash": "c9c5a3a2a26c9dcba33dbe2d16f6e8f0a426349e2c960e32de00b09da6a2faa0",
++        "effectiveHash": "f182c70ac8e345535519baa60626f9377ff1bbf101b682e3760f807d55298be1",
+         "sourceRevision": "0ab1b63a410a03d3627979a109c8695de27af954",
+         "upstreamHash": "93d2a866764b048ad641e82e27e7a1940fc370e7933470bffeb937fa1fb3922b",
+         "adaptationRef": "docs/process/MATT-POCOCK-ENGINEERING-SKILLS.md",
+@@ -361,11 +342,30 @@
+           ".trae/skills"
+         ]
+       },
++      "yss-research": {
++        "source": "mattpocock/skills",
++        "sourceType": "github",
++        "skillPath": "skills/engineering/research/SKILL.md",
++        "effectiveHash": "0f97915631b936831e15462c0fdff1c68fd9fe18bd6aa31a19cb331d3588ce76",
++        "sourceRevision": "0ab1b63a410a03d3627979a109c8695de27af954",
++        "upstreamHash": "75b7f9bbd7ccff6755a006f8b25d319a46ecbf6bd4b4c3323965ed9cb65e78ff",
++        "adaptationRef": "docs/process/MATT-POCOCK-ENGINEERING-SKILLS.md",
++        "targets": [
++          ".agents/skills",
++          ".claude/skills",
++          ".codex/skills",
++          ".cursor/skills",
++          ".hermes/skills",
++          ".pi/skills",
++          ".qoder/skills",
++          ".trae/skills"
++        ]
++      },
+       "yss-stage-decision": {
+         "source": "project",
+         "sourceType": "local",
+         "skillPath": ".agents/skills/yss-stage-decision/SKILL.md",
+-        "effectiveHash": "9b0c4b26e4a92e5d26acb12b318496700ce1413c095d803c4a60286de104ec26",
++        "effectiveHash": "a57de6300152bfa08e5df6852d76212dfb899b792756c5f1938f417f2ddeead1",
+         "targets": [
+           ".agents/skills",
+           ".claude/skills",
+@@ -381,7 +381,7 @@
+         "source": "project",
+         "sourceType": "local",
+         "skillPath": ".agents/skills/yss-strategic-design/SKILL.md",
+-        "effectiveHash": "8e270813858190fe0a609a48f1b562ac2e4b3293d97d94ec6317794f1aaed228",
++        "effectiveHash": "d7c479e801d6b6080d24075fb1f858f91612f91c425751afc8bdae38eb7455b0",
+         "targets": [
+           ".agents/skills",
+           ".claude/skills",
+@@ -400,7 +400,7 @@
+           "source": "project",
+           "sourceType": "local",
+           "skillPath": ".codex/skills/product-design/SKILL.md",
+-          "effectiveHash": "68c51e896cbdcd9e3ddd0b88b97bd0064edf37e0eb1437291acb1e3d9ee48c0c",
++          "effectiveHash": "1745475e42d82c5a7eb3b60d17fa4d6d563b1b5566f28d56821c888609e4da35",
+           "targets": [
+             ".codex/skills"
+           ]

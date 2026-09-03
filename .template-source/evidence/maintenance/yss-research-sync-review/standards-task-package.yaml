@@ -1,0 +1,85 @@
+schema_version: 1
+task_id: yss-research-sync-standards-review-2026-09-03
+work_unit_id: work-unit.intensity-aware-review
+actor_id: reviewer.yss-research-sync.standards
+role_id: role.requirements-manager
+runtime_id: runtime.generic
+execution_state: Reviewer
+workflow_status: resolved
+profile_id: harness.business-ddd-strategy-handoff
+skill_source:
+  registry_ref: docs/agents/digital-human-roles.yaml
+  defaults_ref: taskPackageDefaults(role.requirements-manager)
+  core_skills: [grilling, domain-modeling, yss-research, competitive-intelligence, grill-with-docs]
+  forbidden_skills: []
+contract:
+  kind: template-maintenance
+  contract_id: yss-research-sync-l3-standards-review
+  contract_version: 1
+  status: issued
+  contract_ref: .template-source/evidence/maintenance/reviews/candidates/yss-research-sync-2026-09-03-r2/candidate-manifest.yaml
+  maintenance_ref: .template-source/evidence/maintenance/yss-research-sync-review/checkpoint.yaml
+inputs:
+  - .template-source/evidence/maintenance/reviews/candidates/yss-research-sync-2026-09-03-r2/candidate-manifest.yaml
+  - AGENTS.md
+  - .agents/skills/maintaining-skills/SKILL.md
+  - docs/process/harness-process-tailoring.md
+  - docs/process/maintenance-intensity.yaml
+objective: >-
+  独立复审候选 ec2a87906c1d31b7d4a6bac4e367ba68c9d6721bf1c485ad796f3c1567222c2a 的 Standards 轴：
+  检查共享技能规范、canonical / projection / lock、生命周期所有权、模板维护和跨仓边界，报告硬违规与判断性风险。
+allowed_write_paths:
+  - .template-source/evidence/maintenance/yss-research-sync-review/standards-review-r2.md
+forbidden_actions:
+  - 修改实现、技能、路由、注册表、锁文件或候选快照
+  - 修改 Spec 轴审查文件
+  - 执行 git commit 或 git push
+  - 批准发布
+expected_outputs:
+  - Standards findings，包含文件和规则引用
+  - 候选 digest 与覆盖范围
+  - 残余风险
+expected_evidence_files:
+  - .template-source/evidence/maintenance/yss-research-sync-review/standards-review-r2.md
+verification_commands:
+  - node .agents/skills/yss-research/tests/run-scenarios.mjs
+  - scripts/sync-skills --check
+  - scripts/update-skill-lock --check
+verification_results:
+  - command: node .agents/skills/yss-research/tests/run-scenarios.mjs
+    exit_code: 0
+    executed_at: 2026-09-04
+    evidence_ref: .template-source/evidence/maintenance/yss-research-sync-review/standards-review-r2.md
+  - command: scripts/sync-skills --check
+    exit_code: 0
+    executed_at: 2026-09-04
+    evidence_ref: .template-source/evidence/maintenance/yss-research-sync-review/standards-review-r2.md
+  - command: scripts/update-skill-lock --check
+    exit_code: 0
+    executed_at: 2026-09-04
+    evidence_ref: .template-source/evidence/maintenance/yss-research-sync-review/standards-review-r2.md
+review_context:
+  implementation_actor_id: agent.root
+  implementation_task_id: yss-research-sync-implementation
+downstream_consumers: [role.lifecycle-orchestrator]
+convergence:
+  parent_work_unit: work-unit.intensity-aware-review
+  convergence_ref: .template-source/evidence/maintenance/yss-research-sync-review/formal-independent-review.md
+  conflict_escalation: 回交主控修订，并重新捕获完整候选。
+result:
+  result_schema: workflow-execution-result-v1
+  work_unit: work-unit.intensity-aware-review
+  workflow_reference: review:yss-research-sync:standards:r2
+  result: completed
+  skill: code-review
+  changed_files:
+    - .template-source/evidence/maintenance/yss-research-sync-review/standards-review-r2.md
+  evidence_refs:
+    - .template-source/evidence/maintenance/yss-research-sync-review/standards-review-r2.md
+  deferred_seams: []
+  drift: []
+  violation: []
+  new_impacts: []
+  stale_candidates: []
+  next_route: work-unit.release-and-rollback
+  blocking_signals: []

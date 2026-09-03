@@ -1,0 +1,68 @@
+schema_version: 1
+candidate_kind: yss-worktree-candidate-v1
+storage: packed-stream
+review_mode: worktree
+review_base_ref: HEAD
+merge_base: 67b9f501a846f45704852072fe4e6a7f7781d3d8
+implementation_candidate_ref: working-tree
+candidate_snapshot_ref: .template-source/evidence/maintenance/reviews/candidates/yss-research-sync-2026-09-03/candidate-manifest.yaml
+candidate_digest: ba861a06bce14fb1f98160c76deb01398e284562bb663a72638e3e5c1753aa53
+tracked_diff_command: git diff --no-ext-diff --binary --full-index 67b9f501a846f45704852072fe4e6a7f7781d3d8
+untracked_inventory_command: git ls-files -z --others --exclude-standard
+untracked_diff_command: packed in candidate.bin
+untracked_files:
+  - .agents/skills/yss-research/SKILL.md
+  - .agents/skills/yss-research/agents/openai.yaml
+  - .agents/skills/yss-research/assets/evidence-template.yaml
+  - .agents/skills/yss-research/assets/research-brief-template.md
+  - .agents/skills/yss-research/references/evidence-contract.md
+  - .agents/skills/yss-research/scripts/validate-research-package.mjs
+  - .agents/skills/yss-research/tests/run-scenarios.mjs
+  - .claude/skills/yss-research
+  - .codex/skills/product-design/skills/research/assets/evidence-template.yaml
+  - .codex/skills/product-design/skills/research/assets/research-brief-template.md
+  - .codex/skills/product-design/skills/research/references/evidence-audited.md
+  - .codex/skills/product-design/skills/research/scripts/validate-research-package.mjs
+  - .codex/skills/product-design/skills/research/tests/run-scenarios.mjs
+  - .codex/skills/yss-research
+  - .cursor/skills/yss-research
+  - .hermes/skills/yss-research
+  - .pi/skills/yss-research
+  - .qoder/skills/yss-research
+  - .template-source/evidence/maintenance/research-yss-research-enhancement-2026-09-03.md
+  - .template-source/evidence/maintenance/yss-research-sync-l3-green-2026-09-03.md
+  - .template-source/evidence/maintenance/yss-research-sync-l3-pressure-2026-09-03.md
+  - .template-source/evidence/maintenance/yss-research-sync-l3-red-2026-09-03.md
+  - .template-source/evidence/maintenance/yss-research-sync-l3-refactor-2026-09-03.md
+  - .trae/skills/yss-research
+untracked_path_bytes:
+  - LmFnZW50cy9za2lsbHMveXNzLXJlc2VhcmNoL1NLSUxMLm1k
+  - LmFnZW50cy9za2lsbHMveXNzLXJlc2VhcmNoL2FnZW50cy9vcGVuYWkueWFtbA==
+  - LmFnZW50cy9za2lsbHMveXNzLXJlc2VhcmNoL2Fzc2V0cy9ldmlkZW5jZS10ZW1wbGF0ZS55YW1s
+  - LmFnZW50cy9za2lsbHMveXNzLXJlc2VhcmNoL2Fzc2V0cy9yZXNlYXJjaC1icmllZi10ZW1wbGF0ZS5tZA==
+  - LmFnZW50cy9za2lsbHMveXNzLXJlc2VhcmNoL3JlZmVyZW5jZXMvZXZpZGVuY2UtY29udHJhY3QubWQ=
+  - LmFnZW50cy9za2lsbHMveXNzLXJlc2VhcmNoL3NjcmlwdHMvdmFsaWRhdGUtcmVzZWFyY2gtcGFja2FnZS5tanM=
+  - LmFnZW50cy9za2lsbHMveXNzLXJlc2VhcmNoL3Rlc3RzL3J1bi1zY2VuYXJpb3MubWpz
+  - LmNsYXVkZS9za2lsbHMveXNzLXJlc2VhcmNo
+  - LmNvZGV4L3NraWxscy9wcm9kdWN0LWRlc2lnbi9za2lsbHMvcmVzZWFyY2gvYXNzZXRzL2V2aWRlbmNlLXRlbXBsYXRlLnlhbWw=
+  - LmNvZGV4L3NraWxscy9wcm9kdWN0LWRlc2lnbi9za2lsbHMvcmVzZWFyY2gvYXNzZXRzL3Jlc2VhcmNoLWJyaWVmLXRlbXBsYXRlLm1k
+  - LmNvZGV4L3NraWxscy9wcm9kdWN0LWRlc2lnbi9za2lsbHMvcmVzZWFyY2gvcmVmZXJlbmNlcy9ldmlkZW5jZS1hdWRpdGVkLm1k
+  - LmNvZGV4L3NraWxscy9wcm9kdWN0LWRlc2lnbi9za2lsbHMvcmVzZWFyY2gvc2NyaXB0cy92YWxpZGF0ZS1yZXNlYXJjaC1wYWNrYWdlLm1qcw==
+  - LmNvZGV4L3NraWxscy9wcm9kdWN0LWRlc2lnbi9za2lsbHMvcmVzZWFyY2gvdGVzdHMvcnVuLXNjZW5hcmlvcy5tanM=
+  - LmNvZGV4L3NraWxscy95c3MtcmVzZWFyY2g=
+  - LmN1cnNvci9za2lsbHMveXNzLXJlc2VhcmNo
+  - Lmhlcm1lcy9za2lsbHMveXNzLXJlc2VhcmNo
+  - LnBpL3NraWxscy95c3MtcmVzZWFyY2g=
+  - LnFvZGVyL3NraWxscy95c3MtcmVzZWFyY2g=
+  - LnRlbXBsYXRlLXNvdXJjZS9ldmlkZW5jZS9tYWludGVuYW5jZS9yZXNlYXJjaC15c3MtcmVzZWFyY2gtZW5oYW5jZW1lbnQtMjAyNi0wOS0wMy5tZA==
+  - LnRlbXBsYXRlLXNvdXJjZS9ldmlkZW5jZS9tYWludGVuYW5jZS95c3MtcmVzZWFyY2gtc3luYy1sMy1ncmVlbi0yMDI2LTA5LTAzLm1k
+  - LnRlbXBsYXRlLXNvdXJjZS9ldmlkZW5jZS9tYWludGVuYW5jZS95c3MtcmVzZWFyY2gtc3luYy1sMy1wcmVzc3VyZS0yMDI2LTA5LTAzLm1k
+  - LnRlbXBsYXRlLXNvdXJjZS9ldmlkZW5jZS9tYWludGVuYW5jZS95c3MtcmVzZWFyY2gtc3luYy1sMy1yZWQtMjAyNi0wOS0wMy5tZA==
+  - LnRlbXBsYXRlLXNvdXJjZS9ldmlkZW5jZS9tYWludGVuYW5jZS95c3MtcmVzZWFyY2gtc3luYy1sMy1yZWZhY3Rvci0yMDI2LTA5LTAzLm1k
+  - LnRyYWUvc2tpbGxzL3lzcy1yZXNlYXJjaA==
+excluded_paths:
+  - .template-source/evidence/maintenance/reviews/candidates/yss-research-sync-2026-09-03
+  - .template-source/evidence/maintenance/yss-research-sync-review
+snapshot_stream_ref: .template-source/evidence/maintenance/reviews/candidates/yss-research-sync-2026-09-03/candidate.bin
+tracked_diff_ref: .template-source/evidence/maintenance/reviews/candidates/yss-research-sync-2026-09-03/tracked.diff
+commit_list_command: git log HEAD..HEAD --oneline

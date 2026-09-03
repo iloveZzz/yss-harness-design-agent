@@ -20,7 +20,7 @@ Matt skills 决定如何工作；YSS Strategic Design 决定是否允许推进�
 | 需求澄清 | `grill-with-docs`（用户显式）或 `grilling`、`domain-modeling`（生命周期原语） | 按退出判定检查未决项和回流 |
 | 信息在其他人手中 | `to-questionnaire` | 使用 `external-input-required` 暂停；答案回流后记录 response、重新分类影响面，再进入 `grill-with-docs` 或 `to-spec` |
 | 大型模糊工作 | `wayfinder` | map 真正完成后 `handoff → to-spec` |
-| 技术事实 | `research` | 一手资料回填 Spec/OpenAPI/架构/ADR |
+| 技术或战略事实 | `yss-research`（`research` 为 deprecated alias） | `technical-evidence` 核验一手技术资料；`strategy-evidence` 为领域战略和阶段决策提供可审计证据；研究包不得自行修改或批准下游资产 |
 | runnable 问题 | `prototype` | 生成单文件可分享 HTML，保留 `prototype/<name>` 分支作为主来源；必须 source/return handoff 和结论回填，不得替代阶段 4 的低保真评审、Ant Design v6 高保真 HTML、AntD CLI 证据和用户确认 |
 | Spec 综合 | 原生 `work-unit.spec-synthesis`；`to-spec`（用户显式兼容） | 初稿进入 `ready-for-human`，不得直接实现 |
 | 业务级 Ticket | 原生 `work-unit.business-ticket-formalization`；`to-tickets`（用户显式兼容） | 形成业务能力/用户行为级 Ticket，初始状态为 `ready-for-human` |
@@ -72,7 +72,7 @@ Router 状态映射为：`draft → completed`、`blocked → blocked`、`ready-
 | `to-tickets`（用户显式） | 必要门禁、业务范围、验收标准、依赖和风险均已明确 | 生命周期只准备/验收；只能生成业务级 Ticket，初始统一为 `ready-for-human` |
 | `implement`（已移除） | 不适用 | 直接返回 `blocked`，转交下游研发 profile |
 
-`grill_exit` 不是“已经聊过”的自然语言声明。它必须同时证明 frontier 为空、事实已解决或分别路由到 `research` / prototype / external input、用户决策已确认、双方共同理解已确认，并且没有未回流的 runnable blocker。
+`grill_exit` 不是“已经聊过”的自然语言声明。它必须同时证明 frontier 为空、事实已解决或分别路由到 `yss-research` / prototype / external input、用户决策已确认、双方共同理解已确认，并且没有未回流的 runnable blocker。
 
 ## Review 候选与 Git 授权
 

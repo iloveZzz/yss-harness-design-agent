@@ -24,7 +24,7 @@ function validateMattContract(data) {
   ensure(includesAll(setup?.preserves, ["lifecycle.status", "gate.status", "ticket.role"]) && setup?.legacy_artifacts_detected?.action === "migration-check" && setup.legacy_artifacts_detected.setup === "forbidden" && setup.legacy_artifacts_detected.write === "paused", "setup 暂停或旧资产迁移暂停契约不完整");
   const grill = data.grill_exit;
   ensure(includesAll(grill?.required, ["frontier_empty", "facts_resolved_or_routed", "decisions_confirmed", "shared_understanding_confirmed", "no_unresolved_runnable_blocker"]) && grill?.user_confirmation_required === true, "grill_exit 缺少 frontier、事实路由、决策、共同理解、用户确认或 runnable blocker 条件");
-  ensure(grill?.facts_resolved_or_routed?.technical_fact === "research" && grill.facts_resolved_or_routed.runnable_question === "handoff-prototype-handoff" && grill.facts_resolved_or_routed.external_decision === "external-input-required", "grill_exit 的事实、runnable 问题或外部决策路由不完整");
+  ensure(grill?.facts_resolved_or_routed?.technical_fact === "yss-research" && grill.facts_resolved_or_routed.runnable_question === "handoff-prototype-handoff" && grill.facts_resolved_or_routed.external_decision === "external-input-required", "grill_exit 的事实、runnable 问题或外部决策路由不完整");
   const git = data.git_authorization;
   for (const action of ["commit", "push"]) {
     const prefix = action === "commit" ? "commit" : "push";
@@ -40,8 +40,8 @@ function validateMattContract(data) {
 function validateInvocationBoundary(data) {
   const boundary = data.matt_invocation_boundary;
   const expectedUserInvoked = ["ask-matt", "grill-me", "grill-with-docs", "handoff", "to-spec", "to-tickets", "triage", "wayfinder"];
-  const expectedModelInvoked = ["competitive-intelligence", "domain-modeling", "grilling", "prototype-review", "research", "writing-for-agents"];
-  const expectedLifecycleModelInvoked = ["domain-modeling", "grilling", "prototype-review", "research"];
+  const expectedModelInvoked = ["code-review", "competitive-intelligence", "domain-modeling", "grilling", "prototype-review", "writing-for-agents", "yss-research"];
+  const expectedLifecycleModelInvoked = ["competitive-intelligence", "domain-modeling", "grilling", "prototype-review", "yss-research"];
   ensure(JSON.stringify(boundary?.user_invoked_skills) === JSON.stringify(expectedUserInvoked), "Matt user-invoked skills 清单不完整或已漂移");
   ensure(JSON.stringify(boundary?.lifecycle_managed_user_entries) === JSON.stringify(["ask-matt", "grill-me", "grill-with-docs", "to-spec", "to-tickets", "triage", "wayfinder"]), "生命周期管理的显式用户入口清单不完整");
   ensure(boundary?.lifecycle_may_invoke_user_invoked === false && boundary?.formal_artifact_owner === "explicit-user-entry", "生命周期仍可能自动调用 user-invoked skill 或产出其正式资产");
@@ -56,10 +56,14 @@ function validateInvocationBoundary(data) {
   ensure(includesAll(result?.required, ["result_schema", "work_unit", "workflow_reference", "result", "evidence_refs", "changed_artifacts", "new_impacts", "stale_candidates", "next_route", "blocking_signals"]) && includesAll(result?.result_values, ["completed", "blocked", "needs-human", "failed"]) && includesAll(result?.blocking_signals, ["drift", "new_impacts", "violation", "missing_evidence", "stale_candidates"]) && includesAll(result?.completed_requires_empty, ["new_impacts", "stale_candidates"]) && includesAll(result?.completed_requires_non_empty, ["evidence_refs"]) && result?.completed_requires_readable_evidence_refs === true && result?.evidence_ref_validation === "readable-or-resolvable" && result?.completed_requires_no_blocking_signals === true && includesAll(result?.workflow_reference?.required, ["source", "skill", "invocation_mode"]), "Workflow Execution Result 的完成态证据、阻断信号或 workflow_reference 契约不完整");
   const native = data.lifecycle_native_entries;
   ensure(native?.default_entry === "yss-strategic-design" && native?.formal_artifact_owner === "yss-strategic-design", "战略编排原生入口未持有默认正式资产所有权");
-  ensure(JSON.stringify(native?.user_confirmation_required_at) === JSON.stringify(["spec-baseline", "prototype-confirmation"]), "战略设计人工门禁集合已漂移");
+  ensure(JSON.stringify(native?.user_confirmation_required_at) === JSON.stringify(["spec-baseline", "prototype-confirmation", "strategic-design-handoff"]), "战略设计人工门禁集合已漂移");
   const routes = data.work_unit_routes;
   ensure(routes?.["work-unit.discovery-requirements"]?.skills?.includes("grilling") && routes?.["work-unit.discovery-requirements"]?.skills?.includes("domain-modeling"), "需求分析工作单元缺少 grilling/domain-modeling");
-  ensure(routes?.["work-unit.discovery-opportunity"]?.route_by?.market_or_competitor_fact === "competitive-intelligence" && routes["work-unit.discovery-opportunity"].route_by.technical_or_standard_fact === "research", "机会调研事实路由不准确");
+  ensure(routes?.["work-unit.discovery-opportunity"]?.route_by?.market_or_competitor_fact === "competitive-intelligence" && routes["work-unit.discovery-opportunity"].route_by.technical_or_standard_fact === "yss-research:technical-evidence" && routes["work-unit.discovery-opportunity"].route_by.strategy_fact === "yss-research:strategy-evidence", "机会调研事实路由不准确");
+  const strategyResearch = routes?.["work-unit.domain-strategy-design"]?.research_contract;
+  ensure(strategyResearch?.profile === "strategy-evidence" && strategyResearch.mode_before_gate === "evidence-audited" && strategyResearch.artifact_owner === "yss-research" && strategyResearch.downstream_owner === "yss-stage-decision", "领域战略研究合同缺少 profile、门禁前审计或资产所有权边界");
+  const stageDecisionResearch = routes?.["work-unit.stage-decision"]?.research_contract;
+  ensure(routes?.["work-unit.stage-decision"]?.skills?.includes("yss-research") && stageDecisionResearch?.profile === "strategy-evidence" && stageDecisionResearch.mode_before_gate === "evidence-audited" && stageDecisionResearch.artifact_owner === "yss-research" && stageDecisionResearch.downstream_owner === "yss-stage-decision", "阶段决策工作单元缺少 evidence-audited 战略研究合同");
   ensure(routes?.["work-unit.business-ticket-formalization"]?.native?.skill === "yss-strategic-design" && routes?.["work-unit.business-ticket-formalization"]?.compatibility?.skill === "to-tickets", "业务 Ticket 正式化未绑定战略编排与兼容入口");
   ensure(routes?.["work-unit.slice-implementation"]?.downstream === true && routes?.["work-unit.technical-analysis"]?.downstream === true, "下游技术工作单元未明确标记为 downstream");
   for (const id of ["work-unit.spec-synthesis", "work-unit.prototype-design", "work-unit.business-ticket-formalization"]) {
@@ -227,6 +231,7 @@ export function runScenario(name) {
     validateInvocationBoundary(data);
     const validResult = {
       result_schema: "workflow-execution-result-v1",
+      profile_id: "harness.business-ddd-strategy-handoff",
       work_unit: "work-unit.spec-synthesis",
       workflow_reference: { source: "yss-strategic-design", skill: "yss-strategic-design", invocation_mode: "model-invoked" },
       result: "completed",

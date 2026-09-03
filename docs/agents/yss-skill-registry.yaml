@@ -29,7 +29,7 @@ skills:
   - { id: handoff, layer: core, maturity: supported, instance_default_discoverable: true, aliases: [], impacts: [lifecycle] }
   - { id: maintaining-skills, layer: maintainer-only, maturity: supported, instance_default_discoverable: false, aliases: [], impacts: [template-maintenance] }
   - { id: prototype-review, layer: core, maturity: supported, instance_default_discoverable: true, aliases: [], impacts: [prototype] }
-  - { id: research, layer: core, maturity: supported, instance_default_discoverable: true, aliases: [], impacts: [discovery] }
+  - { id: yss-research, layer: core, maturity: supported, instance_default_discoverable: true, aliases: [research], impacts: [discovery] }
   - { id: to-spec, layer: compatibility, maturity: supported, instance_default_discoverable: false, aliases: [], impacts: [lifecycle] }
   - { id: to-tickets, layer: compatibility, maturity: supported, instance_default_discoverable: false, aliases: [], impacts: [lifecycle] }
   - { id: triage, layer: compatibility, maturity: supported, instance_default_discoverable: false, aliases: [], impacts: [lifecycle] }

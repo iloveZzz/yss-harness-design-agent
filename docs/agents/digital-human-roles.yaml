@@ -85,7 +85,7 @@ roles:
     title: YSS 需求经理
     stages: [stage.discovery, stage.spec-architecture, stage.product-design, stage.ticket-formalization]
     draft_artifact_ids: [artifact.discovery-record, artifact.spec]
-    core_skills: [grilling, domain-modeling, research, competitive-intelligence, grill-with-docs]
+    core_skills: [grilling, domain-modeling, yss-research, competitive-intelligence, grill-with-docs]
     forbidden_skills: []
     description: >-
       Own Discovery language, users, MVP, non-goals, success criteria, test
@@ -112,7 +112,7 @@ roles:
     title: YSS 商务
     stages: [stage.discovery]
     draft_artifact_ids: [artifact.discovery-record]
-    core_skills: [yss-strategic-design, competitive-intelligence, research]
+    core_skills: [yss-strategic-design, competitive-intelligence, yss-research]
     forbidden_skills: [to-spec, to-tickets]
     description: >-
       Own commercial constraints, delivery promises, and business non-goals in

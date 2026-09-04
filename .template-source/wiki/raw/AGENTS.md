@@ -28,6 +28,7 @@
 | 模板维护强度触发与最低等级 | `docs/process/maintenance-intensity.yaml` |
 | 技能清单、来源、版本、哈希和投影目标 | `skills-lock.json` |
 | 技能分层、别名、默认可发现性和运行时入口 | `docs/agents/yss-skill-registry.yaml`（当前 `status: active`，生命周期消费，Router 不消费） |
+| 视觉令牌与组件视觉变体规范 | 根目录 `DESIGN.md`；`docs/design/design.md` 为中文治理与生命周期适配，`docs/design/tokens/*` 为派生快照 |
 | 实例分发清单 | `docs/process/instance-distribution-manifest.yaml`；CLI `template.manifest.json` 是其投影 |
 | 数字人角色、阶段协作组、运行时绑定与生命周期会签 | `docs/agents/digital-human-roles.yaml`；`docs/agents/digital-human-roles.md` 为操作说明 |
 
@@ -46,8 +47,8 @@ README、用户指南、根目录 `CLAUDE.md` 和其他说明文档只引用或�
 按“影响面 → 单一事实来源 → 投影 / 派生资产 → 分级证据”维护。强度分级、最低证据和 checkpoint 合同见 `docs/process/harness-process-tailoring.md`。
 
 - 创建、修改或退役 skill 时使用 `maintaining-skills`，并先按 `docs/process/harness-process-tailoring.md` 判定 L1 / L2 / L3；只有 L3 必须保留完整基线失败、压力场景、修订后验证和正式独立审查证据。
-- `.agents/skills` 是跨 Agent 共享技能的权威内容；`.claude/skills`、`.codex/skills`、`.cursor/skills`、`.hermes/skills`、`.pi/skills`、`.qoder/skills`、`.trae/skills` 中的共享技能是生成投影，禁止分别手工修改。Cursor 的契约运行时入口是 `.cursor/skills`；不得把 canonical `.agents/skills` 与某个平台投影当作同权双入口。
-- `scripts/verify-template` 是模板发布阻断门禁。模板与外部 `create-yss-harness-design` 的跨仓库契约未完成集成验证时，不得声称可发布。不得把本仓发布绑定到 `create-yss-spec`。
+- `.agents/skills` 是跨 Agent 共享技能的权威内容；`.claude/skills`、`.codex/skills`、`.cursor/skills`、`.pi/skills`、`.qoder/skills`、`.trae/skills` 中的共享技能是生成投影，禁止分别手工修改。Cursor 的契约运行时入口是 `.cursor/skills`；不得把 canonical `.agents/skills` 与某个平台投影当作同权双入口。
+- 模板维护默认以 `scripts/verify-template-fast` 完成 `implementation-ready`；PR 和显式候选检查使用 `scripts/verify-template-candidate`；最终发布仍必须执行不可裁剪的 `scripts/verify-template`。未映射路径或核心核验资产变化时，fast / candidate 必须 fail-safe 升级为完整门禁。模板与外部 `create-yss-harness-design` 的跨仓库契约未完成集成验证时，不得声称可发布。不得把本仓发布绑定到 `create-yss-spec`。
 
 ## 5. `project-instance` 战略设计路由
 
@@ -76,7 +77,7 @@ Strategic Design Handoff 批准后，下游团队用 `yss-tactical-design` 接�
 
 | 触发情形 | 必须使用 |
 |---|---|
-| 技术事实、标准、第三方 API 或框架行为影响决策 | `research` 或等价的一手资料记录 |
+| 技术事实、标准、第三方 API 或框架行为影响决策，或外部证据进入领域战略 / 阶段决策 | `yss-research`；技术事实使用 `technical-evidence`，战略决策证据使用 `strategy-evidence`；旧名 `research` 仅为 deprecated alias |
 | 竞品、市场或用户口碑事实 | `competitive-intelligence` |
 | UI 设计、原型、组件或主题 | `yss-design-system` 后使用 `yss-prototype-stage`；Codex 再路由 `product-design:index`，其他 Agent 交付等价合同资产；原型产出前后用 `yss-antd-design` 记录 Ant Design v6 事实与浏览器验证。生产前端由下游研发 profile 落地。 |
 | merge / rebase 冲突 | `resolving-merge-conflicts` |

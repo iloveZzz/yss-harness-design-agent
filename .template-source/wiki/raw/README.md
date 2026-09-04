@@ -17,7 +17,6 @@
 ├── .claude/                 ← Claude skills 投影与平台专属 skills
 ├── .codex/                  ← Codex skills 投影与平台专属 skills
 ├── .cursor/                 ← Cursor skills 投影
-├── .hermes/                 ← Hermes skills 投影与平台专属 skills
 ├── .pi/                     ← Pi skills 投影与平台专属 skills
 ├── .qoder/                  ← Qoder skills 投影与平台专属 skills
 ├── .trae/                   ← Trae skills 投影与平台专属 skills
@@ -42,7 +41,7 @@
 
 1. 先读取 `yss-project.yaml`，按 `repository_mode` 选择模板维护或 `harness.business-ddd-strategy-handoff` 产品战略设计流程。
 2. 必读入口为 `AGENTS.md` 与 `CONTEXT.md`；本地职责边界以 `docs/process/harness-profile.yaml` 为准，生命周期 ID 以 `docs/process/lifecycle-registry.yaml` 为准。
-3. `template-source` 修改流程、技能或模板后，执行 `scripts/sync-skills`、`scripts/update-skill-lock` 和 `scripts/verify-template`。
+3. `template-source` 修改后默认执行 `scripts/verify-template-fast`；共享 skill 变化时再执行必要的投影与 lock 更新。PR 使用 candidate 核验，发布使用完整门禁。
 4. `project-instance` 使用 `yss-strategic-design`：机会调研 → Spec → 页面原型 → 业务级 Ticket → `work-unit.strategic-design-handoff`。不要在本地拆垂直切片或进入实现。
 5. OpenAPI、Tactical DDD、实现仓库和覆盖率门禁属于下游研发 profile，不是本仓硬门禁。
 
@@ -80,13 +79,15 @@ main@6acc160e4e0cd062dbbbd7a1b26ae92855edf07e
 
 主研发流程使用 `skills/engineering`；`skills-lock.json` 同时记录本次安装的关联 `productivity`、`in-progress`、`deprecated`、`misc` 和 `personal` skill 路径。
 
-## 轻量校验
+## 分级校验
 
 ```bash
+scripts/verify-template-fast
+scripts/verify-template-candidate
 scripts/verify-template
 ```
 
-该脚本检查：
+`fast` 按 Git 影响面选择检查组并并行执行；`candidate` 追加候选完整性检查；`verify-template` 保留不可裁剪的完整发布门禁。未映射路径和核心核验资产变化会自动升级到完整门禁。检查内容包括：
 
 - `yss-project.yaml`、权威流程资产、Harness profile 和实例分发清单是否完整。
 - 共享技能投影及 `skills-lock.json` 的完整树哈希是否一致。

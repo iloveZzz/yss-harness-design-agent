@@ -112,7 +112,7 @@ syntax_files:
 routing:
   - patterns: [AGENTS.md, CONTEXT.md, yss-project.yaml, package.json, .gitignore, README.md, "docs/**"]
     groups: [hygiene]
-  - patterns: [skills-lock.json, ".agents/skills/**", ".claude/skills/**", ".codex/skills/**", ".cursor/skills/**", ".hermes/skills/**", ".pi/skills/**", ".qoder/skills/**", ".trae/skills/**", "docs/agents/yss-skill-registry.yaml", "scripts/*skill*"]
+  - patterns: [skills-lock.json, ".agents/skills/**", ".claude/skills/**", ".codex/skills/**", ".cursor/skills/**", ".pi/skills/**", ".qoder/skills/**", ".trae/skills/**", "docs/agents/yss-skill-registry.yaml", "scripts/*skill*"]
     groups: [skills]
   - patterns: [".agents/skills/yss-strategic-design/**", "docs/process/schemas/strategic-design-handoff.schema.json", "docs/templates/strategic-design-handoff-template.yaml", "scripts/*entry-alignment*"]
     groups: [strategic-design]

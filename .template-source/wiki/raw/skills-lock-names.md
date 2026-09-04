@@ -14,7 +14,6 @@ Derived names only. Do not copy hashes, paths, or the lock file.
 - `handoff`
 - `maintaining-skills`
 - `prototype-review`
-- `research`
 - `to-spec`
 - `to-tickets`
 - `triage`
@@ -23,6 +22,7 @@ Derived names only. Do not copy hashes, paths, or the lock file.
 - `yss-antd-design`
 - `yss-design-system`
 - `yss-prototype-stage`
+- `yss-research`
 - `yss-stage-decision`
 - `yss-strategic-design`
 

@@ -11,7 +11,6 @@ allow_root_entries:
   - .claude
   - .codex
   - .cursor
-  - .hermes
   - .pi
   - .qoder
   - .trae

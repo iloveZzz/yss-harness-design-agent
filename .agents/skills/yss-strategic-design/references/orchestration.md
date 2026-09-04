@@ -7,13 +7,13 @@
 1. 识别模式、仓库身份、任务规模和影响面。
 2. `setup readiness`：每个任务只执行一次，核对 tracker、五态标签和领域文档布局，并在本轮缓存结果；仅在 tracker、主远端、真实标签或配置变化时重查。
 3. 加载父 Ticket/checkpoint 与真实资产，计算最近可信阶段。
-4. 评估资产、门禁和 `stale`，选择第一个未阻塞工作单元。进入 `work-unit.slice-implementation` 前，必须先通过 `scripts/lib/lifecycle-transition.mjs` 的 Ticket 正式化、垂直切片绑定和合法 `next_route` 校验；父 Ticket、缺少垂直切片或 `ready-for-human` 的切片一律 `blocked`。
-5. 执行最小生命周期工作单元：主控先按 `docs/process/schemas/digital-human-task-package.schema.json` 编译并校验任务包，再只实际调用允许的 model-invoked skill；原生工作单元可直接持有正式资产，Matt 兼容 user-invoked skill 仅作为 workflow reference，仍由用户显式启动。将结果归一化为 `Workflow Execution Result`，验收输出并回写状态与证据。任务包的 `contract.kind` 按工作单元选择；只有实现子任务使用 `slice-implementation` 并消费 Slice Implementation Contract，其他阶段不伪造该合同。
+4. 评估资产、门禁和 `stale`，只在 `profile_registry.allowed_local_work_units` 中选择第一个未阻塞工作单元。命中下游工作单元时返回 `blocked`，并把问题写入 Strategic Design Handoff。
+5. 执行最小生命周期工作单元：主控先按 `docs/process/schemas/digital-human-task-package.schema.json` 编译并校验任务包，再只实际调用允许的 model-invoked skill；原生工作单元可直接持有正式资产，Matt 兼容 user-invoked skill 仅作为 workflow reference，仍由用户显式启动。将结果归一化为 `Workflow Execution Result`，验收输出并回写状态与证据。本 profile 的任务包只允许 `lifecycle-work-unit` 或 `template-maintenance` 合同。
 6. 若仍在授权和自动推进边界内，回到第 3 步；否则暂停。
 
-不要仅输出下一个提示词后结束 `orchestrate`/`resume`。不要因进入业务代码阶段而退出主控；应把实现交给专项 skill，并在返回后继续核验。
+不要仅输出下一个提示词后结束 `orchestrate`/`resume`。到达已批准的 Strategic Design Handoff 后终止本地路由；不得在同一 profile 内继续技术分析或实现。
 
-连续阶段自动推进时累积 Ticket 同步和 Git 判断证据，在人工暂停、handoff、进入实现、合并或发布边界集中 checkpoint。发生阻塞、责任人变化或资产需要单独批准时立即落 checkpoint，不因合并记录而丢失阶段因果关系。
+连续阶段自动推进时累积 Ticket 同步和 Git 判断证据，在人工暂停或 handoff 边界集中 checkpoint。发生阻塞、责任人变化或资产需要单独批准时立即落 checkpoint，不因合并记录而丢失阶段因果关系。
 
 ## 阶段边界
 
@@ -60,13 +60,11 @@ tracker 选择和冲突按 `docs/agents/issue-tracker.md` 裁决：已持久化 
 - `work-unit.slice-implementation`、脚手架和实现验证均由下游研发 profile 执行；本分支不存在 `implement` 入口，相关请求必须 blocked 并转交下游。
 - `Workflow Execution Result` 出现 `drift`、`new_impacts`、`stale_candidates`、`violation`、`missing_evidence`、空 `evidence_refs` 或缺少必需字段时暂停当前工作单元；旧结果只能先经只读兼容 adapter 归一化。
 
-## 审查与验证
+## 战略资产审查与验证
 
-- 调用 `code-review` 前先固定 review input：`review_mode`、`review_base_ref`、`implementation_candidate_ref`、`candidate_snapshot_ref`、`candidate_digest`、Spec/Ticket、Slice Implementation Contract、Build Architecture Checklist 和 YSS Skill Execution Result 引用。`committed` 模式审查不可变 `HEAD`；`worktree` 模式一次捕获 committed、staged、unstaged 和 untracked 内容。必须按 `orchestration-contract.yaml.review_input` 的 manifest 按模式必填字段及 `yss-worktree-candidate-v1` 字节流（raw path、uint64 big-endian 长度、tracked/untracked record）计算 SHA-256，两个 Reviewer 必须消费同一不可变快照。返回后或完成 checkpoint 摘要变化时返回 `blocked`，由编排器决定重新审查。候选为空、漏项或 fixed point 不可解析时阻断。
-- 小改动和中等变更可由同一独立执行者完成 `code-review` 与 fresh verification，并在同一报告中分别记录 findings、命令、结果和残余风险。
-- 该执行者必须独立于实现者；新模块、高风险变更、职责冲突或需双人控制时，Reviewer 与 Verifier 分开。
-- `code-review` 是唯一默认代码审查 skill。GitLab、CI、Sonar、Alibaba Java 等治理事实作为仓库规则或专项检查输入，不再叠加第二个通用审查 skill。
-- UI 影响切片将 `UI fidelity` 作为 `code-review` 的条件第三轴；任何修复都会使候选摘要失效，必须重新捕获候选并重跑 Standards、Spec、UI fidelity 和 fresh verification。
+- 原型由独立 `prototype-review` 审查，评审者不承担原型起草；H1/H2 均以 schema v3 证据、浏览器交付、Design QA 和用户确认关闭门禁。
+- 领域战略、阶段决策包、Spec 与 Strategic Design Handoff 按 `docs/agents/digital-human-roles.yaml` 会签，起草者不得自签。
+- Tactical DDD、代码审查、实现验证和发布验证不属于本 profile；交付包只能提出下游验证目标。
 
 ## Git 授权
 
@@ -76,7 +74,7 @@ tracker 选择和冲突按 `docs/agents/issue-tracker.md` 裁决：已持久化 
 
 ## 必须暂停
 
-- Spec baseline、需求冻结、原型确认、OpenAPI Freeze 或 Architecture Review 等普通门禁等待会签裁决（数字人或生物人，以 `docs/agents/digital-human-roles.yaml` 的 `gate_policy` 为准）。暂停输出必须包含：门禁 ID、指定 `role_id`、`runtime_id`、会签文件路径。恢复前执行 `scripts/verify-approval-record`；角色错误、起草者自签或生物人门禁被数字人关闭时返回 `blocked`，不得标 `approved`。
+- Spec baseline、领域战略、阶段决策、原型确认或 Strategic Design Handoff 等本地门禁等待会签裁决（数字人或生物人，以 `docs/agents/digital-human-roles.yaml` 的 `gate_policy` 为准）。暂停输出必须包含：门禁 ID、指定 `role_id`、`runtime_id`、会签文件路径。恢复前执行 `scripts/verify-approval-record`；角色错误或起草者自签时返回 `blocked`，不得标 `approved`。
 - 需要目标仓库、外部凭据、发布窗口或其他新授权。
 - 状态与证据冲突且无法可靠重建。
 - 专项 skill 失败或返回不可验收结果。
@@ -101,8 +99,8 @@ Decision ticket 产生决策，不是实现切片，不得标记 `ready-for-agen
 
 Prototype 回流必须有可核验证据：来源 handoff、prototype 资产或运行记录、结论、被更新的 Spec/设计/ADR/Ticket 引用、剩余未决项和返回 handoff。仅在对话中声称“已验证”不算回流完成。
 
-Matt `prototype` 的回流还必须注明 `prototype_branch`，并保留单文件 HTML 主来源；YSS 高保真 HTML 原型另走阶段 4 的评审、AntD CLI 校验和用户确认，不得用 throwaway prototype 替代。
+Matt `prototype` 的回流还必须注明 `prototype_branch`，并保留单文件 HTML 主来源；YSS 产品原型另走 H1/H2 档位、独立评审、条件 AntD 事实、Design QA 和用户确认，不得用 throwaway prototype 替代。
 
 `to-questionnaire` 未收到答案时使用 `external-input-required` 暂停，记录问卷、接收人、所需输出和恢复路由；收到答案后记录 response、重新分类影响面和更新后的权威资产，再回到 `grill-with-docs` 或 `to-spec`。
 
-Release 与 Retrospective 属于生命周期编排器拥有的工作单元。发布和复盘前都必须重新取得 fresh verification；发布还需要发布/回滚证据和独立审查，复盘还需要复盘记录和治理回流判断，再回流权威资产。
+Release 与 Retrospective 属于下游研发 profile。本 profile 只在 Strategic Design Handoff 中记录商务窗口、已知风险与下游责任人，不作可发布结论。

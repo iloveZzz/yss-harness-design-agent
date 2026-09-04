@@ -15,8 +15,8 @@ test("unknown layer is rejected", () => {
 });
 
 test("shadow registry cannot be marked as runtime consumed", () => {
-  const data = registry({ status: "shadow", runtime_policy: { consumed_by_router: true, consumed_by_lifecycle: false, discovery_enforced: false } });
-  assert.throws(() => validateSkillRegistry(data), /shadow 注册表不得被 Router/);
+  const data = registry({ status: "shadow", runtime_policy: { consumed_by_compiler: false, consumed_by_lifecycle: true, discovery_enforced: false } });
+  assert.throws(() => validateSkillRegistry(data), /shadow 注册表不得被生命周期/);
 });
 
 test("alias that collides with another id is rejected", () => {
@@ -114,5 +114,5 @@ test("frontend conditional routes require registered skills", () => {
   };
   assert.throws(() => validateSkillRegistry(data, {
     lifecycleContract: { work_unit_routes: { "work-unit.slice-implementation": route } }
-  }), /生命周期路由引用了未登记技能/);
+  }), /前端条件路由引用了未登记技能/);
 });

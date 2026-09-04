@@ -45,7 +45,7 @@
 4. RED 用于证明行为差异。L1 不人为构造失败；L2 可使用已有失败、最小 fixture 或现有测试修改前失败；只有行为无法确定性表达时才运行聚焦压力场景。L3 使用 `maintaining-skills` 并执行本节定义的完整 RED、GREEN、REFACTOR 和压力场景要求。
 5. 模板发布候选固定按 L3 聚合验证，但不追溯补造每个既有 L1/L2 修改的独立 RED。
 
-模板维护默认停在 `implementation-ready`，不自动冻结候选或派发审查。三个核验入口由 `docs/process/template-verification-profiles.yaml` 统一定义：
+模板维护默认停在 `implementation-ready`，不自动冻结候选或派发审查。需要独立审查时显式提升到 `review-ready`；完成独立审查和最终完整门禁后才能成为 `release-ready`。三个核验入口由 `docs/process/template-verification-profiles.yaml` 统一定义：
 
 - `scripts/verify-template-fast`：按 Git 影响面运行快速检查；未映射路径或核心核验资产变化时 fail-safe 升级为完整门禁。
 - `scripts/verify-template-candidate`：运行命中影响面和候选完整性检查；PR 默认使用该入口。
@@ -56,7 +56,7 @@
 每个模板维护 checkpoint 使用以下轻量合同；L1/L2 可直接写入主 Ticket 或集中 checkpoint，不要求新增独立文档：
 
 ```yaml
-schema_version: 1
+schema_version: 2
 intensity: L1 | L2 | L3
 classification_reason: <分级理由>
 triggers: [<可观察触发项>]
@@ -65,8 +65,13 @@ verification_evidence:
   - kind: relevant-check | counterexample | red | green | refactor | pressure-scenario | fresh-verification | focused-independent-review | formal-independent-review
     command: <本轮实际命令或可读取证据引用>
     result: pass
-review_mode: self-check | human-checkpoint | focused-independent | formal-independent # L2/L3 还必须在 verification_evidence 中给出对应 review 证据引用
+review_mode: self-check | human-checkpoint | focused-independent | formal-independent # L2 需聚焦审查证据；L3 日常路径使用 self-check，历史 formal 记录只读兼容
 escalation: none | <升级原因和原等级>
+target_state: implementation-ready | review-ready | release-ready
+current_state: implementation-ready | review-ready | release-ready | needs-human
+verification_profile: fast | candidate | release
+review_round: 0 | 1 | 2
+candidate_digest: null | <sha256>
 ```
 
-使用 `scripts/verify-maintenance-checkpoint <file>` 或通过 stdin 传入 YAML / JSON 做只读校验。触发项 ID 与最低等级只由 `docs/process/maintenance-intensity.yaml` 维护；校验器消费该策略。未知触发项必须先更新该权威策略和场景，不能静默接受。
+使用 `scripts/verify-maintenance-checkpoint <file>` 或通过 stdin 传入 YAML / JSON 做只读校验。`implementation-ready` 必须使用 fast、`review_round: 0`、`candidate_digest: null` 和 L3 `self-check`；它不代表已冻结候选、已完成独立审查或可发布。触发项 ID 与最低等级只由 `docs/process/maintenance-intensity.yaml` 维护；校验器消费该策略。未知触发项必须先更新该权威策略和场景，不能静默接受。

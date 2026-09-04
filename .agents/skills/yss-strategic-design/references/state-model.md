@@ -9,7 +9,7 @@
 | `artifacts.*.status` | `missing`、`draft`、`ready-for-human`、`approved`、`stale`、`not-applicable` |
 | `gates.*.status` | `not-evaluated`、`blocked`、`ready-for-human`、`approved`、`stale`、`not-applicable` |
 | `tracker.kind` | `local-markdown`、`github`、`gitlab` |
-| `ticket.role` | `needs-triage`、`needs-info`、`ready-for-agent`、`ready-for-human`、`wontfix` |
+| `ticket.role` | `needs-triage`、`needs-info`、`ready-for-human`、`wontfix`；`ready-for-agent` 仅供下游研发 profile 使用 |
 
 Matt 五态不得扩义。资产的 `ready-for-human` 与 Ticket label 必须带命名空间表达。`paused-human-gate` 表示等待 `docs/agents/digital-human-roles.yaml` 指定的会签人（数字人或生物人），不是「必须是生物人」。
 
@@ -48,9 +48,7 @@ Strategic Design Handoff 批准后 `next_route=null`；任何技术契约、垂�
 
 用户显式运行 `to-tickets` 后，业务级 Ticket 初始状态固定为 `ready-for-human`。原生路径执行 `work-unit.business-ticket-formalization` 时同样必须产生等价的业务 Ticket 和 `Workflow Execution Result` 证据。本 profile 不使用 `ready-for-agent`；由 `yss-strategic-design` 复算业务 Ticket 的范围、验收、依赖和风险后，在 Strategic Design Handoff 中交付下游。生命周期不会自动调用 `to-tickets`，但不得跳过业务 Ticket 正式化工作单元。
 
-## Review 与 Git 授权状态
-
-进入代码审查时保存 `review_mode`、`review_base_ref`、`implementation_candidate_ref`、`candidate_snapshot_ref`、`candidate_digest` 及 Spec、Ticket、合同、Checklist、YSS Execution Result 引用。`worktree` 候选必须一次捕获 committed、staged、unstaged 和 untracked 文件；manifest 的按模式必填字段以及 `yss-worktree-candidate-v1`（raw path、uint64 big-endian 长度、tracked/untracked record、symlink 和不支持条目）以 `orchestration-contract.yaml.review_input` 为唯一执行定义。两个 Reviewer 消费同一不可变快照；返回后或完成 checkpoint 摘要变化则返回 `blocked` 并重新审查。不新增生命周期状态，只把该清单作为审查证据。
+## Git 授权状态
 
 Git 动作分别保存 `commit_authorized`、`commit_scope`、`commit_authorization_ref`、`push_authorized`、`push_scope`、`push_authorization_ref`。只有授权值严格为 `true`、范围和用户授权引用均非空时才执行相应动作；缺失授权时保持工作区不变并记录 checkpoint 判断。`git-submodule` 另保存每仓授权、`checkout_state` 和先子后父顺序；空 gitlink、detached HEAD 或 `--force` 覆盖挂载点时不得当成普通目录 commit / 脚手架。
 
@@ -62,28 +60,28 @@ Git 动作分别保存 `commit_authorized`、`commit_scope`、`commit_authorizat
 lifecycle:
   schema_version: 1
   mode: resume
-  stage: system-data-architecture-and-contract-review
+  stage: product-design
   status: blocked
 workflow:
   matt_flow: main
-  active_skill: yss-openapi-draft-review
+  active_skill: yss-prototype-stage
   status: paused
 artifacts:
   spec: {status: approved, ref: docs/.scratch/example/spec.md}
-  openapi: {status: stale, ref: docs/.scratch/example/api/example.yaml, stale_by: [spec]}
+  prototype: {status: stale, ref: docs/.scratch/example/design/prototype-evidence.yaml, stale_by: [spec]}
 gates:
-  openapi_freeze: {status: stale}
+  prototype_verified: {status: stale}
 tracker:
   kind: local-markdown
   root: docs/.scratch
-  parent_ticket: docs/.scratch/example/parent-ticket.md
+  parent_ticket: docs/.scratch/example/map.md
   role: ready-for-human
 pause:
   reason_code: human-gate
-  gate_ref: requirement-freeze
-  owner_or_authority: product-owner
-  resume_condition: requirement-freeze-approved
-  next_work_unit: api-impact-assessment
+  gate_ref: gate.prototype-reviewed
+  owner_or_authority: role.product-manager
+  resume_condition: prototype-review-approved
+  next_work_unit: work-unit.prototype-design
 ```
 
 ## Schema 兼容与迁移

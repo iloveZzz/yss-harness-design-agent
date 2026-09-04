@@ -10,13 +10,13 @@ const INTENSITY_POLICY = path.join(root, "docs/process/maintenance-intensity.yam
 const REQUIRED_EVIDENCE = {
   L1: ["relevant-check"],
   L2: ["counterexample", "fresh-verification", "focused-independent-review"],
-  L3: ["red", "green", "refactor", "pressure-scenario", "fresh-verification", "formal-independent-review"]
+  L3: ["fresh-verification", "self-check"]
 };
 
 const REVIEW_MODES = {
   L1: new Set(["self-check", "human-checkpoint"]),
   L2: new Set(["focused-independent"]),
-  L3: new Set(["formal-independent"])
+  L3: new Set(["self-check", "formal-independent"])
 };
 
 function ensure(condition, message) {
@@ -62,10 +62,12 @@ export function minimumIntensity(triggers) {
 
 export function validateMaintenanceCheckpoint(data) {
   ensure(data && typeof data === "object" && !Array.isArray(data), "checkpoint 必须是对象");
-  const exactFields = ["schema_version", "intensity", "classification_reason", "triggers", "changed_assets", "verification_evidence", "review_mode", "escalation"];
+  const v1Fields = ["schema_version", "intensity", "classification_reason", "triggers", "changed_assets", "verification_evidence", "review_mode", "escalation"];
+  const v2Fields = [...v1Fields, "target_state", "current_state", "verification_profile", "review_round", "candidate_digest"];
+  const exactFields = data.schema_version === 2 ? v2Fields : v1Fields;
   const unknown = Object.keys(data).filter((key) => !exactFields.includes(key));
   ensure(unknown.length === 0, `checkpoint 包含未知字段: ${unknown.join(", ")}`);
-  ensure(data.schema_version === 1, "schema_version 必须为 1");
+  ensure([1, 2].includes(data.schema_version), "schema_version 必须为 1 或 2");
   ensure(LEVELS.includes(data.intensity), "intensity 必须是 L1、L2 或 L3");
   ensure(typeof data.classification_reason === "string" && data.classification_reason.trim(), "classification_reason 不能为空");
   ensure(Array.isArray(data.changed_assets) && data.changed_assets.length > 0 && data.changed_assets.every((item) => typeof item === "string" && item.trim()), "changed_assets 必须包含至少一个路径或资产引用");
@@ -81,9 +83,32 @@ export function validateMaintenanceCheckpoint(data) {
     ensure(evidence.result === "pass", `验证证据必须是本轮实际通过结果: ${evidence.kind ?? "unknown"}`);
     kinds.add(evidence.kind);
   }
-  for (const required of REQUIRED_EVIDENCE[data.intensity]) ensure(kinds.has(required), `${data.intensity} 缺少 ${required} 证据`);
+  const legacyFormalL3 = data.intensity === "L3" && data.review_mode === "formal-independent";
+  const requiredEvidence = legacyFormalL3
+    ? ["red", "green", "refactor", "pressure-scenario", "fresh-verification", "formal-independent-review"]
+    : REQUIRED_EVIDENCE[data.intensity];
+  for (const required of requiredEvidence) ensure(kinds.has(required), `${data.intensity} 缺少 ${required} 证据`);
   ensure(REVIEW_MODES[data.intensity].has(data.review_mode), `${data.intensity} 不允许 review_mode=${data.review_mode}`);
-  return { intensity: data.intensity, minimum_intensity: minimum };
+  if (data.schema_version === 2) validateCheckpointState(data);
+  return { intensity: data.intensity, minimum_intensity: minimum, current_state: data.schema_version === 2 ? data.current_state : "release-ready" };
+}
+
+function validateCheckpointState(data) {
+  const states = ["implementation-ready", "review-ready", "release-ready", "needs-human"];
+  const targets = ["implementation-ready", "review-ready", "release-ready"];
+  const profiles = ["fast", "candidate", "release"];
+  ensure(targets.includes(data.target_state), "target_state 无效");
+  ensure(states.includes(data.current_state), "current_state 无效");
+  ensure(profiles.includes(data.verification_profile), "verification_profile 无效");
+  ensure(Number.isInteger(data.review_round) && data.review_round >= 0 && data.review_round <= 2, "review_round 必须为 0、1 或 2");
+  ensure(data.candidate_digest === null || /^(?:sha256:)?[a-f0-9]{64}$/.test(data.candidate_digest), "candidate_digest 必须为 null 或 SHA-256");
+  if (data.current_state === "implementation-ready") {
+    ensure(data.target_state === "implementation-ready", "implementation-ready 不得隐含提升目标");
+    ensure(data.verification_profile === "fast", "implementation-ready 必须使用 fast profile");
+    ensure(data.review_round === 0, "implementation-ready 的 review_round 必须为 0");
+    ensure(data.candidate_digest === null, "implementation-ready 不得冻结 candidate_digest");
+    ensure(data.review_mode === "self-check", "implementation-ready 必须使用 self-check");
+  }
 }
 
 export function loadMaintenanceCheckpoint(source) {

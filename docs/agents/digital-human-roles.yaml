@@ -44,7 +44,7 @@ runtimes:
     side_effect_approval: biological-human
     notes: >-
       覆盖 docs/agents/yss-skill-registry.yaml 的 agent_runtime_roots
-      （claude / codex / cursor / hermes / pi / qoder / trae）。
+      （claude / codex / cursor / pi / qoder / trae）。
       技能仍从 .agents/skills 投影，不按职称再维护一份。
   - id: runtime.grok
     kind: grok-bot
@@ -69,14 +69,14 @@ orchestrator:
   default_dual_hat: []
   stages: [stage.entry-triage, stage.discovery, stage.spec-architecture, stage.product-design, stage.ticket-formalization]
   core_skills: [yss-strategic-design]
-  forbidden_skills: []
+  forbidden_skills: [yss-tactical-design, yss-openapi-governance, yss-implementation-contract-compiler, yss-domain, yss-ui, yss-page-module-development, yss-web-controller, yss-repository, implement, tdd]
   description: >-
     Own YSS lifecycle routing. Read yss-project.yaml and CONTEXT.md first.
     Select the next unblocked work unit, compile a task package, and assign
-    one owner per stage. Do not implement business code. Do not approve Slice
-    contracts into ready-for-agent without the full formula. Do not announce
-    releasable. Default dual-hat: project manager until a separate instance
-    is required. Authoritative artifacts live in git.
+    one owner per stage. Do not implement business code, create or approve Slice
+    contracts, or announce releasable. Stop after the approved Strategic Design
+    Handoff and transfer downstream questions to the R&D profile. Authoritative
+    artifacts live in git.
 
 roles:
   - id: role.requirements-manager
@@ -86,7 +86,7 @@ roles:
     stages: [stage.discovery, stage.spec-architecture, stage.product-design, stage.ticket-formalization]
     draft_artifact_ids: [artifact.discovery-record, artifact.spec]
     core_skills: [grilling, domain-modeling, yss-research, competitive-intelligence, grill-with-docs]
-    forbidden_skills: []
+    forbidden_skills: [yss-tactical-design, yss-openapi-governance, yss-implementation-contract-compiler, yss-domain, yss-ui, yss-page-module-development, yss-web-controller, yss-repository, implement, tdd]
     description: >-
       Own Discovery language, users, MVP, non-goals, success criteria, test
       seams, and Spec prose. Propose CONTEXT.md glossary entries. Do not freeze
@@ -100,7 +100,7 @@ roles:
     stages: [stage.discovery, stage.spec-architecture, stage.product-design, stage.ticket-formalization]
     draft_artifact_ids: [artifact.product-overview, artifact.functional-architecture, artifact.interaction-spec, artifact.state-matrix, artifact.prototype-confirmation, artifact.business-ticket-set]
     core_skills: [yss-strategic-design, yss-design-system, yss-prototype-stage, prototype-review, yss-antd-design]
-    forbidden_skills: []
+    forbidden_skills: [yss-tactical-design, yss-openapi-governance, yss-implementation-contract-compiler, yss-domain, yss-ui, yss-page-module-development, yss-web-controller, yss-repository, implement, tdd]
     description: >-
       Own priority, product-design impact, interaction, state matrix, and
       prototype confirmation recommendation and business-level Ticket formalization.
@@ -113,7 +113,7 @@ roles:
     stages: [stage.discovery]
     draft_artifact_ids: [artifact.discovery-record]
     core_skills: [yss-strategic-design, competitive-intelligence, yss-research]
-    forbidden_skills: [to-spec, to-tickets]
+    forbidden_skills: [to-spec, to-tickets, yss-tactical-design, yss-openapi-governance, yss-implementation-contract-compiler, yss-domain, yss-ui, yss-page-module-development, yss-web-controller, yss-repository, implement, tdd]
     description: >-
       Own commercial constraints, delivery promises, and business non-goals in
       Discovery and release windows. Do not finalize Spec, API, tickets, or
@@ -147,12 +147,12 @@ gate_policy:
   unlisted_kept_biological:
     - gate.design-reviewed
     - gate.architecture-reviewed
+    - gate.slice-contract-approved
+    - gate.slice-ready-for-agent
   evidence_only:
     - gate.repository-identity-valid
     - gate.prototype-verified
-  orchestrator:
-    - gate.slice-contract-approved
-    - gate.slice-ready-for-agent
+  orchestrator: []
   digital_human_review:
     - gate: gate.prototype-reviewed
       drafter: role.product-manager

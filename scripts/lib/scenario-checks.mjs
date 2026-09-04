@@ -253,9 +253,10 @@ export function runScenario(name) {
       ...validResult,
       work_unit: "work-unit.business-ticket-formalization",
       next_route: "work-unit.strategic-design-handoff",
+      business_ticket_set_ref: "docs/.scratch/demo/issues",
     };
     validateWorkflowExecutionResult(validBusinessTicketResult, data.workflow_execution_result, data.work_unit_routes);
-    const validHandoffResult = { ...validBusinessTicketResult, work_unit: "work-unit.strategic-design-handoff", next_route: null };
+    const validHandoffResult = { ...validBusinessTicketResult, work_unit: "work-unit.strategic-design-handoff", next_route: null, strategic_design_handoff_ref: "docs/templates/strategic-design-handoff-template.yaml" };
     validateWorkflowExecutionResult(validHandoffResult, data.workflow_execution_result, data.work_unit_routes);
     const unavailableResult = structuredClone(validResult);
     unavailableResult.result = "blocked";

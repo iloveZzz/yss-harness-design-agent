@@ -12,7 +12,7 @@ skill_source:
   registry_ref: docs/agents/digital-human-roles.yaml
   defaults_ref: taskPackageDefaults(role.requirements-manager)
   core_skills: [grilling, domain-modeling, yss-research, competitive-intelligence, grill-with-docs]
-  forbidden_skills: []
+  forbidden_skills: [yss-tactical-design, yss-openapi-governance, yss-implementation-contract-compiler, yss-domain, yss-ui, yss-page-module-development, yss-web-controller, yss-repository, implement, tdd]
 contract:
   kind: template-maintenance
   contract_id: create-yss-strategic-design-init-review

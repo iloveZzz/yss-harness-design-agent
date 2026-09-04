@@ -1,0 +1,43 @@
+schema_version: 2
+intensity: L3
+classification_reason: >-
+  将五项战略与产品设计技能迁入本 Harness 的权威技能面，并补齐三个 AGENTS.md
+  强制本地技能；同时升级技能注册表、调用契约、角色禁止边界、生命周期终止语义、
+  投影与验证路由，命中 generation-semantics、cross-repo-contract、core-validator、
+  aggregate-behavior-change 与 lifecycle-gate。
+triggers: [generation-semantics, cross-repo-contract, core-validator, aggregate-behavior-change, lifecycle-gate]
+changed_assets:
+  - .agents/skills/prototype-review/
+  - .agents/skills/yss-prototype-stage/
+  - .agents/skills/yss-design-system/
+  - .agents/skills/yss-antd-design/
+  - .agents/skills/yss-stage-decision/
+  - .agents/skills/diagnosing-bugs/
+  - .agents/skills/resolving-merge-conflicts/
+  - .agents/skills/llm-wiki/
+  - .agents/skills/yss-strategic-design/references/
+  - docs/agents/yss-skill-registry.yaml
+  - docs/agents/digital-human-roles.yaml
+  - docs/process/template-verification-profiles.yaml
+  - scripts/lib/skill-registry.mjs
+  - scripts/lib/skill-governance.mjs
+  - skills-lock.json
+verification_evidence:
+  - kind: self-check
+    command: node .agents/skills/yss-stage-decision/tests/run-scenarios.mjs && node .agents/skills/yss-research/tests/run-scenarios.mjs && node .agents/skills/yss-prototype-stage/tests/run-scenarios.mjs
+    result: pass
+  - kind: fresh-verification
+    command: scripts/verify-template-fast
+    result: pass
+  - kind: projection-sync
+    command: scripts/sync-skills --check && scripts/update-skill-lock --check
+    result: pass
+review_mode: self-check
+escalation: >-
+  none；当前仅达到战略设计源仓 implementation-ready。父模板固定提交消费和 CLI
+  快照更新必须等待本子模块获得独立 Git commit/push 授权，当前不宣称跨仓集成或发布完成。
+target_state: implementation-ready
+current_state: implementation-ready
+verification_profile: fast
+review_round: 0
+candidate_digest: null

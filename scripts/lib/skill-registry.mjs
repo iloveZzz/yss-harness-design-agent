@@ -9,7 +9,11 @@ const ROUTER_CONTRACT = null;
 const LIFECYCLE_CONTRACT = path.join(ROOT, ".agents/skills/yss-strategic-design/references/orchestration-contract.yaml");
 const LAYERS = new Set(["core", "specialist", "compatibility", "maintainer-only"]);
 const MATURITIES = new Set(["draft", "verified", "supported", "deprecated"]);
+const INVOCATION_MODES = new Set(["user", "model", "both"]);
+const DEPENDENCY_TYPES = new Set(["context-required", "context-conditional", "coordination-only", "review-only", "component-dependency"]);
+const TASK_MODES = new Set(["guidance", "integration", "slice-implementation", "troubleshooting", "component-maintenance", "review-input", "contract-compilation", "reroute", "result-validation", "source-index-refresh"]);
 const ID_PATTERN = /^[a-z0-9][a-z0-9-]*$/;
+const CAPABILITY_ID_PATTERN = /^[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9-]*)+$/;
 const PLATFORM_ALIAS_PATTERN = /^[a-z0-9][a-z0-9-]*(?::[a-z0-9][a-z0-9-]*)?$/;
 
 function fail(message) {
@@ -47,9 +51,80 @@ function requireString(value, field) {
   if (typeof value !== "string" || !value.trim()) fail(`${field} 不能为空`);
 }
 
+function requireObject(value, field) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) fail(`${field} 必须是对象`);
+}
+
+function requireStringArray(value, field, { nonEmpty = false } = {}) {
+  if (!Array.isArray(value) || (nonEmpty && value.length === 0) || value.some((item) => typeof item !== "string" || !item.trim())) {
+    fail(`${field} 必须是${nonEmpty ? "非空" : ""}字符串数组`);
+  }
+}
+
+function requireStringSet(value, expected, field) {
+  if (!Array.isArray(value)) fail(`${field} 必须是数组`);
+  const missing = expected.filter((item) => !value.includes(item));
+  const extra = value.filter((item) => !expected.includes(item));
+  if (missing.length || extra.length) fail(`${field} 必须恰好为 ${expected.join(", ")}`);
+}
+
+function effectiveInvocationContract(registry, skill) {
+  const contract = registry.invocation_contract;
+  return {
+    ...contract.default,
+    ...contract.layer_defaults[skill.layer],
+    ...(contract.overrides[skill.id] ?? {})
+  };
+}
+
+function validateInvocationContract(registry, skill) {
+  const contract = registry.invocation_contract;
+  requireObject(contract, "invocation_contract");
+  if (contract.schema_version !== 2) fail("invocation_contract.schema_version 必须为 2");
+  if (contract.scope !== "discovery-only") fail("invocation_contract.scope 必须限定为 discovery-only");
+  requireStringArray(contract.required_fields, "invocation_contract.required_fields", { nonEmpty: true });
+  const expected = ["invocation_mode", "trigger_conditions", "exclusion_conditions", "primary_output"];
+  if (JSON.stringify(contract.required_fields) !== JSON.stringify(expected)) fail("invocation_contract.required_fields 顺序或字段不完整");
+  requireStringArray(contract.allowed_invocation_modes, "invocation_contract.allowed_invocation_modes", { nonEmpty: true });
+  if (![...INVOCATION_MODES].every((mode) => contract.allowed_invocation_modes.includes(mode))) {
+    fail("invocation_contract.allowed_invocation_modes 必须包含 user、model、both");
+  }
+  if (contract.trigger_source !== "impacts" || contract.trigger_encoding !== "impact:<impact>") {
+    fail("invocation_contract 必须从 impacts 生成 impact:<impact> 触发条件");
+  }
+  requireObject(contract.default, "invocation_contract.default");
+  requireObject(contract.layer_defaults, "invocation_contract.layer_defaults");
+  requireObject(contract.overrides, "invocation_contract.overrides");
+  for (const layer of LAYERS) {
+    const layerDefault = contract.layer_defaults[layer];
+    requireObject(layerDefault, `invocation_contract.layer_defaults.${layer}`);
+    if (!INVOCATION_MODES.has(layerDefault.invocation_mode)) fail(`${layer} 的 invocation_mode 无效`);
+    requireString(layerDefault.primary_output, `invocation_contract.layer_defaults.${layer}.primary_output`);
+  }
+  if (!INVOCATION_MODES.has(contract.default.invocation_mode)) fail("invocation_contract.default.invocation_mode 无效");
+  requireStringArray(contract.default.trigger_conditions, "invocation_contract.default.trigger_conditions", { nonEmpty: true });
+  requireStringArray(contract.default.exclusion_conditions, "invocation_contract.default.exclusion_conditions", { nonEmpty: true });
+  requireString(contract.default.primary_output, "invocation_contract.default.primary_output");
+  const knownIds = new Set(registry.skills.map((item) => item?.id).filter(Boolean));
+  for (const [skillId, override] of Object.entries(contract.overrides)) {
+    requireObject(override, `invocation_contract.overrides.${skillId}`);
+    if (!knownIds.has(skillId)) fail(`invocation_contract.overrides 引用了未登记技能: ${skillId}`);
+    if (override.invocation_mode && !INVOCATION_MODES.has(override.invocation_mode)) fail(`${skillId}.invocation_mode 无效`);
+    if (override.trigger_conditions) requireStringArray(override.trigger_conditions, `${skillId}.trigger_conditions`, { nonEmpty: true });
+    if (override.exclusion_conditions) requireStringArray(override.exclusion_conditions, `${skillId}.exclusion_conditions`, { nonEmpty: true });
+    if (override.primary_output) requireString(override.primary_output, `${skillId}.primary_output`);
+  }
+  const effective = effectiveInvocationContract(registry, skill);
+  effective.trigger_conditions = [...new Set([...(effective.trigger_conditions ?? []), ...skill.impacts.map((impact) => `impact:${impact}`)])];
+  if (!INVOCATION_MODES.has(effective.invocation_mode)) fail(`${skill.id}.invocation_mode 无效`);
+  requireStringArray(effective.trigger_conditions, `${skill.id}.trigger_conditions`, { nonEmpty: true });
+  requireStringArray(effective.exclusion_conditions, `${skill.id}.exclusion_conditions`, { nonEmpty: true });
+  requireString(effective.primary_output, `${skill.id}.primary_output`);
+}
+
 export function validateSkillRegistry(registry, { lock, routerContract, lifecycleContract, skillSource } = {}) {
   if (!registry || typeof registry !== "object" || Array.isArray(registry)) fail("技能路由注册表必须是对象");
-  if (registry.schema_version !== 1) fail("schema_version 必须为 1");
+  if (registry.schema_version !== 2) fail("schema_version 必须为 2；v1 已停止支持，请迁移 capability、typed dependencies 与 recipes");
   if (registry.registry_id !== "yss.skill-routing") fail("registry_id 必须为 yss.skill-routing");
   if (!["shadow", "active"].includes(registry.status)) fail("status 必须是 shadow 或 active");
   requireString(registry.description, "description");
@@ -57,11 +132,12 @@ export function validateSkillRegistry(registry, { lock, routerContract, lifecycl
   if (registry.canonical_content_root !== ".agents/skills") fail("canonical_content_root 必须为 .agents/skills");
   const runtime = registry.runtime_policy;
   if (!runtime || typeof runtime !== "object") fail("缺少 runtime_policy");
-  if (typeof runtime.consumed_by_router !== "boolean" || typeof runtime.consumed_by_lifecycle !== "boolean" || typeof runtime.discovery_enforced !== "boolean") {
-    fail("runtime_policy 必须声明 consumed_by_router、consumed_by_lifecycle、discovery_enforced");
+  if (typeof runtime.consumed_by_compiler !== "boolean" || typeof runtime.consumed_by_lifecycle !== "boolean" || typeof runtime.discovery_enforced !== "boolean") {
+    fail("runtime_policy 必须声明 consumed_by_compiler、consumed_by_lifecycle、discovery_enforced");
   }
-  if (registry.status === "shadow" && (runtime.consumed_by_router || runtime.consumed_by_lifecycle || runtime.discovery_enforced)) {
-    fail("shadow 注册表不得被 Router、生命周期或发现面强制消费");
+  if (runtime.consumed_by_compiler !== false) fail("战略设计 profile 不得被实现合同编译器消费");
+  if (registry.status === "shadow" && (runtime.consumed_by_compiler || runtime.consumed_by_lifecycle || runtime.discovery_enforced)) {
+    fail("shadow 注册表不得被生命周期或发现面强制消费");
   }
   const roots = registry.agent_runtime_roots;
   if (!roots || typeof roots !== "object" || Array.isArray(roots)) fail("缺少 agent_runtime_roots");
@@ -122,6 +198,7 @@ export function validateSkillRegistry(registry, { lock, routerContract, lifecycl
     if (!Array.isArray(skill.impacts) || skill.impacts.length === 0 || skill.impacts.some((item) => typeof item !== "string" || !item.trim())) {
       fail(`${skill.id} impacts 不能为空`);
     }
+    validateInvocationContract(registry, skill);
   }
   for (const skill of skills) {
     if (skill.replaced_by && !ids.has(skill.replaced_by)) fail(`${skill.id}.replaced_by 引用了未登记技能: ${skill.replaced_by}`);
@@ -160,6 +237,88 @@ export function validateSkillRegistry(registry, { lock, routerContract, lifecycl
     }
   }
 
+  const registeredDependency = (name) => ids.has(name)
+    || aliases.has(name)
+    || externalIds.has(name)
+    || platformAliases.has(name)
+    || [...platformIds].some((key) => key.endsWith(`:${name}`));
+  const capabilityContract = registry.capability_contract;
+  requireObject(capabilityContract, "capability_contract");
+  if (capabilityContract.schema_version !== 2) fail("capability_contract.schema_version 必须为 2");
+  requireStringSet(capabilityContract.dependency_types, [...DEPENDENCY_TYPES], "capability_contract.dependency_types");
+  requireStringSet(capabilityContract.task_modes, [...TASK_MODES], "capability_contract.task_modes");
+  requireObject(capabilityContract.closure, "capability_contract.closure");
+  requireStringSet(capabilityContract.closure.recursive_types, ["context-required"], "capability_contract.closure.recursive_types");
+  if (capabilityContract.closure.conditional_type !== "context-conditional") fail("条件依赖类型必须为 context-conditional");
+  requireStringSet(capabilityContract.closure.non_expanding_types, ["coordination-only", "review-only", "component-dependency"], "capability_contract.closure.non_expanding_types");
+  if (capabilityContract.closure.deduplicate_skills !== true || capabilityContract.closure.preserve_all_reasons !== true) {
+    fail("capability closure 必须去重 skill 并保留全部原因链");
+  }
+  if (JSON.stringify(capabilityContract.deterministic_order) !== JSON.stringify(["recipe-declaration", "dependency-topology", "skill-id"])) {
+    fail("capability_contract.deterministic_order 必须固定为 recipe-declaration、dependency-topology、skill-id");
+  }
+
+  if (!Array.isArray(registry.capabilities) || registry.capabilities.length === 0) fail("capabilities 不能为空");
+  const capabilityIds = new Set();
+  for (const [index, capability] of registry.capabilities.entries()) {
+    const prefix = `capabilities[${index}]`;
+    requireObject(capability, prefix);
+    requireString(capability.id, `${prefix}.id`);
+    if (!CAPABILITY_ID_PATTERN.test(capability.id)) fail(`${prefix}.id 必须使用 dotted namespace: ${capability.id}`);
+    if (capabilityIds.has(capability.id)) fail(`重复 capability id: ${capability.id}`);
+    capabilityIds.add(capability.id);
+    requireString(capability.primary_skill, `${prefix}.primary_skill`);
+    if (!ids.has(capability.primary_skill)) fail(`${capability.id} 的 primary_skill 未登记: ${capability.primary_skill}`);
+    requireStringArray(capability.task_modes, `${prefix}.task_modes`, { nonEmpty: true });
+    for (const mode of capability.task_modes) if (!TASK_MODES.has(mode)) fail(`${capability.id} 使用未知 task mode: ${mode}`);
+  }
+
+  if (!Array.isArray(registry.recipes) || registry.recipes.length === 0) fail("recipes 不能为空");
+  const recipeIds = new Set();
+  for (const [index, recipe] of registry.recipes.entries()) {
+    const prefix = `recipes[${index}]`;
+    requireObject(recipe, prefix);
+    requireString(recipe.id, `${prefix}.id`);
+    if (!CAPABILITY_ID_PATTERN.test(recipe.id)) fail(`${prefix}.id 必须使用 dotted namespace: ${recipe.id}`);
+    if (recipeIds.has(recipe.id)) fail(`重复 recipe id: ${recipe.id}`);
+    recipeIds.add(recipe.id);
+    requireStringArray(recipe.capabilities, `${prefix}.capabilities`, { nonEmpty: true });
+    for (const capabilityId of recipe.capabilities) if (!capabilityIds.has(capabilityId)) fail(`${recipe.id} 引用了未知 capability: ${capabilityId}`);
+    if (recipe.skills !== undefined) fail(`${recipe.id} 只能引用 capabilities，不能直接引用 skills`);
+  }
+
+  requireObject(registry.skill_dependencies, "skill_dependencies");
+  const requiredGraph = new Map([...ids].map((id) => [id, []]));
+  for (const [owner, dependencies] of Object.entries(registry.skill_dependencies)) {
+    if (!ids.has(owner)) fail(`skill_dependencies 使用未知 owner: ${owner}`);
+    if (!Array.isArray(dependencies)) fail(`skill_dependencies.${owner} 必须是数组`);
+    const edgeKeys = new Set();
+    for (const [index, dependency] of dependencies.entries()) {
+      const prefix = `skill_dependencies.${owner}[${index}]`;
+      requireObject(dependency, prefix);
+      requireString(dependency.skill, `${prefix}.skill`);
+      if (!registeredDependency(dependency.skill)) fail(`${owner} 的依赖引用了未登记技能: ${dependency.skill}`);
+      if (dependency.skill === owner) fail(`${owner} 不得依赖自身`);
+      if (!DEPENDENCY_TYPES.has(dependency.type)) fail(`${owner} 使用未知依赖类型: ${dependency.type}`);
+      if (dependency.type === "context-conditional") requireString(dependency.when, `${prefix}.when`);
+      if (dependency.when !== undefined) requireString(dependency.when, `${prefix}.when`);
+      const edgeKey = `${dependency.skill}\0${dependency.type}\0${dependency.when ?? ""}`;
+      if (edgeKeys.has(edgeKey)) fail(`${owner} 包含重复依赖: ${dependency.skill}`);
+      edgeKeys.add(edgeKey);
+      if (dependency.type === "context-required" && ids.has(dependency.skill)) requiredGraph.get(owner).push(dependency.skill);
+    }
+  }
+  const visiting = new Set();
+  const visited = new Set();
+  const visit = (skillId, chain = []) => {
+    if (visiting.has(skillId)) fail(`context-required 依赖存在循环: ${[...chain, skillId].join(" -> ")}`);
+    if (visited.has(skillId)) return;
+    visiting.add(skillId);
+    for (const dependency of requiredGraph.get(skillId) ?? []) visit(dependency, [...chain, skillId]);
+    visiting.delete(skillId);
+    visited.add(skillId);
+  };
+  for (const skillId of ids) visit(skillId);
   if (lock) {
     const shared = Object.keys(lock.skills?.shared ?? {}).sort();
     const registered = [...ids].sort();

@@ -11,7 +11,7 @@ Matt skills 决定如何工作；YSS Strategic Design 决定是否允许推进�
 - **直接调用兼容入口**（`ask-matt`、`grill-me`、`grill-with-docs`、`to-spec`、`to-tickets`、`triage`、`wayfinder`）时，用户仍是正式资产的创建者；战略编排器先校验前置条件，再接受结果并重新计算阶段、门禁和状态。它们不得自动调用，也不得越过 Strategic Design Handoff。
 - **直接调用 `yss-strategic-design`** 时，不机械嵌套调用任何 Matt user-invoked skill；编排器直接使用原生工作单元和允许的 model-invoked 原语。
 - `template-source` 只允许进入模板维护流程。命中 `to-spec`、`to-tickets`、Release 或 Retrospective 时返回 `blocked`，原因是 `template-source-product-artifact-forbidden`；所有兼容入口都不得为具体产品生成超出本 profile 的资产。
-- `project-instance` 才允许进入产品 Discovery → Spec → 设计 → 契约 → Ticket → 实现 → Release / Retrospective 链路。
+- `project-instance` 才允许进入 Discovery → DDD 战略设计 → Spec → 产品设计 → 业务 Ticket → Strategic Design Handoff 链路。
 
 | 情形 | Matt flow | 生命周期验收 |
 |---|---|---|
@@ -25,8 +25,8 @@ Matt skills 决定如何工作；YSS Strategic Design 决定是否允许推进�
 | Spec 综合 | 原生 `work-unit.spec-synthesis`；`to-spec`（用户显式兼容） | 初稿进入 `ready-for-human`，不得直接实现 |
 | 业务级 Ticket | 原生 `work-unit.business-ticket-formalization`；`to-tickets`（用户显式兼容） | 形成业务能力/用户行为级 Ticket，初始状态为 `ready-for-human` |
 | 实现 | 下游研发 profile 的 `work-unit.slice-implementation` | Strategic Design Handoff 后移交；当前分支不提供 `implement` |
-| Bug | `diagnosing-bugs`、`tdd` | 先建立红色反馈；高风险影响升级上游门禁 |
-| 审查 | `code-review` | 唯一默认代码审查入口；审查者独立，结合 Spec、仓库治理规则和 YSS 标准 |
+| Bug / 失败诊断 | `diagnosing-bugs` | 先建立可复现反馈；若暴露战略资产漂移，则回到对应上游工作单元 |
+| merge / rebase 冲突 | `resolving-merge-conflicts` | 只处理当前 Harness 的资产冲突；发现语义漂移时暂停并重算影响面 |
 | 跨上下文 | `handoff` | 保存来源、阶段、未决项、命令和下一责任人 |
 | 阶段边界 | `PHASE-BOUNDARIES.md` | 按 `Continue → /clear → /handoff → subagent → /compact` 选择上下文动作；只记录证据，不扩展生命周期状态 |
 | 解释未落地 | `wait-what` | 只重新解释当前结论，不改变阶段、门禁、Ticket 或 `ready-for-agent` |
@@ -35,7 +35,7 @@ Matt skills 决定如何工作；YSS Strategic Design 决定是否允许推进�
 
 尽量不修改 Matt skill 以复制 YSS 规则。只有它违反模板硬门禁时才做最小兼容修改。
 
-Router 只能返回 `draft`、`blocked` 或 `ready-for-lifecycle-review`，不得自行批准合同、设置 `ready-for-agent` 或宣布完成。`new_impacts`、`drift`、`violation`、越界路径或缺失实际验证会暂停当前工作单元，并由本编排器决定增量重路由、完整重路由或回到更早生命周期阶段。
+任何下游 Router / 实现合同结果都不是本 profile 的本地输入。`new_impacts`、`drift`、`violation`、越界路径或缺失实际验证会暂停当前工作单元，并由本编排器决定增量重路由、完整重路由或回到更早生命周期阶段。
 
 ## Workflow Execution Result
 
@@ -62,7 +62,7 @@ blocking_signals: []
 
 Router 状态映射为：`draft → completed`、`blocked → blocked`、`ready-for-lifecycle-review → needs-human`。这里的 `completed` 只表示 Matt 工作单元已产出可验收结果，不表示生命周期完成或可发布。
 
-`completed` 的 `evidence_refs` 至少包含一条可读取或可解析的证据引用；只有字段存在但为空，不能证明工作单元完成。兼容入口下的正式 Spec、Ticket 或实现资产仍只能由对应显式用户入口创建；原生工作单元由生命周期编排器创建并持有状态。
+`completed` 的 `evidence_refs` 至少包含一条可读取或可解析的证据引用；只有字段存在但为空，不能证明工作单元完成。兼容入口下的正式 Spec 或业务 Ticket 仍只能由对应显式用户入口创建；原生工作单元由生命周期编排器创建并持有状态。
 
 ## Matt flow 前置条件
 
@@ -74,9 +74,9 @@ Router 状态映射为：`draft → completed`、`blocked → blocked`、`ready-
 
 `grill_exit` 不是“已经聊过”的自然语言声明。它必须同时证明 frontier 为空、事实已解决或分别路由到 `yss-research` / prototype / external input、用户决策已确认、双方共同理解已确认，并且没有未回流的 runnable blocker。
 
-## Review 候选与 Git 授权
+## 战略资产审查与 Git 授权
 
-YSS 调用 `code-review` 前必须形成 review input，至少包含 `review_mode`、`review_base_ref`、`implementation_candidate_ref`、`candidate_snapshot_ref`、`candidate_digest`、`spec_ref`、`ticket_ref`、`slice_contract_ref`、`build_architecture_checklist_ref` 和 `yss_execution_result_refs`，并满足 `orchestration-contract.yaml.review_input.manifest_required_by_mode`。`committed` 审查 merge-base 到不可变 `HEAD`；`worktree` 一次捕获 merge-base 到 working tree 的 committed、staged、unstaged 和 untracked 内容，使用 `yss-worktree-candidate-v1` 规定的 raw path、uint64 big-endian 长度、tracked/untracked record 和不支持条目阻断规则计算 SHA-256，让两个 Reviewer 消费同一不可变快照，并在返回和完成 checkpoint 复核摘要未变化。缺少输入、候选为空或摘要变化时返回 `blocked`，不能缩小审查范围或合并不同候选的结论。
+本 profile 只审查领域战略、阶段决策包、Spec、H1/H2 原型、业务 Ticket 和 Strategic Design Handoff。原型必须由独立 `prototype-review` 审查，其余稳定资产按数字人会签合同验收；代码候选、Slice Contract 与实现审查输入属于下游研发 profile。
 
 Matt flow 的通用提交指令不构成 YSS Git 授权。只有用户明确给出 `commit_authorized` 为 `true`、非空 `commit_scope` 和 `commit_authorization_ref` 时才能 commit；只有明确给出 `push_authorized` 为 `true`、非空 `push_scope` 和 `push_authorization_ref` 时才能 push。缺少任一字段时保持工作区不变，只输出 checkpoint 判断；不得把 `orchestrate`、当前分支、测试通过或负责人要求解释为隐含授权。`git-submodule` 还必须按仓授权、禁止 detached HEAD 提交，并先推子仓再更新父仓 gitlink。
 
@@ -92,7 +92,7 @@ Matt flow 的通用提交指令不构成 YSS Git 授权。只有用户明确给�
 
 证据必须覆盖实际 platform、五态 `label_check` 或 Local `Status:` 检查、`domain_layout`、`artifact_root` 和 `migration_ref`。已持久化 tracker 配置优先于主远端；配置之间或真实标签/Local 状态之间冲突时不覆盖。Local 主 tracker 使用 `docs/.scratch/<feature>/` 完整功能包，不要求远程 Ticket；根 `.scratch/` 与 `docs/requirements/tickets/` 只可作为旧路径迁移来源。仅发现旧路径资产时返回迁移所需结果并暂停写入；新旧路径同时存在时返回 `conflict`。已选择的 GitHub/GitLab 暂不可用时才保留“待发布平台”草案，并在父 Ticket 保留目标平台、`publication: pending` 和 `pending_publication_to`。`template-source` 只执行 validate-only，不初始化具体产品 tracker。
 
-当 YSS 生命周期处于 active 状态时，Matt `to-spec` 中独立运行时的 `ready-for-agent` 发布提示由本适配层覆盖为 `ready-for-human`：Spec 必须先经过产品总体设计 / 功能架构、必要的设计与契约门禁，之后才由生命周期编排器决定垂直切片 Ticket 的 `ready-for-agent`。这只约束 YSS 编排下的状态写入，不修改 Matt skill 单独运行时的核心行为。
+当 YSS 生命周期处于 active 状态时，Matt `to-spec` 中独立运行时的 `ready-for-agent` 发布提示由本适配层覆盖为 `ready-for-human`。本 profile 永不提升为 `ready-for-agent`；是否创建可实现切片由下游研发 profile 重新裁决。这只约束 YSS 编排下的状态写入，不修改 Matt skill 单独运行时的核心行为。
 
 `setup-matt-pocock-skills` 仅由用户显式启动。readiness=`missing` 时返回 `needs-human`、`requested_skill=setup-matt-pocock-skills` 和 `resume_route=setup-readiness`；仅发现旧路径资产仍进入 migration-check 并暂停写入。`ready` 直接继续，`conflict` 进入迁移裁决，`degraded` 保留待发布草案，`not-applicable` 仅验证模板契约。通用 setup 文案与 YSS tracker 合同冲突时，以 `docs/agents/issue-tracker.md` 和本编排契约为准。
 
@@ -104,19 +104,18 @@ Matt flow 的通用提交指令不构成 YSS Git 授权。只有用户明确给�
 |---|---|
 | Discovery | `docs/.scratch/<feature>/discovery/` |
 | Spec | `docs/.scratch/<feature>/spec.md` |
-| Spec Delta | `docs/.scratch/<feature>/spec-delta/` |
-| 功能父 Ticket | `docs/.scratch/<feature>/parent-ticket.md` |
 | Wayfinder map | `docs/.scratch/<feature>/map.md` |
-| 垂直切片 Ticket | `docs/.scratch/<feature>/issues/NN-<slug>.md` |
-| 设计 / API / 架构草案 | `docs/.scratch/<feature>/design/`、`api/`、`architecture/` |
+| 产品设计与原型 | `docs/.scratch/<feature>/design/` |
+| 业务级 Ticket | `docs/.scratch/<feature>/issues/NN-<slug>.md` |
+| Strategic Design Handoff | `docs/.scratch/<feature>/strategic-design-handoff.yaml` |
 | 门禁 / 验证 / checkpoint | `docs/.scratch/<feature>/gates/`、`verification/` |
 
-Local Ticket 的文件路径是稳定身份，顶部 `Status:` 保存 Matt 五态；远程 URL 只作为显式镜像引用。`ready-for-agent` 仍只能由生命周期编排器在所有必要门禁、阻塞边、实现上下文和 Slice Implementation Contract 满足后设置。
+Local Ticket 的文件路径是稳定身份，顶部 `Status:` 保存 Matt 五态；远程 URL 只作为显式镜像引用。本 profile 的业务 Ticket 固定停在 `ready-for-human`。
 
 ## Phase boundary 优先级
 
 Matt 的上下文建议不能覆盖 YSS 的 phase-boundary 契约。固定按 `Continue → /clear → /handoff → subagent → /compact` 判断，`/clear` 不是每个 Ticket 的强制动作；任何选择都不得改变生命周期阶段、门禁或 Ticket 五态。
 
-## Release / Retrospective
+## 下游边界
 
-Release 和 Retrospective 是生命周期编排器拥有的工作单元，不由 `ask-matt` 的默认 `idea → ship` 流程隐式完成。进入发布或完成结论前必须重新取得 fresh verification、发布/回滚证据和独立审查结果；复盘同样必须有 fresh verification，再按模板治理规则回流 `AGENTS.md`、`CONTEXT.md`、ADR 或 Skill。
+Release、Retrospective、Tactical DDD、OpenAPI、技术 Ticket、实现和代码审查都由下游研发 profile 持有。`ask-matt` 的默认 `idea → ship` 流程不得在当前 Harness 内跨过 Strategic Design Handoff。

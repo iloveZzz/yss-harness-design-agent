@@ -324,7 +324,8 @@ export function validateDigitalHumanRoles(doc, { skillIds, stageIds, gateIds, ar
   }
   const claimed = new Set();
   for (const bucket of STRING_GATE_BUCKETS) {
-    requireStringArray(policy[bucket], `gate_policy.${bucket}`);
+    if (bucket === "orchestrator") requireStringArrayOrEmpty(policy[bucket], `gate_policy.${bucket}`);
+    else requireStringArray(policy[bucket], `gate_policy.${bucket}`);
     for (const gate of policy[bucket]) {
       if (!gateIds.has(gate)) fail(`gate_policy.${bucket} 引用了未知门禁: ${gate}`);
       if (claimed.has(gate)) fail(`门禁被多个会签桶重复占用: ${gate}`);

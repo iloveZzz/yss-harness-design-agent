@@ -154,6 +154,11 @@ groups:
     commands:
       - { run: "scripts/verify-entry-alignment" }
       - { run: "scripts/verify-lifecycle-scenarios" }
+      - { run: "node .agents/skills/yss-stage-decision/tests/run-scenarios.mjs" }
+      - { run: "node .agents/skills/yss-research/tests/run-scenarios.mjs" }
+      - { run: "node .agents/skills/yss-prototype-stage/tests/run-scenarios.mjs" }
+      - { run: "node --test .agents/skills/yss-design-system/scripts/validate-frontmatter.test.mjs" }
+      - { run: "node --test .agents/skills/yss-antd-design/scripts/validate-frontmatter.test.mjs" }
   collaboration:
     commands:
       - { run: "scripts/verify-digital-human-roles" }

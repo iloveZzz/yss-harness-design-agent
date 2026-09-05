@@ -40,11 +40,14 @@ required_files:
   - docs/process/schemas/context-reconciliation.schema.json
   - docs/process/templates/lifecycle-checkpoint-template.yaml
   - docs/process/templates/context-reconciliation-template.yaml
+  - docs/design/schemas/visual-baseline.schema.json
+  - docs/design/templates/visual-baseline-template.yaml
   - docs/templates/subagent-task-package-template.md
   - docs/templates/strategic-design-handoff-template.yaml
   - .agents/skills/yss-strategic-design/SKILL.md
   - .agents/skills/yss-strategic-design/agents/openai.yaml
   - .agents/skills/yss-strategic-design/references/orchestration-contract.yaml
+  - .agents/skills/yss-prototype-stage/scripts/visual-baseline-contract.mjs
   - scripts/repository-mode
   - scripts/sync-skills
   - scripts/update-skill-lock
@@ -170,6 +173,7 @@ groups:
       - { run: "node .agents/skills/yss-stage-decision/tests/run-scenarios.mjs" }
       - { run: "node .agents/skills/yss-research/tests/run-scenarios.mjs" }
       - { run: "node .agents/skills/yss-prototype-stage/tests/run-scenarios.mjs" }
+      - { run: "node .agents/skills/yss-prototype-stage/scripts/visual-baseline-contract.mjs validate docs/design/templates/visual-baseline-template.yaml --allow-template" }
       - { run: "node --test .agents/skills/yss-design-system/scripts/validate-frontmatter.test.mjs" }
       - { run: "node --test .agents/skills/yss-antd-design/scripts/validate-frontmatter.test.mjs" }
       - { run: "node .agents/skills/yss-antdv-next-design/tests/run-scenarios.mjs" }

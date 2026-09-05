@@ -39,8 +39,8 @@ export function validateSkillGovernance({ read = (relative) => readFileSync(path
   }
   const prototypeSkill = read(".agents/skills/yss-prototype-stage/SKILL.md");
   const prototypeContract = read(".agents/skills/yss-prototype-stage/scripts/prototype-contract.mjs");
-  if (!prototypeSkill.includes("H1/H2") || !prototypeContract.includes("schema_version 必须为 3")) {
-    fail("yss-prototype-stage 必须提供 H1/H2 路由与 schema v3 合同校验");
+  if (!prototypeSkill.includes("H1/H2") || !prototypeContract.includes("schema_version 必须为 4") || !prototypeSkill.includes("Visual Baseline schema v1")) {
+    fail("yss-prototype-stage 必须提供 H1/H2 路由、Prototype Evidence schema v4 与 Visual Baseline schema v1 合同校验");
   }
   const lock = JSON.parse(read("skills-lock.json"));
   const productDesignPath = lock.skills?.platform?.[".codex/skills"]?.["product-design"]?.skillPath;

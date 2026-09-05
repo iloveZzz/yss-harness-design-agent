@@ -1,6 +1,6 @@
-schema_version: 2
+schema_version: 3
 handoff_id: strategic-design-handoff.<feature>
-handoff_version: v2
+handoff_version: v3
 status: draft
 
 source:
@@ -28,6 +28,14 @@ source:
     digest: <prototype-digest>
     status: approved
     persisted_ref: docs/.scratch/<feature>/design/prototype.html
+  visual_baseline_ref:
+    baseline_id: visual-baseline.<feature>
+    version: v1
+    digest: <visual-baseline-digest>
+    status: approved
+    persisted_ref: docs/.scratch/<feature>/handoff/visual-baseline-v1
+    manifest_ref: visual-baseline.yaml
+    case_ids: [primary-desktop, primary-narrow]
   business_ticket_set_ref:
     id: business-ticket-set.<feature>
     version: v1

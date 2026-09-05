@@ -1,107 +1,84 @@
-# AGENTS.md — AI 开发入口规则
+# AGENTS.md — 战略设计 Harness 入口
 
-> 本文件只保存 Agent 必须首先遵守的仓库身份路由、硬门禁和禁止事项。生命周期对象 ID 以 `docs/process/lifecycle-registry.yaml` 为准；本仓本地执行边界以 `docs/process/harness-profile.yaml` 为准。完整流程裁剪见 `docs/process/harness-process-tailoring.md`。
+> 本文件只保存常驻路由、硬门禁和禁止事项。生命周期 ID 以 `docs/process/lifecycle-registry.yaml` 为准；本仓边界以 `docs/process/harness-profile.yaml` 为准；影响面裁剪见 `docs/process/harness-process-tailoring.md`。
 
 **项目名称：** [填写]
 **业务领域：** [填写]
 **团队规模：** [填写]
 
-## 1. 首先识别仓库身份
+## 1. 仓库身份
 
-每个任务开始时先读取根目录 `yss-project.yaml`：
+每个任务先读根目录 `yss-project.yaml`：
 
-- `repository_mode: template-source`：使用模板维护流程，不生成具体产品的 Discovery、Spec、原型、业务级 Ticket 或业务方案交接包。
-- `repository_mode: project-instance`：按 `harness.business-ddd-strategy-handoff` 分诊；本地生命周期在 `work-unit.strategic-design-handoff` 结束。
-- 文件缺失、schema 版本不支持或模式值非法时，停止路由并执行迁移检查；不根据目录、Git 远程或占位符猜测身份。
-
-仓库身份契约由根目录 `yss-project.yaml` 和本文件共同声明。
+- `template-source` 只维护模板，不生成具体产品的 Discovery、Spec、原型、业务级 Ticket 或交接包。
+- `project-instance` 使用 `harness.business-ddd-strategy-handoff`；本地终点为 `work-unit.strategic-design-handoff`。
+- 文件缺失、schema 不支持或模式非法时停止路由并执行迁移检查；不得根据目录、Git 远程或占位符猜测身份。
 
 ## 2. 单一事实来源
 
-| 事实类型 | 权威资产 |
-| --- | --- |
-| 领域与流程词汇 | `CONTEXT.md` |
-| Agent 入口、硬门禁、禁止事项 | `AGENTS.md` |
-| 本仓本地职责边界 | `docs/process/harness-profile.yaml`（`harness.business-ddd-strategy-handoff`） |
-| 主阶段、门禁、产物、工作单元、证据和稳定 ID | `docs/process/lifecycle-registry.yaml`；`docs/process/lifecycle-artifact-map.md` 为派生阅读视图。注册表可保留下游兼容 ID；本地只执行 profile 的 `allowed_work_units` |
-| 影响面触发与 `not-applicable` | `docs/process/harness-process-tailoring.md` |
-| 模板维护强度触发与最低等级 | `docs/process/maintenance-intensity.yaml` |
-| 技能清单、来源、版本、哈希和投影目标 | `skills-lock.json` |
-| 技能分层、别名、默认可发现性和运行时入口 | `docs/agents/yss-skill-registry.yaml`（当前 `status: active`，生命周期消费，Router 不消费） |
-| 视觉令牌与组件视觉变体规范 | 根目录 `DESIGN.md`；`docs/design/design.md` 为中文治理与生命周期适配，`docs/design/tokens/*` 为派生快照 |
-| 实例分发清单 | `docs/process/instance-distribution-manifest.yaml`；CLI `template.manifest.json` 是其投影 |
-| 数字人角色、阶段协作组、运行时绑定与生命周期会签 | `docs/agents/digital-human-roles.yaml`；`docs/agents/digital-human-roles.md` 为操作说明 |
+| 事实 | 权威资产 |
+|---|---|
+| 业务词汇 | 根 `CONTEXT.md` |
+| 本仓职责与允许 / 禁止工作单元 | `docs/process/harness-profile.yaml` |
+| 生命周期 ID 与条件门禁 | `docs/process/lifecycle-registry.yaml`；`docs/process/lifecycle-artifact-map.md` 仅为派生视图 |
+| 影响面与维护强度 | `docs/process/harness-process-tailoring.md`、`docs/process/maintenance-intensity.yaml` |
+| 技能身份与路由 | `docs/agents/yss-skill-registry.yaml`（`status: active`；由生命周期消费，Router 不消费）；来源与投影见 `skills-lock.json` |
+| 数字人角色与会签 | `docs/agents/digital-human-roles.yaml` |
+| 实例分发 | `docs/process/instance-distribution-manifest.yaml`；CLI `template.manifest.json` 是投影 |
 
-README、用户指南、根目录 `CLAUDE.md` 和其他说明文档只引用或解释上述事实，不重复定义同一规则。`CLAUDE.md` 是 Claude Code 入口指针，不是第二套 Agent 规则。
+README、用户指南和 `CLAUDE.md` 只解释或指向上述事实，不定义第二套规则。
 
-## 3. 标准文档语言与规范语汇
+## 3. 语言与 Context Contract
 
-- 所有面向业务、产品、架构、实施、审查、发布和复盘的落地文档，正文统一使用简体中文。
-- 英文专有名词、代码标识、API 路径、schema、类名、方法名、枚举值、错误码、命令、文件名和协议 metadata 保持原样。
-- 新流程统一使用 Spec、Ticket、`to-spec`、`to-tickets`。过时术语和技能名只能出现在迁移指南或明确标注的旧项目上下文。
-- `CONTEXT.md` 是 Spec 构建及其落地工具链的统一业务词汇输入，也是所有会创建或修改稳定业务、产品、架构资产的强制前置上下文。`yss-strategic-design`、其原生 work unit，以及 `ask-matt`、`grill-me`、`grill-with-docs`、`to-spec`、`to-tickets`、`triage`、`wayfinder` 等显式兼容入口，在规划、起草、评审或拆业务 Ticket 前都必须读取并持续消费它；工具无法读取或消费时必须暂停并返回 `blocked`，不得凭临场翻译、同义词或局部上下文继续。
-- 稳定业务术语必须先在 `CONTEXT.md` 中登记 PascalCase `英文标识`，再进入 Spec、原型、Ticket 或其他资产。改中文术语或英文标识都先回写 `CONTEXT.md`，并重新检查受影响资产；与词汇或 ADR 冲突时立即指出并先解决冲突。
-- 每个 YSS Git 仓库只允许根目录一个大小写精确的 `CONTEXT.md`；禁止嵌套 `CONTEXT.md`、`CONTEXT-MAP.md`、跨仓相对/绝对路径和 `CONTEXT.md#...` 伪锚点。业务术语引用统一使用 `<ContextId>/<EnglishIdentifier>`，`ContextId` 必须来自已批准领域战略，真正跨上下文共享的术语使用 `Global/<EnglishIdentifier>`。
-- `project-instance` 的每个工作单元在申请批准或进入下一工作单元前，必须完成 `context_reconciliation`：稳定术语先回写根 `CONTEXT.md`，再核对全文 `document_digest` 与所引用术语的 `referenced_terms_digest`。未决候选不进入 `CONTEXT.md`；核对缺失、冲突或摘要漂移必须 `blocked`。该证据是横切完成条件，不新增生命周期门禁；`template-source` 只校验模板合同并记录带原因的 `not-applicable`。
+- 业务、产品、架构、审查、交接和复盘文档正文使用简体中文；代码标识、API、schema、命令、文件名和协议 metadata 保持原样。
+- 创建或修改稳定业务、产品、架构资产前必须读取并持续消费根 `CONTEXT.md`；无法读取时返回 `blocked`。
+- 稳定术语先在根 `CONTEXT.md` 登记 PascalCase 英文标识，再进入 Spec、原型、Ticket 或交接资产。每仓仅允许一个根 `CONTEXT.md`；术语引用使用 `<ContextId>/<EnglishIdentifier>`，真正共享的术语使用 `Global/<EnglishIdentifier>`。
+- `project-instance` 每个工作单元流转或申请批准前完成 `context_reconciliation`：先回写稳定术语，再核对 `document_digest` 与 `referenced_terms_digest`；缺失、冲突或漂移即 `blocked`。模板源只校验该合同并记录有理由的 `not-applicable`。
 
-## 4. `template-source` 模板维护路由
+## 4. `template-source` 维护
 
-按“影响面 → 单一事实来源 → 投影 / 派生资产 → 分级证据”维护。强度分级、最低证据和 checkpoint 合同见 `docs/process/harness-process-tailoring.md`。
+- 创建、修改或退役 skill 时使用 `maintaining-skills`，维护强度和证据以裁剪文档为准；日常停在 `implementation-ready`，发布前执行完整门禁。
+- `.agents/skills` 是共享技能权威内容；`.claude/skills`、`.codex/skills`、`.cursor/skills`、`.pi/skills`、`.qoder/skills`、`.trae/skills` 是生成投影，不得分别手改。
+- 依次使用 `scripts/verify-template-fast`、显式候选时的 `scripts/verify-template-candidate` 和发布前不可裁剪的 `scripts/verify-template`。未完成 `create-yss-harness-design` 快照同步及生成实例验证，不得宣称可发布；不得绑定 `create-yss-spec`。
 
-- 创建、修改或退役 skill 时使用 `maintaining-skills`，并先按 `docs/process/harness-process-tailoring.md` 判定 L1 / L2 / L3；只有 L3 必须保留完整基线失败、压力场景、修订后验证和正式独立审查证据。
-- `.agents/skills` 是跨 Agent 共享技能的权威内容；`.claude/skills`、`.codex/skills`、`.cursor/skills`、`.pi/skills`、`.qoder/skills`、`.trae/skills` 中的共享技能是生成投影，禁止分别手工修改。Cursor 的契约运行时入口是 `.cursor/skills`；不得把 canonical `.agents/skills` 与某个平台投影当作同权双入口。
-- 模板维护默认以 `scripts/verify-template-fast` 完成 `implementation-ready`；PR 和显式候选检查使用 `scripts/verify-template-candidate`；最终发布仍必须执行不可裁剪的 `scripts/verify-template`。未映射路径或核心核验资产变化时，fast / candidate 必须 fail-safe 升级为完整门禁。模板与外部 `create-yss-harness-design` 的跨仓库契约未完成集成验证时，不得声称可发布。不得把本仓发布绑定到 `create-yss-spec`。
+## 5. `project-instance` 战略设计路由
 
-## 5. `project-instance` 业务方案设计路由
+先读 `docs/process/harness-profile.yaml`，再按影响面和最近可信阶段裁剪；注册表可保留下游兼容 ID，本地只执行 profile 的 `allowed_work_units`。
 
-先读 `docs/process/harness-profile.yaml`，再用 `docs/process/harness-process-tailoring.md` 判定变更类型、影响面和最近可信阶段。生命周期注册表提供全链 ID；本地只执行 profile 的 `allowed_work_units`，终点是 `work-unit.strategic-design-handoff`，完成后 `next_route` 必须为 `null`。
-
-- 本地主链：入口分诊 → 机会与目标 → 业务故事 → 业务边界与协作 → 规则、例子与疑问 → 方案决策包 → Spec → 页面验证 → 业务级 Ticket → 业务方案交接。
-- 条件门禁仍按影响面强制。命中则必须完成；未命中只记录 `not-applicable` 及原因，不生成空文档。不得把产物、工作单元或证据统称为门禁。
-- 新功能或较大变更先进入 `yss-strategic-design` 的原生 Discovery / 需求分析工作单元；兼容入口 `ask-matt`、`grill-me`、`grill-with-docs`、`to-spec`、`to-tickets`、`triage`、`wayfinder` 只能显式启动并回交编排器验收。`implement` 不属于本分支入口，必须 `blocked` 并转交下游研发 profile。
-- 本地不得生成 OpenAPI、下游技术设计、Slice Implementation Contract、垂直切片 Ticket 或运行时代码。`forbidden_work_units` 与 `forbidden_artifacts` 以 profile 为准。
-- Spec Delta 只记录相对既有冻结 Spec 基线的高风险行为差异；全新产品、全新模块和低风险调整不生成 Spec Delta。
-- 安全 / 权限不设独立生命周期资料或专属门禁。日常功能不做额外登记；只有需求或冻结资产明确要求改变认证、授权、租户隔离、敏感数据或合规行为时，才写入普通 Spec、验收和测试 seam。
-- `seam-deferred` 只能显式记录风险、责任人、后续 Ticket、验证计划和目标版本或发布日期。
+- 主链：入口分诊 → 机会与目标 → 业务故事 → 业务边界与规则 → 阶段决策 → Spec → 页面验证 → 业务级 Ticket → Strategic Design Handoff。
+- 新功能或较大变更进入 `yss-strategic-design`；`ask-matt`、`grill-me`、`grill-with-docs`、`to-spec`、`to-tickets`、`triage`、`wayfinder` 仅为显式兼容入口，完成后回交编排器验收。
+- 命中的条件门禁必须完成；未命中只记录有理由的 `not-applicable`，不生成空文档。`seam-deferred` 必须记录风险、责任人、后续 Ticket、验证计划和目标版本或日期。
+- 本地不生成 Tactical Design、OpenAPI、父 / 垂直切片 Ticket、Slice Implementation Contract 或运行时代码；`implement` 必须 `blocked` 并转交下游研发 profile。
+- 完成 `work-unit.strategic-design-handoff` 后 `next_route` 必须为 `null`，本仓不继续推进下游生命周期。
 
 ## 6. Ticket 与状态
 
-- 本 profile 使用业务级 Ticket 集（`artifact.business-ticket-set`），按范围、优先级、验收、依赖和业务风险组织，保持 `ready-for-human`。
-- Spec 初稿、产品设计、原型、业务级 Ticket 和业务方案交接草案使用 `ready-for-human`。
-- 不得在本地创建功能父 Ticket 或垂直切片 Ticket，也不得将本地 Ticket 设为 `ready-for-agent`。该状态与垂直切片实现同属下游研发 profile。
-- Ticket、Spec 和阶段证据按 `docs/agents/issue-tracker.md` 选定的主 tracker 持久化；Git remote 不代表 tracker 选择，平台不可用时按该文档生成待发布草案。五态标签见 `docs/agents/triage-labels.md`。
+- 本地只产出 `artifact.business-ticket-set`：按范围、优先级、验收、依赖和业务风险组织，并保持 `ready-for-human`。
+- 本地不得创建功能父 Ticket、垂直切片 Ticket 或设置 `ready-for-agent`。Tracker 按 `docs/agents/issue-tracker.md` 选择，不得从 Git remote 推断；平台不可用时生成待发布草案。
 
-## 7. 下游研发边界
+## 7. 下游交接边界
 
-业务方案交接批准后，下游团队先把交接包中的 `source_context_snapshot` 与 `context_delta` 对账到目标仓库根 `CONTEXT.md`，产出目标侧 `context_reconciliation`，再接管技术设计、OpenAPI、Slice Implementation Contract、实现仓库、脚手架和代码验证。上述路径以及覆盖率 CI 阈值都不是本仓本地硬门禁；需要继续推进时必须切换到下游研发 profile，不得在本 profile 越过 `work-unit.strategic-design-handoff`。交接字段见 profile 的 `handoff`。
+- 交接批准后，下游先把 `source_context_snapshot` 与 `context_delta` 对账到目标仓根 `CONTEXT.md`，形成目标侧 `context_reconciliation`，再接管 Tactical Design、OpenAPI、Slice Contract、脚手架、实现和验证。
+- 覆盖率、实现仓和发布规则不是本仓本地门禁；需要继续推进时切换下游研发 profile，不得越过 `work-unit.strategic-design-handoff`。
 
-## 8. 专项任务的强制入口
+## 8. 专项入口
 
-| 触发情形 | 必须使用 |
-|---|---|
-| 技术事实、标准、第三方 API 或框架行为影响决策，或外部证据进入领域战略 / 阶段决策 | `yss-research`；技术事实使用 `technical-evidence`，战略决策证据使用 `strategy-evidence`；旧名 `research` 仅为 deprecated alias |
-| 竞品、市场或用户口碑事实 | `competitive-intelligence` |
-| UI 设计、原型、组件或主题 | `yss-design-system` 后使用 `yss-prototype-stage`；Codex 再路由 `product-design:index`，其他 Agent 交付等价合同资产。H2 默认用 `yss-antdv-next-design` 记录 Vue/Antdv Next 精确版本事实；显式 React 兼容路线才用 `yss-antd-design`。生产前端由下游研发 profile 落地。 |
-| merge / rebase 冲突 | `resolving-merge-conflicts` |
-| 跨线程、跨仓库、上下文过长或原型结论回流 | `handoff` 或等价交接记录 |
-| 数字人角色、Agent 运行时协同或生命周期会签 | 先读 `docs/agents/digital-human-roles.yaml`。职称实例叠加在编排器上，不另起生命周期，不批准下游 Slice 合同、不设 `ready-for-agent`、不宣布可发布 |
-| 本地知识库 init / refresh / rebuild，或要把研究结果落成持久 wiki | `llm-wiki`（落成持久 wiki 用 `ingest`；已映射 live 源变了用 `refresh`）。`template-source` 的 wiki-root 为 `.template-source/wiki`；`project-instance` 不附带源仓库编译树，需要时在仓库根 `wiki/` 执行 `init` |
-
-模板维护中的脚本或校验故障使用 `diagnosing-bugs`。业务行为不在本仓按代码 TDD 实现。
+- 技术事实或外部证据影响决策时使用 `yss-research`；竞品、市场或用户口碑事实使用 `competitive-intelligence`。
+- UI / 原型影响使用 `yss-design-system` → `yss-prototype-stage` → 独立 `prototype-review`；H2 默认 `yss-antdv-next-design`，显式 React 兼容路线才使用 `yss-antd-design`。生产前端转交下游，原型阶段不调用 `yss-ui`。
+- 数字人协同先读 `docs/agents/digital-human-roles.yaml`；角色实例不另起生命周期，不批准下游 Slice 合同、不设置 `ready-for-agent`、不宣布产品可发布。
+- 模板脚本或校验故障使用 `diagnosing-bugs`；其它技能按 `docs/agents/yss-skill-registry.yaml` 的触发条件按需加载。
 
 ## 9. 工作区边界
 
-当前仓库是业务方案设计 / 研发管理仓库，不承载产品运行时代码。不要把 `apps/backend/`、`apps/frontend/` 或独立实现仓当作本 profile 的默认产出。实现仓库布局属于下游研发 profile。空 gitlink、detached HEAD 或 `--force` 覆盖挂载点不得当成普通目录。
+本仓不承载产品运行时代码；`apps/**` 和独立实现仓属于下游。空 gitlink、detached HEAD 或 `--force` 覆盖挂载点不得当作普通目录。
 
-## 10. 独立审查、验证和追踪
+## 10. 审查、验证与 Git
 
-- 实现者不能承担命中的独立审查（含数字人）。模板维护按 L1 / L2 / L3 分别使用 self-check / 人工 checkpoint、聚焦独立审查、正式独立审查。
-- 任何“完成”结论必须基于 fresh verification，不接受“之前跑过”或实现者自述。本仓不宣布可合并实现或可发布产品。
-- 会签门禁按 `docs/agents/digital-human-roles.yaml` 的 `gate_policy` 关闭，会签文件经 `scripts/verify-approval-record` 核验；`gate.release-ready`、对外商务承诺和运行时外部副作用仍须生物人。
-- 在会签暂停、handoff 或业务方案交接边界集中同步范围、验证证据、风险、会签点、Ticket 状态和下一步；阻塞、责任人变化或资产单独批准时立即同步。
-- Git checkpoint 只包含本轮明确范围；获得用户授权后才提交或推送。
-- 阶段性完成后做复盘判断；出现业务方案返工、验证返工、IMPORTANT / CRITICAL review finding 或人工确认延期时，落简体中文复盘并修订权威资产。
+- 实施者不承担命中的独立审查。任何完成结论必须基于本轮 fresh verification；本仓不宣布实现可合并或产品可发布。
+- 会签按 `docs/agents/digital-human-roles.yaml` 关闭并由 `scripts/verify-approval-record` 校验；发布、商务承诺和运行时外部副作用仍须生物人。
+- 在暂停、handoff 和业务方案交接边界同步范围、证据、风险、会签点、Ticket 状态和下一步。
+- Git checkpoint 只含本轮范围；获得用户授权后才提交或推送。返工或 IMPORTANT / CRITICAL finding 触发简体中文复盘并修订权威资产。
 
 ## 11. Subagent 协同
 
-使用 subagent 或其它 Agent 运行时前按 `docs/process/subagent-collaboration.md` 定义任务包和不重叠的写入范围，并同时写明数字人角色、`runtime_id`、从角色表复制的 `core_skills` / `forbidden_skills` 与 Explorer / Drafter / Worker / Reviewer / Verifier 执行态。实现者不担任独立审查者；仓库身份、Ticket 最终状态、Git checkpoint 和完成结论仍由主控数字人按编排器规则决定。主控不批准下游 Slice 合同、不设 `ready-for-agent`。会签恢复前校验 `scripts/verify-approval-record`。写隔离靠任务包；共享工作区不是默认沙箱。
+使用 subagent 前读取 `docs/process/subagent-collaboration.md`，定义任务包、数字人角色、运行时、执行态和不重叠写入范围；共享工作区不是沙箱。实施者不得兼任独立 Reviewer，仓库身份、Ticket 状态、Git checkpoint 和完成结论仍由主控裁决；主控也不得批准下游 Slice 合同或设置 `ready-for-agent`。

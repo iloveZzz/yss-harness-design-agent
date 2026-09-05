@@ -62,7 +62,7 @@ tracker 选择和冲突按 `docs/agents/issue-tracker.md` 裁决：已持久化 
 
 ## 战略资产审查与验证
 
-- 原型由独立 `prototype-review` 审查，评审者不承担原型起草；H1/H2 均以 schema v3 证据、浏览器交付、Design QA 和用户确认关闭门禁。
+- 原型由独立 `prototype-review` 审查，评审者不承担原型起草；H1/H2 均以 Prototype Evidence schema v4、Visual Baseline schema v1、浏览器交付、Design QA 和用户确认关闭门禁。
 - 领域战略、阶段决策包、Spec 与 Strategic Design Handoff 按 `docs/agents/digital-human-roles.yaml` 会签，起草者不得自签。
 - Tactical DDD、代码审查、实现验证和发布验证不属于本 profile；交付包只能提出下游验证目标。
 

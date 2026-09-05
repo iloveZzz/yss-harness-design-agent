@@ -1,6 +1,6 @@
 # AntD 事实证据
 
-目标文件：schema v3 `docs/.scratch/<feature>/verification/prototype-evidence.yaml`。本文件只说明 H2 实际使用 React AntD 时如何填 `profile_evidence.flow_review.prototype_library_facts`；H1 不得出现 AntD CLI 段，任何原型证据都不得冒充生产 YSS/AntDV 组件验证。
+目标文件：Prototype Evidence schema v4 `docs/.scratch/<feature>/verification/prototype-evidence.yaml`。本文件只说明 H2 实际使用 React AntD 时如何填 `profile_evidence.flow_review.prototype_library_facts`；H1 不得出现 AntD CLI 段，任何原型证据都不得冒充生产 YSS/AntDV 组件验证。
 
 ## fact pack 优先
 
@@ -25,7 +25,7 @@ JSON 输出存为相邻文件，证据清单只引用路径。不要把整份 `l
 
 `antd lint` 只对可解析的 React/TSX 源码有规则命中。HTML 原型会出现空 issues（假绿）或 `skippedFiles` / `parse-error` / `partial: true`。
 
-CLI JSON 只能证明查询事实，不能单独证明原型消费了目标版本或完成了 Vue/YSS 映射。`gate.prototype-verified` 还必须通过 schema v3 档位证据、Design QA、浏览器和无障碍验证。
+CLI JSON 只能证明查询事实，不能单独证明原型消费了目标版本或完成了 Vue/YSS 映射。`gate.prototype-verified` 还必须通过 Prototype Evidence schema v4、Visual Baseline schema v1、Design QA、浏览器和无障碍验证。
 
 | 产物 | `lint_applicable` | 做法 |
 |---|---|---|

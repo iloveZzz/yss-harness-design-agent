@@ -4,9 +4,9 @@
 
 ## 业务上游 profile 的用户边界
 
-本分支的 `harness.business-ddd-strategy-handoff` profile 只注册三个业务角色：`role.product-manager`、`role.requirements-manager` 和 `role.business`。`role.lifecycle-orchestrator` 负责控制生命周期，不属于业务用户；项目管理、工程、测试和发布角色不在本分支注册或推荐，Strategic Design Handoff 后由主分支/下游研发模板接管。
+本分支的内部兼容 profile ID `harness.business-ddd-strategy-handoff` 只注册三个业务角色：`role.product-manager`、`role.requirements-manager` 和 `role.business`。`role.lifecycle-orchestrator` 负责控制生命周期，不属于业务用户；项目管理、工程、测试和发布角色不在本分支注册或推荐，业务方案交接后由主分支/下游研发模板接管。
 
-该 profile 的终点是 Strategic Design Handoff。当前 Harness 负责 Spec、页面原型和业务级 Ticket 正式化；下游研发团队使用 `yss-tactical-design` 接管战术设计。OpenAPI、技术 Ticket、代码、工程审查和发布不在本 profile。
+该 profile 的终点是业务方案交接。当前 Harness 负责 Spec、页面原型和业务级 Ticket 正式化；下游研发团队接管研发待决技术问题。OpenAPI、技术 Ticket、代码、工程审查和发布不在本 profile。
 
 ## 何时读本文
 

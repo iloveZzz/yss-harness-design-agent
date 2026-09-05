@@ -20,14 +20,24 @@ assert((await validatePrototypeProject({ root: h1Root, profile: "H1" })).errors.
 
 const h2Feature = "approval-flow";
 const h2Root = path.join(projectRoot, "docs/.scratch", h2Feature, "design/prototypes");
-await mkdir(path.join(h2Root, "src"), { recursive: true });
-await writeFile(path.join(h2Root, "index.html"), "<!doctype html><div id=app></div>\n");
-await writeFile(path.join(h2Root, "package.json"), JSON.stringify({ name: "approval-flow-prototype", private: true, type: "module", scripts: { build: "vite build" }, dependencies: { react: "19.2.0", "react-dom": "19.2.0", vite: "6.4.2" } }, null, 2));
-await prepareFlowPrototype({ projectRoot, root: h2Root, feature: h2Feature, targetAntdVersion: "6.6.2", pnpmVersion: "10.15.0" });
+const h2Manifest = await prepareFlowPrototype({ projectRoot, root: h2Root, feature: h2Feature, pnpmVersion: "10.15.0" });
 await writeFile(path.join(h2Root, "pnpm-lock.yaml"), "lockfileVersion: '9.0'\n");
-await writeFile(path.join(h2Root, "src/App.jsx"), 'import { ConfigProvider } from "antd"; import { yssTheme } from "./yss-theme.js"; export function App(){return <ConfigProvider theme={yssTheme}/>;}\n');
-assert.deepEqual((await validatePrototypeProject({ root: h2Root, profile: "H2", targetAntdVersion: "6.6.2" })).errors, []);
-assert((await validatePrototypeProject({ root: h2Root, profile: "H2", targetAntdVersion: "6.6.1" })).errors.some((message) => message.includes("精确锁定")));
+assert.equal(h2Manifest.component_basis, "vue-antdv-next");
+assert.equal(h2Manifest.library.version, "1.5.2");
+assert.match(await readFile(path.join(h2Root, "src/App.vue"), "utf8"), /a-config-provider/);
+assert.match(await readFile(path.join(h2Root, "src/yss-theme.js"), "utf8"), /compactAlgorithm/);
+assert.deepEqual((await validatePrototypeProject({ root: h2Root, profile: "H2" })).errors, []);
+assert((await validatePrototypeProject({ root: h2Root, profile: "H2", componentBasis: "vue-antdv-next", libraryVersion: "1.5.1" })).errors.some((message) => message.includes("精确锁定")));
+
+const reactFeature = "legacy-react-flow";
+const reactRoot = path.join(projectRoot, "docs/.scratch", reactFeature, "design/prototypes");
+await mkdir(path.join(reactRoot, "src"), { recursive: true });
+await writeFile(path.join(reactRoot, "index.html"), "<!doctype html><div id=app></div>\n");
+await writeFile(path.join(reactRoot, "package.json"), JSON.stringify({ name: "legacy-react-flow-prototype", private: true, type: "module", scripts: { build: "vite build" }, dependencies: { react: "19.2.0", "react-dom": "19.2.0", vite: "6.4.2" } }, null, 2));
+await prepareFlowPrototype({ projectRoot, root: reactRoot, feature: reactFeature, targetAntdVersion: "6.6.2", pnpmVersion: "10.15.0" });
+await writeFile(path.join(reactRoot, "pnpm-lock.yaml"), "lockfileVersion: '9.0'\n");
+await writeFile(path.join(reactRoot, "src/App.jsx"), 'import { ConfigProvider } from "antd"; import { yssTheme } from "./yss-theme.js"; export function App(){return <ConfigProvider theme={yssTheme}/>;}\n');
+assert.deepEqual((await validatePrototypeProject({ root: reactRoot, profile: "H2", targetAntdVersion: "6.6.2" })).errors, []);
 
 function common(profile, kind, block) {
   return {
@@ -78,12 +88,16 @@ fakeH1.profile_evidence.visual_review.lockfile_ref = "pnpm-lock.yaml";
 assert(validatePrototypeEvidence(fakeH1).errors.some((message) => message.includes("H1 禁止字段")));
 
 const h2Evidence = common("H2", "flow-review", { flow_review: {
-  implementation: { framework: "react", runtime_build_required: true, package_manager: "pnpm", package_manifest_ref: "package.json", lockfile_ref: "pnpm-lock.yaml", build_command: "pnpm build", build_result: "passed" },
+  implementation: { framework: "vue", runtime_build_required: true, package_manager: "pnpm", package_manifest_ref: "package.json", lockfile_ref: "pnpm-lock.yaml", build_command: "pnpm build", build_result: "passed" },
   main_flow_result: "passed", exceptional_state_result: "passed", exceptional_state_ref: "conflict.png", keyboard_result: "passed", focus_result: "passed", contrast_result: "passed", zoom_200_result: "passed", reduced_motion_result: "passed",
   visual_regression: { applicable: true, result: "passed", evidence_ref: "visual.json" },
-  prototype_library_facts: { applicable: true, component_basis: "react-antd-6", source: "fact-pack", actual_antd_version: "6.6.2", manifest_ref: "docs/design/facts/antd/6.6.2/manifest.json", manifest_digest: "sha256:facts", components_covered: ["Button"], project_token_baseline_digest: "sha256:tokens", new_api_uncertainty: false }
+  prototype_library_facts: { applicable: true, component_basis: "vue-antdv-next", source: "fact-pack", library_package: "antdv-next", library_version: "1.5.2", manifest_ref: "docs/design/facts/antdv-next/1.5.2/manifest.json", manifest_digest: "sha256:facts", components_covered: ["Button"], project_token_baseline_digest: "sha256:tokens", new_api_uncertainty: false }
 } });
 assert.deepEqual(validatePrototypeEvidence(h2Evidence).errors, []);
+const legacyReactEvidence = structuredClone(h2Evidence);
+legacyReactEvidence.profile_evidence.flow_review.implementation.framework = "react";
+legacyReactEvidence.profile_evidence.flow_review.prototype_library_facts = { applicable: true, component_basis: "react-antd-6", source: "fact-pack", actual_antd_version: "6.6.2", manifest_ref: "docs/design/facts/antd/6.6.2/manifest.json", manifest_digest: "sha256:facts", components_covered: ["Button"], project_token_baseline_digest: "sha256:tokens", new_api_uncertainty: false };
+assert.deepEqual(validatePrototypeEvidence(legacyReactEvidence).errors, []);
 const staleFacts = structuredClone(h2Evidence);
 staleFacts.profile_evidence.flow_review.prototype_library_facts.project_token_baseline_digest = "sha256:old";
 assert(validatePrototypeEvidence(staleFacts).errors.some((message) => message.includes("Token digest")));

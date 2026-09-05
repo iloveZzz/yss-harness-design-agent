@@ -1,8 +1,14 @@
-# 领域上下文
+---
+context_schema_version: 1
+---
 
-本文档是项目的领域词汇表，只记录稳定业务语言和协作概念，不记录实现细节、计划草稿或架构说明。
+# 业务上下文
 
-`英文标识` 是 PascalCase 词干，不是英语释义。`## 业务术语` 必须填写该列；`## 流程术语` 填 `—`。代码类型名、字段名和契约 property 由该词干变形：类名 = 词干 + YSS 工程后缀；字段与 JSON property 为 camelCase；数据库列为 snake_case；枚举常量为 UPPER_SNAKE。工程后缀以 YSS skill 和当前工程惯例为准，不作为领域词写入本表。JSON 与 Java 字段不一致时，以 DTO wire shape / OpenAPI 为准，不在本表另开列。改中文术语或英文标识都是统一语言变更，必须先回写本表。`避免 / 备注` 同时记录禁用中文和禁用英文别名。
+本文档是项目根目录唯一的业务词汇表，只记录稳定业务语言和协作概念，不记录实现细节、计划草稿或架构说明。禁止创建嵌套 `CONTEXT.md` 或 `CONTEXT-MAP.md`。
+
+业务术语身份为 `<ContextId>/<EnglishIdentifier>`；`ContextId` 必须来自已确认的业务责任区，真正跨责任区共享的术语使用 `Global`。该编号由 Agent 维护，业务人员只需确认名称、含义和适用范围。资产只保存结构化术语引用，不使用文件路径、绝对路径或 Markdown 标题锚点。
+
+`英文标识` 是 PascalCase 词干，不是英语释义。`## 业务术语` 必须填写该列，并填写 `适用业务责任区`；`## 流程术语` 填 `—`。代码类型名、字段名和契约 property 由该词干变形：类名 = 词干 + YSS 工程后缀；字段与 JSON property 为 camelCase；数据库列为 snake_case；枚举常量为 UPPER_SNAKE。工程后缀以 YSS skill 和当前工程惯例为准，不作为业务词写入本表。JSON 与 Java 字段不一致时，以 DTO wire shape / OpenAPI 为准，不在本表另开列。改中文术语、英文标识、含义或适用业务责任区都是统一业务词汇变更，必须先回写本表。`避免 / 备注` 同时记录禁用中文和禁用英文别名。
 
 只有在计划、分诊、调试或架构讨论中明确沉淀出稳定语言时，才新增术语。
 
@@ -16,7 +22,7 @@
 | 运行时绑定 | 把数字人角色落到某个 Agent 平台的适配声明，权威清单在数字人角色注册表的 `runtimes`。 | — | 不要为每个平台复制一套职称职责。 |
 | Grok Bot | Grok 平台上的持久数字队友实例；对应 `runtime.grok`。 | — | 不是数字人角色、技能或门禁。 |
 | 数字人角色 | 叠加在生命周期编排器上的职称配置；一个运行时实例绑定一种。v1 清单以 `docs/agents/digital-human-roles.yaml` 为准。 | — | 不要称为 Ticket「标准角色」、职能 Agent 或某个平台的产品名。 |
-| 主控数字人 | 运行 `yss-strategic-design` 的战略设计协调实例。 | — | 不是第八个业务职称；不进入下游战术设计或实现。 |
+| 主控数字人 | 运行 `yss-strategic-design` 的业务方案协调实例。 | — | 不是第八个业务职称；不进入下游技术设计或实现。 |
 | 角色配置 | 某数字人角色的关注阶段、技能包、可起草产物和禁止事项。 | — | 不是独立编排器，也不含平台群聊人数。 |
 | 生命周期会签 | 指定数字人或生物人关闭 `gate.*` / 独立审查并写入 `evidence.approval-record`。 | — | 不是运行时副作用审批。会签人由 `docs/agents/digital-human-roles.yaml` 的 `gate_policy` 指定。起草者不得会签自己起草的资产。`paused-human-gate` 表示等待该会签人，不是必须生物人。 |
 | 运行时副作用审批 | 对发消息、改生产、付款、删数据等工具动作的账号级确认。 | — | 点 Allow 不等于门禁已批准或可发布。避免只称「Grok 平台审批」。 |
@@ -30,7 +36,7 @@
 | Matt Engineering Skills | 来自 `mattpocock/skills` 的轻量工程流程技能集合。 | — | 用于澄清、Spec、Ticket、实现、TDD、诊断、审查和架构治理，不替代 YSS 专项规范。 |
 | 上游技能基线 | 从外部技能源锁定的可追溯 revision 及其未经项目适配的原始内容。 | — | 不等同于项目当前实际生效的 skill；上游更新不得直接覆盖 YSS 适配。 |
 | YSS 技能适配 | 在上游技能基线之上，为 YSS 仓库身份、门禁、状态、授权和专项规范保留的可追溯差异。 | — | 必须同时保留上游内容哈希、有效内容哈希和适配依据，不作无记录的直接 fork。 |
-| YSS skills | 本项目内置的 YSS 工程规范技能。 | — | 用于 DDD、UI、OpenAPI、Repository、Controller、DTO、组件和编码规范。 |
+| YSS skills | 本项目内置的 YSS 工程规范技能。 | — | 用于业务方案设计、UI、OpenAPI、后端工程、组件和编码规范。 |
 | 技能投影 | 从权威共享技能生成、供特定 Agent root 加载的同步副本。 | — | 投影不是独立维护的技能源，不应在各 Agent root 中分别修改。 |
 | Spec | 记录用户问题、解决方案、用户故事、关键决策、验收标准和测试 seam 的产品研发规格。 | — | 新资产统一使用 Spec；旧规格称谓只在迁移记录中保留。 |
 | Spec Delta | 记录相对于既有冻结 Spec 基线的 `ADDED / MODIFIED / REMOVED` 行为、验收场景和测试映射。 | — | 不用于全新产品或全新模块，也不替代完整 Spec、OpenAPI 或架构资产。 |
@@ -82,17 +88,20 @@
 | 实现仓库 | 承载前端、后端或其他运行时代码及其 Git、CI、MR / PR、测试命令和发布流水线的仓库。 | — | 不要把实现仓库的源码所有权混入研发管理仓库。 |
 | Git 子模块分层接入 | 将前端 / 后端实现仓以 Git submodule（gitlink，mode `160000`）挂到 `project-instance` 的 `apps/` 布局下，并登记 `repository_scope: git-submodule`。 | — | 不得与 `harness-apps` 同源 monorepo 或无 gitlink 的 `external-repository` 混用；禁止把实现源码复制进 Harness 冒充 submodule。 |
 | 跨仓库契约变更 | 需要两个或多个独立仓库协同实现、验证和按顺序发布的共享契约变化。 | — | 任一参与仓库未完成契约对齐和集成验证时，不得单独声称整体可发布。 |
-| 模板源仓库（`template-source`） | 承载 `yss-harness-design-agent` 权威模板资产及其演进规则的仓库身份。 | — | 只管理可复用战略设计模板，不承载某个具体产品的研发生命周期资产。不要与全生命周期模板 `yss-spec-project-template` 混名。 |
-| 模板实例仓库（`project-instance`） | 由模板初始化后生成、承载某个具体产品战略设计资产的仓库身份。 | — | 不作为通用流程模板的权威来源。本 profile 的本地终点是 Strategic Design Handoff。 |
+| 模板源仓库（`template-source`） | 承载 `yss-harness-design-agent` 权威模板资产及其演进规则的仓库身份。 | — | 只管理可复用业务方案设计模板，不承载某个具体产品的研发生命周期资产。不要与全生命周期模板 `yss-spec-project-template` 混名。 |
+| 模板实例仓库（`project-instance`） | 由模板初始化后生成、承载某个具体产品业务方案资产的仓库身份。 | — | 不作为通用流程模板的权威来源。本 profile 的本地终点是业务方案交接。 |
 | 模板实例分发面 | 模板源中应随 CLI 快照进入 `project-instance` 的共享生命周期、模板、用户指南和验证资产集合。 | — | 不包含模板源审查、研究、发布路线、源仓库专属 ADR 或源仓库 LLM Wiki 编译树。 |
 | 实例分发清单 | 声明本 profile 哪些模板资产进入 `project-instance` 的机器可读 allow/deny。权威文件 `docs/process/instance-distribution-manifest.yaml`。 | — | CLI 的 `template.manifest.json` 是投影，禁止另写一套。 |
-| 战略设计 Harness 实例初始化 CLI | 从本模板源生成 `project-instance` 的独立 npm CLI，包名为 `create-yss-harness-design`。 | — | 不要与 `create-yss-spec` 混用；后者面向全生命周期模板 `yss-spec-project-template`。 |
+| 业务方案设计 Harness 实例初始化 CLI | 从本模板源生成 `project-instance` 的独立 npm CLI，包名为 `create-yss-harness-design`。 | — | 不要与 `create-yss-spec` 混用；后者面向全生命周期模板 `yss-spec-project-template`。 |
 | 模板源治理区 | 仅供 `template-source` 使用、保存审查证据、研究记录、跨仓契约、发布路线、源仓库治理决策和源仓库 LLM Wiki 编译树的归档区域。 | — | 不随 CLI 分发；不等于产品实例的研发管理资产。`wiki-root` 为 `.template-source/wiki`。 |
 | 仓库身份清单 | 显式声明仓库身份和清单结构版本的机器可读资产。 | — | 不承载项目名称、团队规模、Tracker 或其他易变业务配置。 |
 | Harness 目标用户画像 | 声明某个 Harness profile 面向哪些职能角色、哪些角色不在本地协作范围内的边界配置。 | — | 不等同于数字人角色注册表；角色职责仍以 `docs/agents/digital-human-roles.yaml` 为准。 |
-| 战略设计交付包 | 将 Discovery、阶段决策和 DDD 战略设计以版本、digest、证据和下游问题清单封装，交给下游研发团队进行 Tactical DDD 的交付资产。 | — | 不直接指定 Aggregate、Entity、Repository、API 或代码；模板见 `docs/templates/strategic-design-handoff-template.yaml`。 |
-| 下游战术设计团队 | 消费批准的战略设计交付包，并负责聚合、Entity、Value Object、状态机、一致性、Gateway、持久化和 API 等 Tactical DDD 设计的研发协作方。 | — | 不是本地业务上游 Harness 的目标用户，也不是生命周期门禁角色。 |
+| 业务方案交接包 | 将 Discovery、方案决策和业务边界与规则设计以版本、digest、证据和研发待决问题清单封装，交给下游研发团队的交付资产。 | — | 不直接指定技术模型、API、数据库或代码；模板见 `docs/templates/strategic-design-handoff-template.yaml`。 |
+| 下游研发团队 | 消费批准的业务方案交接包，并负责技术设计、API、数据、实现和验证的研发协作方。 | — | 不是本地业务方案设计 Harness 的目标用户，也不是生命周期门禁角色。 |
 
 ## 业务术语
 
-`project-instance` 在本节新增产品对象。每一行必须有 PascalCase `英文标识`；缺该列视为统一语言未冻结。模板源不放虚构业务行。
+`project-instance` 在本节新增产品对象。每一行必须有 PascalCase `英文标识`；缺该列视为统一业务词汇未冻结。模板源不放虚构业务行。
+
+| 术语 | 含义 | 英文标识 | 适用业务责任区 | 避免 / 备注 |
+|---|---|---|---|---|

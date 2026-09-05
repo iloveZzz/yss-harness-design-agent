@@ -32,6 +32,7 @@ capabilities:
   - { id: prototype.review, primary_skill: prototype-review, task_modes: [review-input, result-validation] }
   - { id: prototype.design-system, primary_skill: yss-design-system, task_modes: [guidance, integration] }
   - { id: prototype.delivery, primary_skill: yss-prototype-stage, task_modes: [guidance, integration, result-validation] }
+  - { id: prototype.antdv-next-facts, primary_skill: yss-antdv-next-design, task_modes: [guidance] }
   - { id: prototype.antd-facts, primary_skill: yss-antd-design, task_modes: [guidance] }
   - { id: quality.diagnosis, primary_skill: diagnosing-bugs, task_modes: [troubleshooting] }
   - { id: quality.merge-conflict, primary_skill: resolving-merge-conflicts, task_modes: [troubleshooting] }
@@ -40,13 +41,14 @@ capabilities:
 recipes:
   - { id: discovery.strategy-evidence, capabilities: [discovery.research-evidence, discovery.domain-modeling, discovery.competitive-intelligence] }
   - { id: discovery.requirements, capabilities: [discovery.requirements-interview, discovery.domain-modeling] }
-  - { id: prototype.strategic-delivery, capabilities: [prototype.design-system, prototype.review, prototype.delivery, prototype.antd-facts] }
+  - { id: prototype.strategic-delivery, capabilities: [prototype.design-system, prototype.review, prototype.delivery, prototype.antdv-next-facts] }
   - { id: lifecycle.strategic-handoff, capabilities: [lifecycle.stage-decision, lifecycle.strategic-design, lifecycle.strategic-handoff] }
 skill_dependencies:
   yss-prototype-stage:
     - { skill: prototype-review, type: review-only }
     - { skill: yss-design-system, type: coordination-only }
-    - { skill: yss-antd-design, type: context-conditional, when: h2-react-antd }
+    - { skill: yss-antdv-next-design, type: context-conditional, when: h2-vue-antdv-next-default }
+    - { skill: yss-antd-design, type: context-conditional, when: h2-react-antd-explicit-compatibility }
   yss-stage-decision:
     - { skill: domain-modeling, type: coordination-only }
     - { skill: yss-research, type: context-conditional, when: external-evidence }
@@ -94,6 +96,11 @@ invocation_contract:
       trigger_conditions: [prototype-profile:H2, component-basis:react-antd]
       exclusion_conditions: [prototype-profile:H1, component-basis:not-antd]
       primary_output: versioned-antd-facts
+    yss-antdv-next-design:
+      invocation_mode: model
+      trigger_conditions: [prototype-profile:H2, component-basis:vue-antdv-next]
+      exclusion_conditions: [prototype-profile:H1, component-basis:not-antdv-next, production-frontend-implementation]
+      primary_output: versioned-antdv-next-facts
     yss-stage-decision:
       invocation_mode: both
       trigger_conditions: [impact:discovery, impact:lifecycle, decision-boundary:strategic-design]
@@ -133,6 +140,7 @@ skills:
   - { id: wayfinder, layer: maintainer-only, maturity: supported, instance_default_discoverable: false, aliases: [], impacts: [lifecycle] }
   - { id: writing-for-agents, layer: maintainer-only, maturity: supported, instance_default_discoverable: false, aliases: [], impacts: [writing] }
   - { id: yss-antd-design, layer: specialist, maturity: supported, instance_default_discoverable: false, aliases: [], impacts: [prototype] }
+  - { id: yss-antdv-next-design, layer: specialist, maturity: supported, instance_default_discoverable: false, aliases: [], impacts: [prototype] }
   - { id: yss-design-system, layer: core, maturity: supported, instance_default_discoverable: true, aliases: [], impacts: [prototype] }
   - { id: yss-prototype-stage, layer: core, maturity: supported, instance_default_discoverable: true, aliases: [], impacts: [prototype] }
   - { id: yss-stage-decision, layer: core, maturity: draft, instance_default_discoverable: true, aliases: [], impacts: [discovery, lifecycle] }

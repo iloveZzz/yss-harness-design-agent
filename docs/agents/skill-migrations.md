@@ -10,7 +10,8 @@
 
 - 阶段合同：`yss-prototype-stage`
 - Codex 产品设计主入口：`product-design:index`
-- Ant Design v6 事实与 CLI 证据：`yss-antd-design`
+- 默认 H2 Vue/Antdv Next 精确版本事实：`yss-antdv-next-design`
+- 显式 H2 React/AntD 兼容事实：`yss-antd-design`
 - 独立低保真评审：`prototype-review`
 
 迁移时保留原型评审记录、AntD CLI 验证、浏览器验证和用户确认，并由 `yss-strategic-design` 裁决 `gate.prototype-reviewed`、`gate.prototype-verified` 和 `gate.user-confirmation`。不得创建同名兼容目录。

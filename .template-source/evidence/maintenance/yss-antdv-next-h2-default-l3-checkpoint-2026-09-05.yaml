@@ -1,0 +1,49 @@
+schema_version: 2
+intensity: L3
+classification_reason: >-
+  战略设计源仓将 H2 flow-review 默认适配器切换为 Vue 3 + Antdv Next，并同步
+  yss-prototype-stage、yss-design-system、生命周期路由、角色注册、证据模板与跨 Agent 投影；
+  该变更改变生成语义和技能聚合行为。
+triggers:
+  - generation-semantics
+  - aggregate-behavior-change
+changed_assets:
+  - AGENTS.md
+  - .agents/skills/yss-prototype-stage
+  - .agents/skills/yss-antdv-next-design
+  - .agents/skills/yss-design-system
+  - .agents/skills/yss-strategic-design
+  - .claude/skills
+  - .codex/skills
+  - .cursor/skills
+  - .pi/skills
+  - .qoder/skills
+  - .trae/skills
+  - docs/agents/yss-skill-registry.yaml
+  - docs/agents/digital-human-roles.yaml
+  - docs/design
+  - docs/process/template-verification-profiles.yaml
+  - skills-lock.json
+  - yss-public-skills.json
+verification_evidence:
+  - kind: self-check
+    command: >-
+      node .agents/skills/yss-prototype-stage/tests/run-scenarios.mjs &&
+      node .agents/skills/yss-antdv-next-design/tests/run-scenarios.mjs &&
+      scripts/verify-skill-registry && scripts/verify-digital-human-roles
+    result: pass
+  - kind: projection-sync
+    command: scripts/sync-skills --check && scripts/update-skill-lock --check
+    result: pass
+  - kind: fresh-verification
+    command: scripts/verify-template-fast
+    result: pass
+review_mode: self-check
+escalation: >-
+  fast profile 因 AGENTS.md 变化自动升级为 release profile并全部通过；本轮停在
+  implementation-ready，不把增强校验视为独立审查、candidate 冻结或发布批准。
+target_state: implementation-ready
+current_state: implementation-ready
+verification_profile: fast
+review_round: 0
+candidate_digest: null

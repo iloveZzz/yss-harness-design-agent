@@ -7,6 +7,7 @@ checkpoint_policy:
   flush_immediately_on: [blocked, responsibility_changed, asset_approval]
   preserve_stage_causality: true
   required_stage_trace_fields: [stage, upstream_refs, artifact_refs, gate_decisions, downstream_impacts]
+  project_instance_stage_exit_requires_context_reconciliation: true
 
 modes:
   route: read_only
@@ -26,6 +27,8 @@ profile_registry:
   downstream_skill: yss-tactical-design
   handoff_template: docs/templates/strategic-design-handoff-template.yaml
   handoff_schema: docs/process/schemas/strategic-design-handoff.schema.json
+  handoff_schema_version: 2
+  handoff_context_contract: {source_snapshot: required, context_delta: required, target_reconciliation_before_tactical_design: required}
   allowed_local_work_units: [work-unit.discovery-opportunity, work-unit.discovery-requirements, work-unit.domain-strategy-design, work-unit.stage-decision, work-unit.spec-synthesis, work-unit.prototype-design, work-unit.business-ticket-formalization, work-unit.strategic-design-handoff]
   forbidden_local_work_units: [work-unit.technical-analysis, work-unit.ticket-decomposition, work-unit.slice-implementation, work-unit.frontend-implementation-verification, work-unit.code-review, work-unit.release-and-retrospective]
   forbidden_local_artifacts: [artifact.openapi-draft, artifact.openapi-freeze-record, artifact.tactical-design, artifact.parent-ticket, artifact.vertical-slice-ticket, artifact.slice-implementation-contract]
@@ -80,7 +83,7 @@ workflow_execution_result:
       normalize_to: workflow-execution-result-v1
       removal_target: schema_version_2
   result_values: [completed, blocked, needs-human, failed]
-  required: [result_schema, work_unit, workflow_reference, result, evidence_refs, changed_artifacts, new_impacts, stale_candidates, next_route, blocking_signals]
+  required: [result_schema, work_unit, workflow_reference, result, context_reconciliation, evidence_refs, changed_artifacts, new_impacts, stale_candidates, next_route, blocking_signals]
   unavailable_skill:
     required: [skill, provider, fallback, resolution]
     blocking_result: blocked
@@ -90,6 +93,12 @@ workflow_execution_result:
   completed_requires_readable_evidence_refs: true
   evidence_ref_validation: readable-or-resolvable
   completed_requires_no_blocking_signals: true
+  context_reconciliation:
+    schema_ref: docs/process/schemas/context-reconciliation.schema.json
+    validator: scripts/verify-context-reconciliation
+    project-instance: {required_status: reconciled, readable_ref_required: true, transition_without_reconciliation: blocked}
+    template-source: {required_status: not-applicable, reason_required: true}
+    creates_gate: false
   workflow_reference:
     required: [source, skill, invocation_mode]
     allowed_sources: [yss-strategic-design, mattpocock/skills]
@@ -102,6 +111,8 @@ workflow_execution_result:
       completed_requires: [business_ticket_set_ref]
     work-unit.strategic-design-handoff:
       completed_requires: [strategic_design_handoff_ref]
+      handoff_validator: scripts/verify-strategic-design-handoff
+      handoff_schema_version: 2
 
 task_package:
   schema_version: 1
@@ -220,8 +231,8 @@ work_unit_routes:
   work-unit.prototype-design:
     native: {source: yss-strategic-design, skill: yss-strategic-design, invocation_mode: model-invoked}
     primary_skill: yss-prototype-stage
-    supporting_skills: [prototype-review, yss-design-system, yss-antd-design, product-design:index]
-    skills: [prototype-review, yss-design-system, yss-prototype-stage, yss-antd-design, product-design:index]
+    supporting_skills: [prototype-review, yss-design-system, yss-antdv-next-design, yss-antd-design, product-design:index]
+    skills: [prototype-review, yss-design-system, yss-prototype-stage, yss-antdv-next-design, yss-antd-design, product-design:index]
     human_gate: prototype-confirmation
     applies_when: product_design_impact
     not_applicable_reason: no_ui_or_product_design_impact

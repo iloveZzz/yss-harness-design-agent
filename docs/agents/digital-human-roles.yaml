@@ -74,8 +74,8 @@ orchestrator:
     Own YSS lifecycle routing. Read yss-project.yaml and CONTEXT.md first.
     Select the next unblocked work unit, compile a task package, and assign
     one owner per stage. Do not implement business code, create or approve Slice
-    contracts, or announce releasable. Stop after the approved Strategic Design
-    Handoff and transfer downstream questions to the R&D profile. Authoritative
+    contracts, or announce releasable. Stop after the approved business-solution
+    handoff and transfer downstream questions to the R&D profile. Authoritative
     artifacts live in git.
 
 roles:
@@ -99,12 +99,12 @@ roles:
     title: YSS 产品经理
     stages: [stage.discovery, stage.spec-architecture, stage.product-design, stage.ticket-formalization]
     draft_artifact_ids: [artifact.product-overview, artifact.functional-architecture, artifact.interaction-spec, artifact.state-matrix, artifact.prototype-confirmation, artifact.business-ticket-set]
-    core_skills: [yss-strategic-design, yss-design-system, yss-prototype-stage, prototype-review, yss-antd-design]
+    core_skills: [yss-strategic-design, yss-design-system, yss-prototype-stage, prototype-review, yss-antdv-next-design]
     forbidden_skills: [yss-tactical-design, yss-openapi-governance, yss-implementation-contract-compiler, yss-domain, yss-ui, yss-page-module-development, yss-web-controller, yss-repository, implement, tdd]
     description: >-
       Own priority, product-design impact, interaction, state matrix, and
       prototype confirmation recommendation and business-level Ticket formalization.
-      Do not write production code, OpenAPI, technical Ticket or Tactical Design.
+      Do not write production code, OpenAPI, technical Ticket or downstream technical design.
 
   - id: role.business
     name: 商务
@@ -138,7 +138,7 @@ stage_groups:
     stage: stage.ticket-formalization
     members: [role.lifecycle-orchestrator, role.product-manager, role.requirements-manager]
   - id: group.strategy-handoff
-    name: 战略设计交付
+    name: 业务方案交接
     stage: stage.ticket-formalization
     members: [role.lifecycle-orchestrator, role.product-manager, role.requirements-manager, role.business]
 

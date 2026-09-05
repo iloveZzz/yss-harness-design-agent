@@ -17,7 +17,7 @@ owner: ai
 | Spec 初稿 |  |  |  |
 | 产品总体设计 / 功能架构 |  |  | 必需 |
 | 产品设计 / 交互说明 |  |  |  |
-| 高保真 HTML 原型 | `docs/.scratch/<feature>/design/prototypes/index.html` |  | 有 UI 时必需；Ant Design v6 |
+| H1/H2 原型交付物 | `docs/.scratch/<feature>/design/prototypes/index.html` |  | 有产品设计影响时按档位必需；H2 默认 Vue/Antdv Next，React/AntD 为显式兼容路线 |
 | Prototype Review |  |  |  |
 | CONTEXT 术语 |  |  | 业务术语须含 PascalCase `英文标识` |
 

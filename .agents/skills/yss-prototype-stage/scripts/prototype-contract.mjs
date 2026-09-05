@@ -9,6 +9,12 @@ const nonEmpty = (value) => typeof value === "string" && value.trim().length > 0
 const object = (value) => value && typeof value === "object" && !Array.isArray(value);
 const antdSemver = /^6\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?$/;
 const exactSemver = /^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?$/;
+const DEFAULT_H2_COMPONENT_BASIS = "vue-antdv-next";
+const DEFAULT_ANTDV_NEXT_VERSION = "1.5.2";
+const DEFAULT_VUE_VERSION = "3.5.21";
+const DEFAULT_VITE_VERSION = "6.4.2";
+const DEFAULT_VUE_PLUGIN_VERSION = "5.2.4";
+const H2_COMPONENT_BASES = new Set([DEFAULT_H2_COMPONENT_BASIS, "react-antd-6"]);
 const PROFILE_KIND = { H1: "visual-review", H2: "flow-review" };
 const PROFILE_BLOCK = { H1: "visual_review", H2: "flow_review" };
 
@@ -149,9 +155,16 @@ function validateProfileV3(data, errors, allowTemplate) {
     required(facts, "applicable", "profile_evidence.flow_review.prototype_library_facts", errors);
     requiredString(facts, "component_basis", "profile_evidence.flow_review.prototype_library_facts", errors);
     if (facts?.applicable === true) {
-      for (const field of ["source", "actual_antd_version", "manifest_ref", "manifest_digest", "project_token_baseline_digest"]) requiredString(facts, field, "profile_evidence.flow_review.prototype_library_facts", errors);
+      for (const field of ["source", "manifest_ref", "manifest_digest", "project_token_baseline_digest"]) requiredString(facts, field, "profile_evidence.flow_review.prototype_library_facts", errors);
       requireArray(facts, "components_covered", "profile_evidence.flow_review.prototype_library_facts", errors, { nonEmpty: true });
-      if (!allowTemplate && !antdSemver.test(facts.actual_antd_version ?? "")) errors.push("H2 actual_antd_version 必须是明确 antd 6.x semver");
+      if (facts.component_basis === "react-antd-6" && facts.actual_antd_version !== undefined) {
+        if (!allowTemplate && !antdSemver.test(facts.actual_antd_version ?? "")) errors.push("H2 actual_antd_version 必须是明确 antd 6.x semver");
+      } else {
+        for (const field of ["library_package", "library_version"]) requiredString(facts, field, "profile_evidence.flow_review.prototype_library_facts", errors);
+        if (!allowTemplate && !exactSemver.test(facts.library_version ?? "")) errors.push("H2 library_version 必须是明确 semver");
+        if (facts.component_basis === "vue-antdv-next" && facts.library_package !== "antdv-next") errors.push("vue-antdv-next 必须使用 antdv-next package");
+        if (facts.component_basis === "react-antd-6" && (facts.library_package !== "antd" || (!allowTemplate && !antdSemver.test(facts.library_version ?? "")))) errors.push("react-antd-6 必须使用明确的 antd 6.x 版本");
+      }
       if (!["fact-pack", "cli-run"].includes(facts.source)) errors.push("H2 prototype_library_facts.source 必须为 fact-pack/cli-run");
       if (!allowTemplate && facts.project_token_baseline_digest !== data.design_baseline.project_token_baseline_digest) errors.push("H2 fact pack 的项目 Token digest 已失效");
       if (!allowTemplate && facts.new_api_uncertainty !== false) errors.push("H2 fact pack 存在新 API 疑问，必须增量查询");
@@ -196,7 +209,43 @@ export async function prepareStaticPrototype({ projectRoot, root, feature }) {
   return manifest;
 }
 
-export async function prepareFlowPrototype({ projectRoot, root, feature, targetAntdVersion, pnpmVersion }) {
+async function writeIfMissing(file, content) {
+  if (!existsSync(file)) await writeFile(file, content);
+}
+
+async function prepareVueFlowPrototype({ projectRoot, root, feature, libraryVersion, pnpmVersion, vueVersion, viteVersion, vuePluginVersion, factPackRef }) {
+  for (const [field, version] of Object.entries({ libraryVersion, pnpmVersion, vueVersion, viteVersion, vuePluginVersion })) {
+    if (!exactSemver.test(version ?? "")) throw new TypeError(`${field} 必须是明确 semver`);
+  }
+  const { resolvedProject, resolvedRoot } = safePrototypeRoot(projectRoot, root, feature);
+  const themeSourcePath = path.join(resolvedProject, "docs/design/tokens/theme.json");
+  if (!existsSync(themeSourcePath)) throw new TypeError(`缺少项目主题: ${themeSourcePath}`);
+  const themeSource = JSON.parse(await readFile(themeSourcePath, "utf8"));
+  await mkdir(path.join(resolvedRoot, "src"), { recursive: true });
+  const packagePath = path.join(resolvedRoot, "package.json");
+  const pkg = existsSync(packagePath) ? JSON.parse(await readFile(packagePath, "utf8")) : {};
+  if (pkg.dependencies?.react || pkg.dependencies?.antd) throw new TypeError("Vue/Antdv Next H2 不得静默覆盖 React/AntD starter；请显式选择 react-antd-6 或使用新的原型目录");
+  pkg.name ??= `${feature}-prototype`;
+  pkg.version ??= "0.0.0";
+  pkg.private = true;
+  pkg.type = "module";
+  pkg.packageManager = `pnpm@${pnpmVersion}`;
+  pkg.scripts = { dev: "vite --host 127.0.0.1", build: "vite build", preview: "vite preview --host 127.0.0.1", ...(pkg.scripts ?? {}) };
+  pkg.dependencies = { ...(pkg.dependencies ?? {}), "@vitejs/plugin-vue": vuePluginVersion, "antdv-next": libraryVersion, vite: viteVersion, vue: vueVersion };
+  await writeFile(packagePath, `${JSON.stringify(pkg, null, 2)}\n`);
+  await writeIfMissing(path.join(resolvedRoot, "index.html"), `<!doctype html>\n<html lang="zh-CN">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>${feature} · H2 flow review</title>\n</head>\n<body>\n  <div id="app"></div>\n  <script type="module" src="/src/main.js"></script>\n</body>\n</html>\n`);
+  await writeIfMissing(path.join(resolvedRoot, "vite.config.mjs"), `import { defineConfig } from "vite";\nimport vue from "@vitejs/plugin-vue";\n\nexport default defineConfig({ plugins: [vue()] });\n`);
+  await writeIfMissing(path.join(resolvedRoot, "src/main.js"), `import { createApp } from "vue";\nimport Antdv from "antdv-next";\nimport App from "./App.vue";\nimport "antdv-next/dist/reset.css";\nimport "./styles.css";\n\ncreateApp(App).use(Antdv).mount("#app");\n`);
+  await writeIfMissing(path.join(resolvedRoot, "src/App.vue"), `<script setup>\nimport { computed, ref } from "vue";\nimport { createYssTheme } from "./yss-theme.js";\n\nconst dark = ref(false);\nconst yssTheme = computed(() => createYssTheme({ dark: dark.value }));\n</script>\n\n<template>\n  <a-config-provider :theme="yssTheme">\n    <main aria-labelledby="page-title">\n      <p class="eyebrow">H2 · flow-review</p>\n      <h1 id="page-title">${feature}</h1>\n      <p>请在此实现已评审的主流程与关键异常状态。</p>\n      <a-button type="primary" @click="dark = !dark">切换主题以验证反馈</a-button>\n    </main>\n  </a-config-provider>\n</template>\n`);
+  await writeIfMissing(path.join(resolvedRoot, "src/styles.css"), `:root{font-family:system-ui,sans-serif;color:var(--text-color,#1f2329);background:var(--layout-background,#f0f2f5)}*{box-sizing:border-box}body{margin:0}main{max-width:1440px;margin:auto;padding:24px}.eyebrow{color:var(--brand-primary,#3371ff)}@media(max-width:576px){main{padding:12px}}\n`);
+  const generated = ['import { theme } from "antdv-next";', "", `const source = ${JSON.stringify(themeSource, null, 2)};`, 'const layoutKeys = new Set(["layoutHeaderHeight", "layoutSiderBackground", "layoutBodyBackground"]);', "export const yssLayoutTokens = Object.fromEntries(Object.entries(source.token ?? {}).filter(([key]) => layoutKeys.has(key)));", "const seed = Object.fromEntries(Object.entries(source.token ?? {}).filter(([key]) => !layoutKeys.has(key)));", "export function createYssTheme({ dark = false } = {}) {", "  return { algorithm: dark ? [theme.darkAlgorithm, theme.compactAlgorithm] : [theme.defaultAlgorithm, theme.compactAlgorithm], token: seed };", "}", ""].join("\n");
+  await writeFile(path.join(resolvedRoot, "src/yss-theme.js"), generated);
+  const manifest = { schema_version: 3, feature, prototype_profile: "H2", profile_kind: "flow-review", design_standard: "yss-antdv-next", component_basis: "vue-antdv-next", framework: "vue", library: { package: "antdv-next", version: libraryVersion }, framework_packages: { vue: vueVersion, vite: viteVersion, "@vitejs/plugin-vue": vuePluginVersion }, package_manager: `pnpm@${pnpmVersion}`, fact_pack_ref: factPackRef, theme_source: "docs/design/tokens/theme.json", theme_adapter: `docs/.scratch/${feature}/design/prototypes/src/yss-theme.js`, next_commands: ["pnpm install", "pnpm build"] };
+  await writeFile(path.join(resolvedRoot, "yss-prototype-adapter.json"), `${JSON.stringify(manifest, null, 2)}\n`);
+  return manifest;
+}
+
+async function prepareReactFlowPrototype({ projectRoot, root, feature, targetAntdVersion, pnpmVersion }) {
   if (!/^[a-z0-9][a-z0-9-]*$/.test(feature ?? "")) throw new TypeError("feature 必须是小写 kebab-case");
   if (!antdSemver.test(targetAntdVersion ?? "")) throw new TypeError("targetAntdVersion 必须是明确的 antd 6.x semver");
   if (!exactSemver.test(pnpmVersion ?? "")) throw new TypeError("pnpmVersion 必须是明确 semver");
@@ -218,9 +267,18 @@ export async function prepareFlowPrototype({ projectRoot, root, feature, targetA
   return manifest;
 }
 
+export async function prepareFlowPrototype({ projectRoot, root, feature, componentBasis, libraryVersion, targetAntdVersion, pnpmVersion, vueVersion = DEFAULT_VUE_VERSION, viteVersion = DEFAULT_VITE_VERSION, vuePluginVersion = DEFAULT_VUE_PLUGIN_VERSION, factPackRef }) {
+  if (!/^[a-z0-9][a-z0-9-]*$/.test(feature ?? "")) throw new TypeError("feature 必须是小写 kebab-case");
+  const resolvedBasis = componentBasis ?? (targetAntdVersion ? "react-antd-6" : DEFAULT_H2_COMPONENT_BASIS);
+  if (!H2_COMPONENT_BASES.has(resolvedBasis)) throw new TypeError(`componentBasis 必须为 ${[...H2_COMPONENT_BASES].join("/")}`);
+  if (resolvedBasis === "react-antd-6") return prepareReactFlowPrototype({ projectRoot, root, feature, targetAntdVersion: targetAntdVersion ?? libraryVersion, pnpmVersion });
+  const resolvedLibraryVersion = libraryVersion ?? DEFAULT_ANTDV_NEXT_VERSION;
+  return prepareVueFlowPrototype({ projectRoot, root, feature, libraryVersion: resolvedLibraryVersion, pnpmVersion, vueVersion, viteVersion, vuePluginVersion, factPackRef: factPackRef ?? `docs/design/facts/antdv-next/${resolvedLibraryVersion}/manifest.json` });
+}
+
 export const preparePrototype = prepareFlowPrototype;
 
-export async function validatePrototypeProject({ root, profile = "H2", targetAntdVersion }) {
+export async function validatePrototypeProject({ root, profile = "H2", componentBasis, libraryVersion, targetAntdVersion }) {
   const errors = [];
   if (!Object.hasOwn(PROFILE_KIND, profile)) return { errors: ["profile 必须为 H1/H2"] };
   if (!existsSync(path.join(root, "index.html"))) errors.push("缺少浏览器入口 index.html");
@@ -234,13 +292,30 @@ export async function validatePrototypeProject({ root, profile = "H2", targetAnt
   if (!existsSync(packagePath)) return { errors: [...errors, "缺少 package.json"] };
   const pkg = JSON.parse(await readFile(packagePath, "utf8"));
   if (profile === "H2") {
-    if (targetAntdVersion) {
-      if (pkg.dependencies?.antd !== targetAntdVersion) errors.push(`package.json 必须精确锁定 antd ${targetAntdVersion}`);
-      if (!antdSemver.test(targetAntdVersion)) errors.push("targetAntdVersion 必须是 antd 6.x semver");
+    const adapterPath = path.join(root, "yss-prototype-adapter.json");
+    const adapter = existsSync(adapterPath) ? JSON.parse(await readFile(adapterPath, "utf8")) : {};
+    const resolvedBasis = componentBasis ?? (targetAntdVersion ? "react-antd-6" : adapter.component_basis ?? (adapter.prototype_framework === "react" ? "react-antd-6" : DEFAULT_H2_COMPONENT_BASIS));
+    if (resolvedBasis === "react-antd-6") {
+      const resolvedVersion = targetAntdVersion ?? libraryVersion ?? adapter.target_antd_version;
+      if (pkg.dependencies?.antd !== resolvedVersion) errors.push(`package.json 必须精确锁定 antd ${resolvedVersion}`);
+      if (!antdSemver.test(resolvedVersion ?? "")) errors.push("React H2 libraryVersion 必须是 antd 6.x semver");
       if (!existsSync(path.join(root, "src/yss-theme.js"))) errors.push("React/AntD H2 缺少 src/yss-theme.js");
       const sourceFiles = ["src/App.jsx", "src/App.tsx", "src/main.jsx", "src/main.tsx"].filter((file) => existsSync(path.join(root, file)));
       const source = (await Promise.all(sourceFiles.map((file) => readFile(path.join(root, file), "utf8")))).join("\n");
       if (!/ConfigProvider/.test(source) || !/yssTheme/.test(source)) errors.push("React/AntD H2 入口必须通过 ConfigProvider 消费 yssTheme");
+    } else if (resolvedBasis === "vue-antdv-next") {
+      const resolvedVersion = libraryVersion ?? adapter.library?.version ?? DEFAULT_ANTDV_NEXT_VERSION;
+      if (pkg.dependencies?.["antdv-next"] !== resolvedVersion) errors.push(`package.json 必须精确锁定 antdv-next ${resolvedVersion}`);
+      if (!exactSemver.test(resolvedVersion ?? "")) errors.push("Vue H2 libraryVersion 必须是明确 semver");
+      for (const [name, expected] of Object.entries(adapter.framework_packages ?? {})) if (pkg.dependencies?.[name] !== expected) errors.push(`package.json 必须精确锁定 ${name} ${expected}`);
+      for (const file of ["vite.config.mjs", "src/main.js", "src/App.vue", "src/yss-theme.js"]) if (!existsSync(path.join(root, file))) errors.push(`Vue/Antdv Next H2 缺少 ${file}`);
+      const sourceFiles = ["src/App.vue", "src/main.js", "src/yss-theme.js"].filter((file) => existsSync(path.join(root, file)));
+      const source = (await Promise.all(sourceFiles.map((file) => readFile(path.join(root, file), "utf8")))).join("\n");
+      if (!/a-config-provider/.test(source) || !/yssTheme/.test(source)) errors.push("Vue/Antdv Next H2 必须通过 ConfigProvider 消费 yssTheme");
+      if (!/compactAlgorithm/.test(source)) errors.push("Vue/Antdv Next H2 主题必须消费 compactAlgorithm");
+      if (adapter.schema_version !== 3 || adapter.component_basis !== "vue-antdv-next" || adapter.framework !== "vue") errors.push("Vue/Antdv Next H2 adapter manifest 必须使用 provider-neutral schema v3");
+    } else {
+      errors.push(`不支持的 H2 component basis: ${resolvedBasis}`);
     }
     if (!String(pkg.packageManager ?? "").startsWith("pnpm@")) errors.push("H2 package.json 必须记录实际 pnpm packageManager");
     if (!existsSync(path.join(root, "pnpm-lock.yaml"))) errors.push("H2 缺少 pnpm-lock.yaml");
@@ -275,11 +350,11 @@ async function main(argv) {
     return;
   }
   if (["prepare", "prepare-flow"].includes(command)) {
-    process.stdout.write(`${JSON.stringify(await prepareFlowPrototype({ projectRoot: parsed["project-root"], root: parsed.root, feature: parsed.feature, targetAntdVersion: parsed["target-antd-version"], pnpmVersion: parsed["pnpm-version"] }), null, 2)}\n`);
+    process.stdout.write(`${JSON.stringify(await prepareFlowPrototype({ projectRoot: parsed["project-root"], root: parsed.root, feature: parsed.feature, componentBasis: parsed["component-basis"], libraryVersion: parsed["library-version"], targetAntdVersion: parsed["target-antd-version"], pnpmVersion: parsed["pnpm-version"], vueVersion: parsed["vue-version"] ?? DEFAULT_VUE_VERSION, viteVersion: parsed["vite-version"] ?? DEFAULT_VITE_VERSION, vuePluginVersion: parsed["vue-plugin-version"] ?? DEFAULT_VUE_PLUGIN_VERSION, factPackRef: parsed["fact-pack-ref"] }), null, 2)}\n`);
     return;
   }
   if (command === "validate-project") {
-    const result = await validatePrototypeProject({ root: parsed.root, profile: parsed.profile ?? "H2", targetAntdVersion: parsed["target-antd-version"] });
+    const result = await validatePrototypeProject({ root: parsed.root, profile: parsed.profile ?? "H2", componentBasis: parsed["component-basis"], libraryVersion: parsed["library-version"], targetAntdVersion: parsed["target-antd-version"] });
     if (result.errors.length > 0) throw new TypeError(result.errors.join("\n"));
     process.stdout.write("prototype project contract passed\n");
     return;

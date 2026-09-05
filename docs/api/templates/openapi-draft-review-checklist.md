@@ -16,7 +16,7 @@
 | 原型 / 线框图 |  |  |
 | 状态矩阵 | `docs/.scratch/<feature>/design/<feature>-state-matrix.md` |  |
 | 原型评审结论 | `docs/.scratch/<feature>/design/<feature>-prototype-review.md` |  |
-| 高保真 HTML 原型 | `docs/.scratch/<feature>/design/prototypes/index.html` | 有 UI 时必需；必须使用 Ant Design v6，并通过 `product-design:index` 路由产出或记录例外原因 |
+| H1/H2 原型交付物 | `docs/.scratch/<feature>/design/prototypes/index.html` | 有产品设计影响时按档位必需；H2 默认 Vue/Antdv Next，通过 `product-design:index` 路由产出；React/AntD 只作显式兼容路线 |
 | AntD CLI 校验证据 | `docs/.scratch/<feature>/design/<feature>-prototype-confirmation.md` 或评审记录 | 有 UI 时必需；记录 design.md / info / demo / token / semantic 查询 |
 | 用户确认记录 | `docs/.scratch/<feature>/design/<feature>-prototype-confirmation.md` | 有 UI 时必需；未确认前不得进入 OpenAPI Draft 评审 |
 | YSS 工程基线 | `.codex/skills/yss-ddd-scaffold-generator/references/yss-backend-scaffold-parent/SKILL.md` |  |

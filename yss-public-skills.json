@@ -4,6 +4,7 @@
   "canonical_root": ".agents/skills",
   "skills": [
     "yss-antd-design",
+    "yss-antdv-next-design",
     "yss-design-system",
     "yss-prototype-stage",
     "yss-stage-decision",
@@ -18,7 +19,7 @@
     {
       "title": "产品设计",
       "description": "用于页面原型、交互状态和设计系统校准。",
-      "skills": ["yss-antd-design", "yss-design-system", "yss-prototype-stage"]
+      "skills": ["yss-antd-design", "yss-antdv-next-design", "yss-design-system", "yss-prototype-stage"]
     }
   ]
 }

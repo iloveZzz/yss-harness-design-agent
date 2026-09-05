@@ -1,10 +1,10 @@
 schema_version: 1
 profile_id: harness.business-ddd-strategy-handoff
 status: active
-name: 产品需求商务 DDD 战略设计交付模式
+name: 产品需求商务业务方案交付模式
 purpose: >-
-  面向产品、需求和商务角色，把机会与业务约束收敛为可审查的 DDD 战略设计，
-  形成可直接交付给下游研发团队进行战术设计的交付包。
+  面向产品、需求和商务角色，把机会与业务约束收敛为可审查的业务边界、协作关系和关键规则，
+  形成可直接交付给下游研发团队的业务方案交接包。
 
 audience:
   target_user_roles:
@@ -16,10 +16,10 @@ audience:
   non_target_role_policy: >-
     本分支仅注册产品、需求和商务三个业务角色；项目管理、前后端工程、测试和发布等
     角色不在当前 profile 中注册，也不由当前 Harness 推荐或派发。主分支与下游研发
-    模板可继续保留完整角色能力，由 Strategic Design Handoff 交接后接管。
+    模板可继续保留完整角色能力，由业务方案交接后接管。
   boundary: >-
-    当前 Harness 只负责 DDD 战略设计及 Spec、页面原型、业务级 Ticket 和交接包，
-    不进入 Tactical Design、OpenAPI、技术 Ticket、代码实现或发布。
+    当前 Harness 只负责业务边界与规则设计、Spec、页面原型、业务级 Ticket 和业务方案交接包，
+    不进入下游技术设计、OpenAPI、技术 Ticket、代码实现或发布。
 
 lifecycle:
   repository_modes: [project-instance]
@@ -63,6 +63,9 @@ handoff:
     - artifact.interaction-spec
     - artifact.business-ticket-set
   required_sections:
+    - source-context-snapshot
+    - context-delta
+    - target-context-reconciliation
     - problem-and-business-outcomes
     - bounded-context-and-subdomain-map
     - context-map-and-translation-responsibility
@@ -73,6 +76,8 @@ handoff:
     - evidence-and-version-digests
   acceptance:
     - domain-strategy-status-is-approved
+    - source-context-snapshot-and-context-delta-are-current
+    - target-context-reconciliation-is-required-before-tactical-design
     - stage-decision-package-status-is-approved
     - source-digests-are-current
     - every-deferred-item-has-owner-next-action-and-target-version

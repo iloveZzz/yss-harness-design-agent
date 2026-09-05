@@ -1,14 +1,14 @@
-# YSS Strategic Design Harness
+# YSS 业务方案设计 Harness
 
 > **项目名称：** [填写]
 > **业务领域：** [填写]
 > **团队规模：** [填写]
 >
-> 面向产品、需求、商务的业务上游战略设计 Harness（`harness.business-ddd-strategy-handoff`）。本地生命周期在 Strategic Design Handoff 结束，不进入 OpenAPI、Tactical DDD、垂直切片实现或发布。
+> 面向产品、需求、商务的业务方案工作台（内部兼容 ID：`harness.business-ddd-strategy-handoff`）。本地生命周期在业务方案交接结束，不进入 OpenAPI、下游技术设计、垂直切片实现或发布。
 
 ## 定位
 
-本模板默认作为战略设计 / 研发管理仓库，保留 Discovery、Spec、原型、业务级 Ticket、战略设计交付包、Agent skills 和协作约定。OpenAPI、实现仓库和运行时代码由下游研发 profile 接管。机器可读边界见 [`docs/process/harness-profile.yaml`](./docs/process/harness-profile.yaml)。
+本模板默认作为业务方案设计 / 研发管理仓库，保留 Discovery、Spec、原型、业务级 Ticket、业务方案交接包、Agent skills 和协作约定。OpenAPI、实现仓库和运行时代码由下游研发 profile 接管。机器可读边界见 [`docs/process/harness-profile.yaml`](./docs/process/harness-profile.yaml)。
 
 ## 项目结构
 
@@ -21,7 +21,7 @@
 ├── .qoder/                  ← Qoder skills 投影与平台专属 skills
 ├── .trae/                   ← Trae skills 投影与平台专属 skills
 ├── AGENTS.md                ← AI 指令
-├── CONTEXT.md               ← 领域词汇表
+├── CONTEXT.md               ← 业务词汇表
 ├── yss-project.yaml         ← 仓库身份清单
 ├── docs/
 │   ├── adr/                 ← 架构决策记录入口
@@ -30,7 +30,7 @@
 │   ├── design/              ← 产品设计、原型、交互说明和状态矩阵
 │   ├── architecture/        ← 业务 / 功能架构模板
 │   ├── agents/              ← Agent 协作规范、Ticket/Triage/领域文档约定
-│   ├── templates/           ← 通用文档模板与战略设计交付包
+│   ├── templates/           ← 通用文档模板与业务方案交接包
 │   └── process/             ← 生命周期、profile、裁剪和技能治理说明
 └── scripts/                 ← 模板轻量校验脚本
 ```
@@ -39,11 +39,11 @@
 
 ## Quickstart
 
-1. 先读取 `yss-project.yaml`，按 `repository_mode` 选择模板维护或 `harness.business-ddd-strategy-handoff` 产品战略设计流程。
+1. 先读取 `yss-project.yaml`，按 `repository_mode` 选择模板维护或内部兼容 ID `harness.business-ddd-strategy-handoff` 对应的业务方案设计流程。
 2. 必读入口为 `AGENTS.md` 与 `CONTEXT.md`；本地职责边界以 `docs/process/harness-profile.yaml` 为准，生命周期 ID 以 `docs/process/lifecycle-registry.yaml` 为准。
 3. `template-source` 修改后默认执行 `scripts/verify-template-fast`；共享 skill 变化时再执行必要的投影与 lock 更新。PR 使用 candidate 核验，发布使用完整门禁。
 4. `project-instance` 使用 `yss-strategic-design`：机会调研 → Spec → 页面原型 → 业务级 Ticket → `work-unit.strategic-design-handoff`。不要在本地拆垂直切片或进入实现。
-5. OpenAPI、Tactical DDD、实现仓库和覆盖率门禁属于下游研发 profile，不是本仓硬门禁。
+5. OpenAPI、技术设计、实现仓库和覆盖率门禁属于下游研发 profile，不是本仓硬门禁。
 
 YSS skills 的公开发布投影维护在 [iloveZzz/yss-spec-dev-skills](https://github.com/iloveZzz/yss-spec-dev-skills)，发布清单和导出命令见 [skills 维护说明](./docs/agents/skills-maintenance.md)。
 
@@ -99,8 +99,8 @@ scripts/verify-template
 
 | 文档 | 内容 |
 |------|------|
-| [AGENTS.md](./AGENTS.md) | 仓库身份路由、战略设计硬门禁与禁止事项 |
-| [docs/process/harness-profile.yaml](./docs/process/harness-profile.yaml) | 战略设计交付 profile |
+| [AGENTS.md](./AGENTS.md) | 仓库身份路由、业务方案确认点与禁止事项 |
+| [docs/process/harness-profile.yaml](./docs/process/harness-profile.yaml) | 业务方案交付 profile |
 | [docs/process/instance-distribution-manifest.yaml](./docs/process/instance-distribution-manifest.yaml) | 实例分发清单 |
 | [docs/user-guide/用户手册索引.md](./docs/user-guide/用户手册索引.md) | 模板使用说明 |
 | [docs/process/lifecycle-registry.yaml](./docs/process/lifecycle-registry.yaml) | 生命周期结构事实源 |
@@ -115,7 +115,7 @@ scripts/verify-template
 | 模板 | 用途 |
 |------|------|
 | [docs/templates/spec-template.md](./docs/templates/spec-template.md) | Spec，包含测试决策、AI / 人工审查点 |
-| [docs/templates/strategic-design-handoff-template.yaml](./docs/templates/strategic-design-handoff-template.yaml) | 战略设计交付包 |
+| [docs/templates/strategic-design-handoff-template.yaml](./docs/templates/strategic-design-handoff-template.yaml) | 业务方案交接包 |
 | [docs/templates/agent-brief-template.md](./docs/templates/agent-brief-template.md) | `triage` 产出的 Agent Brief |
 | [docs/architecture/templates/business-architecture-template.md](./docs/architecture/templates/business-architecture-template.md) | 业务架构 |
 | [docs/architecture/templates/functional-architecture-template.md](./docs/architecture/templates/functional-architecture-template.md) | 功能架构 |

@@ -54,11 +54,11 @@ tracker 选择和冲突按 `docs/agents/issue-tracker.md` 裁决：已持久化 
 - `work-unit.technical-analysis` 是下游研发 profile 的接管工作单元；本 profile 仅在 Strategic Design Handoff 中记录待下游确认的技术问题，不生成 Tactical DDD 或 OpenAPI 资产。
 
 - `work-unit.discovery-requirements` 实际调用 `grilling` 和 `domain-modeling`；`work-unit.discovery-opportunity` 按事实类型路由 `competitive-intelligence` 或 `yss-research`。`yss-research:quick` 只用于探索；外部证据进入领域战略、阶段决策或其他生命周期批准输入前必须升级为 `evidence-audited`。战略编排器原生负责 Spec、页面原型、业务 Ticket 和 Strategic Design Handoff；`ask-matt`、`grill-me`、`grill-with-docs`、`to-spec`、`to-tickets`、`triage`、`wayfinder` 仅保留为显式兼容入口，结果必须回交战略编排器验收。
-- `harness.business-ddd-strategy-handoff` profile 的 `work-unit.strategic-design-handoff` 是本地终点；它必须引用批准的 `domain-strategy`、`stage-decision-package`、Spec、页面原型和业务级 Ticket 集，并把 Tactical DDD 问题交给下游研发团队。profile 内不得生成或批准 `artifact.tactical-design`。
+- `harness.business-ddd-strategy-handoff` profile 的 `work-unit.strategic-design-handoff` 是本地终点；它必须引用批准的 `domain-strategy`、`stage-decision-package`、Spec、页面原型和业务级 Ticket 集，携带 schema v2 `source_context_snapshot` / `context_delta`，并把 Tactical DDD 问题交给下游研发团队。目标仓必须先完成根 `CONTEXT.md` 对账和 `context_reconciliation`，再启动 `yss-tactical-design`；profile 内不得生成或批准 `artifact.tactical-design`。
 - `work-unit.business-ticket-formalization` 只生成业务能力/用户行为级 Ticket，保持 `ready-for-human`，不创建垂直切片、Slice Contract 或 `ready-for-agent`。
 - `Workflow Execution Result.next_route` 必须通过生命周期转换校验；Spec → 原型 → 业务 Ticket → Strategic Design Handoff 是本 profile 的唯一主路径。
 - `work-unit.slice-implementation`、脚手架和实现验证均由下游研发 profile 执行；本分支不存在 `implement` 入口，相关请求必须 blocked 并转交下游。
-- `Workflow Execution Result` 出现 `drift`、`new_impacts`、`stale_candidates`、`violation`、`missing_evidence`、空 `evidence_refs` 或缺少必需字段时暂停当前工作单元；旧结果只能先经只读兼容 adapter 归一化。
+- `Workflow Execution Result` 缺少通过校验的 `context_reconciliation`，或出现 `drift`、`new_impacts`、`stale_candidates`、`violation`、`missing_evidence`、空 `evidence_refs` / 必需字段时暂停当前工作单元；旧结果只能先经只读兼容 adapter 归一化。
 
 ## 战略资产审查与验证
 

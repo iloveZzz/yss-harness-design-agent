@@ -89,7 +89,9 @@ export function validateHarnessProfile(profile = loadHarnessProfile(), {
     if (!(lifecycle.artifacts || []).some((item) => item.id === artifact)) fail(`handoff.required_source_artifacts 引用了未知产物: ${artifact}`);
   }
   if (!Array.isArray(profile.handoff.required_sections) || profile.handoff.required_sections.length < 6) fail("handoff.required_sections 不完整");
+  for (const section of ["source-context-snapshot", "context-delta", "target-context-reconciliation"]) if (!profile.handoff.required_sections.includes(section)) fail(`handoff.required_sections 缺少 ${section}`);
   if (!Array.isArray(profile.handoff.acceptance) || profile.handoff.acceptance.length < 4) fail("handoff.acceptance 不完整");
+  for (const condition of ["source-context-snapshot-and-context-delta-are-current", "target-context-reconciliation-is-required-before-tactical-design"]) if (!profile.handoff.acceptance.includes(condition)) fail(`handoff.acceptance 缺少 ${condition}`);
   return {
     profile_id: profile.profile_id,
     target_user_roles: [...profile.audience.target_user_roles],

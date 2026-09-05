@@ -37,7 +37,9 @@ required_files:
   - docs/process/schemas/digital-human-task-package.schema.json
   - docs/process/schemas/subagent-task-package.schema.json
   - docs/process/schemas/strategic-design-handoff.schema.json
+  - docs/process/schemas/context-reconciliation.schema.json
   - docs/process/templates/lifecycle-checkpoint-template.yaml
+  - docs/process/templates/context-reconciliation-template.yaml
   - docs/templates/subagent-task-package-template.md
   - docs/templates/strategic-design-handoff-template.yaml
   - .agents/skills/yss-strategic-design/SKILL.md
@@ -49,6 +51,15 @@ required_files:
   - scripts/generate-lifecycle-artifacts
   - scripts/verify-lifecycle-registry
   - scripts/verify-lifecycle-checkpoint
+  - scripts/lib/context-contract.mjs
+  - scripts/verify-context-contract
+  - scripts/verify-context-contract-scenarios
+  - scripts/verify-business-language-scenarios
+  - scripts/verify-context-reconciliation
+  - scripts/verify-context-reconciliation-scenarios
+  - scripts/verify-grill-with-docs-context-scenarios
+  - scripts/verify-strategic-design-handoff
+  - scripts/verify-strategic-design-handoff-scenarios
   - scripts/verify-harness-profile
   - scripts/verify-harness-profile-scenarios
   - scripts/verify-entry-alignment
@@ -78,6 +89,7 @@ required_files:
   - scripts/verify-template
   - scripts/verify-template-verification-scenarios
 syntax_files:
+  - scripts/verify-business-language-scenarios
   - scripts/sync-skills
   - scripts/update-skill-lock
   - scripts/generate-lifecycle-artifacts
@@ -152,6 +164,7 @@ groups:
       - { run: "scripts/verify-skill-governance" }
   strategic-design:
     commands:
+      - { run: "scripts/verify-strategic-design-handoff-scenarios" }
       - { run: "scripts/verify-entry-alignment" }
       - { run: "scripts/verify-lifecycle-scenarios" }
       - { run: "node .agents/skills/yss-stage-decision/tests/run-scenarios.mjs" }
@@ -159,6 +172,7 @@ groups:
       - { run: "node .agents/skills/yss-prototype-stage/tests/run-scenarios.mjs" }
       - { run: "node --test .agents/skills/yss-design-system/scripts/validate-frontmatter.test.mjs" }
       - { run: "node --test .agents/skills/yss-antd-design/scripts/validate-frontmatter.test.mjs" }
+      - { run: "node .agents/skills/yss-antdv-next-design/tests/run-scenarios.mjs" }
   collaboration:
     commands:
       - { run: "scripts/verify-digital-human-roles" }
@@ -166,6 +180,11 @@ groups:
       - { run: "scripts/verify-approval-record docs/templates/approval-record-template.yaml" }
   lifecycle:
     commands:
+      - { run: "scripts/verify-context-contract --root . --json" }
+      - { run: "scripts/verify-context-contract-scenarios" }
+      - { run: "node scripts/verify-business-language-scenarios" }
+      - { run: "scripts/verify-context-reconciliation-scenarios" }
+      - { run: "scripts/verify-grill-with-docs-context-scenarios" }
       - { run: "scripts/verify-lifecycle-registry" }
       - { run: "scripts/verify-lifecycle-checkpoint docs/process/templates/lifecycle-checkpoint-template.yaml" }
       - { run: "scripts/verify-lifecycle-transition-scenarios" }

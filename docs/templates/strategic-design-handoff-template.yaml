@@ -1,6 +1,6 @@
-schema_version: 1
+schema_version: 2
 handoff_id: strategic-design-handoff.<feature>
-handoff_version: v1
+handoff_version: v2
 status: draft
 
 source:
@@ -35,6 +35,30 @@ source:
     status: approved
     persisted_ref: docs/.scratch/<feature>/tickets/business-ticket-set.yaml
 
+source_context_snapshot:
+  context_ref: CONTEXT.md
+  context_schema_version: 1
+  document_digest: sha256:<source-context-document-digest>
+  referenced_terms_digest: sha256:<source-referenced-terms-digest>
+  term_refs: []
+
+context_delta:
+  added:
+    - term_ref: <ContextId>/<EnglishIdentifier>
+      term: <中文术语>
+      meaning: <稳定业务含义>
+      english_identifier: <PascalCaseEnglishIdentifier>
+      context_id: <Global-or-approved-ContextId>
+      forbidden_aliases: []
+  updated: []
+  deprecated: []
+
+target_context_reconciliation:
+  target_context_ref: CONTEXT.md
+  reconciliation_schema_ref: docs/process/schemas/context-reconciliation.schema.json
+  required_before_skill: yss-tactical-design
+  status: pending
+
 target:
   team: downstream-rd-team
   skill: yss-tactical-design
@@ -44,19 +68,19 @@ problem_and_business_outcomes:
   - <业务问题、目标和可观测结果>
 
 bounded_context_and_subdomain_map:
-  - <限界上下文、子域分类、职责边界和非职责>
+  - <业务责任区、业务板块分类、职责边界和非职责>
 
 context_map_and_translation_responsibility:
-  - <上下文关系、语义上下游、业务权威、传输方向和翻译责任>
+  - <协作与交接关系、规则提供方和使用方、业务决策权、信息方向和口径转换负责人>
 
 ubiquitous_language_and_concept_candidates:
-  - <上下文内统一语言及核心概念候选；不得直接指定 Entity 或 Aggregate>
+  - <责任区内统一业务词汇及待确认的关键业务对象；不得直接指定技术模型>
 
 scenarios_and_business_invariants:
-  - <关键场景、领域事件候选和业务不变量>
+  - <关键业务故事、已发生的业务事实和不可违反的业务规则>
 
 tactical_design_questions:
-  - <交给下游战术设计团队裁决的聚合、状态、一致性、Gateway 或持久化问题>
+  - <交给下游研发团队裁决的状态、一致性、系统边界、接口或数据存储问题>
 
 deferred_decisions_and_ownership:
   - decision: <尚未决策事项>
@@ -65,11 +89,13 @@ deferred_decisions_and_ownership:
     target_version: <目标版本或发布日期>
 
 evidence_and_version_digests:
-  - <可读取的战略设计、阶段决策、评审和验证证据引用>
+  - <可读取的业务边界与规则设计、方案决策、评审和验证证据引用>
 
 acceptance:
   - domain-strategy-status-is-approved
   - stage-decision-package-status-is-approved
   - source-digests-are-current
+  - source-context-snapshot-and-context-delta-are-current
+  - target-context-reconciliation-is-required-before-tactical-design
   - every-deferred-item-has-owner-next-action-and-target-version
   - no-aggregate-entity-repository-or-api-is-prescribed

@@ -5,11 +5,11 @@
 设计系统基线：
 
 - 根目录 `DESIGN.md`：机器可消费的视觉令牌和组件视觉变体唯一规范源；共享章节与主模板通过 `docs/design/design-system-sync.yaml` 的版本和摘要同步。
-- `docs/design/design.md`：中文治理与生命周期适配层，说明设计系统如何进入战略设计、原型和 Strategic Design Handoff，不重复定义规范值。
+- `docs/design/design.md`：中文治理与生命周期适配层，说明设计系统如何进入业务方案、原型和业务方案交接，不重复定义规范值。
 - `docs/design/tokens/`：由 `DESIGN.md` 生成的默认、暗色、紧凑 token 和 CSS 变量快照，不是人工规范源。
 - `docs/design/preview.html`、`preview-dark.html`：设计系统级视觉、响应式和无障碍验证输入。
 
-产品原型产出默认以 `product-design:index` 为主入口。该 skill 只负责路由，实际按 Product Design plugin 规则进入 `$get-context`、`$ideate`、`$prototype`、`$image-to-code`、`$url-to-code`、`$share` 或 `$design-qa` 等 focused skill；YSS 生命周期仍负责校验低保真评审、高保真 HTML 原型、AntD CLI 校验证据、用户确认和 Spec / OpenAPI 回填。
+产品原型产出默认以 `product-design:index` 为主入口。该 skill 只负责路由，实际按 Product Design plugin 规则进入 `$get-context`、`$ideate`、`$prototype`、`$image-to-code`、`$url-to-code`、`$share` 或 `$design-qa` 等 focused skill；YSS 生命周期仍负责校验低保真评审、H1/H2 原型交付物、Provider fact pack、用户确认和 Spec 回填。
 
 进入 Spec 初稿 / 需求基线流程后，必须先沉淀产品总体设计 / 功能架构，再进入页面 / 原型 / 交互设计、Spec 校准、API 影响分析 / 契约草案或实现。产品总体设计文档必须包含低保真原型 / 页面草图，用于验证页面结构、关键操作和主流程。无 UI 的功能也需要产品总体设计 / 功能架构来说明功能域、业务对象、模块边界、API / 数据影响和不适用的页面状态；只有不进入 Spec 生命周期的小改动可在影响面评估中记录不适用原因。
 
@@ -22,7 +22,7 @@
 - 表单、表格、弹窗、抽屉、步骤流等交互说明。
 - loading、empty、error、readonly、disabled、no-permission、conflict 等状态矩阵。
 - 页面字段、筛选条件、操作按钮和权限规则。
-- 低保真原型评审通过后的 Ant Design v6 高保真可交互 HTML 原型，默认路径为 `docs/.scratch/<feature>/design/prototypes/index.html`；该产物可由系统 / Agent 自动生成，不要求用户手工提供，产出前必须使用 `yss-antd-design` 查询设计语言、组件 API、demo、token 和 semantic 信息，产出后必须记录 AntD v6 校验证据并获得用户确认。前端代码落地改用 `yss-ui`。
+- 低保真原型评审通过后的 H1/H2 原型交付物，默认路径为 `docs/.scratch/<feature>/design/prototypes/index.html`。H2 默认使用 Vue 3/Vite + Antdv Next，并通过 `yss-antdv-next-design` 查询精确版本组件事实；显式 React 兼容路线才使用 `yss-antd-design`。产出后必须记录对应 fact pack、浏览器验证并获得用户确认；生产前端由下游 `yss-ui` 路线落地。
 
 这些资产用于反推 API 影响、契约草案、OpenAPI 请求 / 响应字段、错误结构、分页筛选、权限状态和前端验收标准。
 
@@ -41,7 +41,8 @@
 - `yss-prototype-stage`：跨 Agent 的原型阶段合同，固定资产、证据、设计优先级与生命周期回流；Codex 的主路由为 `product-design:index`。
 - `product-design:index`：Codex 产品原型产出的主路由；根据输入是否有 URL、截图、Figma、代码目标或视觉方向，进入 `$get-context`、`$ideate`、`$prototype`、`$image-to-code`、`$url-to-code`、`$share` 或 `$design-qa` 等 focused skill。
 - Product Design focused skills：基于 Spec 初稿和产品总体设计 / 功能架构，产出低保真 / 高保真页面、原型、交互设计资产和可分享原型；高保真 HTML 原型默认由该路由链路产出。
-- `yss-antd-design`：仅用于原型设计构建的 Ant Design v6 事实技能；生成或修改高保真 HTML 原型前后必须留下 CLI 校验证据。前端代码落地改用 `yss-ui`。
+- `yss-antdv-next-design`：默认 H2 Vue/Antdv Next 原型的精确版本事实 Provider；不生成页面、不替代 `yss-prototype-stage`。
+- `yss-antd-design`：仅用于显式 H2 React/AntD 兼容原型的事实 Provider。生产前端由下游 `yss-ui` 路线落地。
 - `prototype-review`：原型阶段评审门禁；未通过则不要进入 Spec 校准 / API 影响分析 / 契约草案。
 - 兼容入口：`product-design-prototype`、`high-fidelity-html-prototype` 仅作为历史兼容或产物门禁名称保留；新的产品原型产出默认使用 `product-design:index`，已退休技能不再提供兼容路由。
 

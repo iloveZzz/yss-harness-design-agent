@@ -11,17 +11,17 @@
 战略设计阶段使用该规范完成：
 
 - 产品总体设计、页面地图和低保真结构。
-- Ant Design v6 高保真 HTML 原型的语义 token 映射。
+- H2 Vue/Antdv Next 默认原型及 React/AntD 兼容原型的语义 token 映射。
 - 交互说明、状态矩阵和原型视觉验证。
-- Strategic Design Handoff 中的视觉约束与验收引用。
+- 业务方案交接中的视觉约束与验收引用。
 
-业务状态、用户流程、权限行为、API 影响、DDD 战略决策和 Handoff 字段仍由对应生命周期资产承载，不写入 `DESIGN.md`。
+业务状态、用户流程、权限行为、API 影响、业务边界与规则决策和交接字段仍由对应生命周期资产承载，不写入 `DESIGN.md`。
 
-## 原型与运行时双轨
+## 原型与运行时边界
 
-高保真原型继续使用 React + Ant Design 6.x 事实；生产实现由下游研发 profile 使用 Vue 3 + YSS UI / Ant Design Vue 4.x。两条轨道共享语义 token、状态含义和验收目标，不把任一运行时的实现细节写成跨项目视觉规范。
+H2 高保真原型默认使用 Vue 3 + Antdv Next；React + Ant Design 6.x 只作为显式兼容路线。生产实现仍由下游研发 profile 使用目标仓锁定的 Vue 3 + YSS UI / Ant Design Vue 4.x。原型与生产共享语义 token、状态含义和验收目标，不把任一运行时的实现细节写成跨项目视觉规范。
 
-原型构建前使用 `yss-antd-design` 获取组件事实，构建后记录 CLI、浏览器和无障碍证据。设计系统级预览位于 `preview.html` 与 `preview-dark.html`，不替代产品级原型。
+默认 H2 构建前使用 `yss-antdv-next-design` 获取组件事实；显式 React 兼容路线使用 `yss-antd-design`。构建后统一记录 fact pack、浏览器和无障碍证据。设计系统级预览位于 `preview.html` 与 `preview-dark.html`，不替代产品级原型。
 
 ## 维护与验证
 

@@ -22,7 +22,7 @@ description: 编排 YSS 产品或模块从机会调研到业务边界与协作�
 
 `入口分诊 → 机会与目标 → 业务故事 → 业务边界与协作 → 规则、例子与疑问 → 方案决策包 → Spec → 页面验证 → 业务级 Ticket → 业务方案交接`
 
-业务方案交接包必须同时引用已批准且版本当前的 `artifact.domain-strategy`、`artifact.stage-decision-package`、Spec、页面原型和业务级 Ticket 集，并以 schema v2 `docs/templates/strategic-design-handoff-template.yaml` / `docs/process/schemas/strategic-design-handoff.schema.json` 的结构交给下游研发团队。它必须携带当前根 `CONTEXT.md` 的 `source_context_snapshot`、结构化 `context_delta`，并声明目标仓在进入技术设计前完成本地 `context_reconciliation`。v1 交接包只读并返回 `migration-required`，不得从自由文本猜测术语映射。下游团队的下一工作单元由内部技能 `yss-tactical-design` 接管；本 profile 不生成 OpenAPI、技术设计合同、Slice Implementation Contract、代码或发布资产。需要继续推进时，必须新建或切换到下游研发团队的 project profile，不能在本 profile 中越过 `work-unit.strategic-design-handoff`。
+业务方案交接包必须同时引用已批准且版本当前的 `artifact.domain-strategy`、`artifact.stage-decision-package`、Spec、页面原型和业务级 Ticket 集，并以 schema v3 `docs/templates/strategic-design-handoff-template.yaml` / `docs/process/schemas/strategic-design-handoff.schema.json` 的结构交给下游研发团队。它必须携带当前根 `CONTEXT.md` 的 `source_context_snapshot`、结构化 `context_delta`，并声明目标仓在进入技术设计前完成本地 `context_reconciliation`。v1 交接包只读并返回 `migration-required`，不得从自由文本猜测术语映射。下游团队的下一工作单元由内部技能 `yss-tactical-design` 接管；本 profile 不生成 OpenAPI、技术设计合同、Slice Implementation Contract、代码或发布资产。需要继续推进时，必须新建或切换到下游研发团队的 project profile，不能在本 profile 中越过 `work-unit.strategic-design-handoff`。
 
 Matt 的 `ask-matt`、`grill-me`、`grill-with-docs`、`to-spec`、`to-tickets`、`triage` 和 `wayfinder` 保留为显式兼容入口；`implement` 已从本分支移除。默认路径是本 skill 持有的原生工作单元，由本编排器创建正式资产、维护状态并在会签门禁暂停。兼容入口不得自动调用它们或代替其创建正式资产；Matt 只导航，不得写生命周期资产或改变门禁/Ticket 状态；任何写入前回交本编排器。
 
@@ -71,3 +71,7 @@ Matt 的 `ask-matt`、`grill-me`、`grill-with-docs`、`to-spec`、`to-tickets`�
 输出固定包含：模式、当前阶段、影响面、资产/门禁状态、`context_reconciliation`、证据、业务 Ticket 状态、阻塞项、本轮动作、下一工作单元、暂停/继续理由、Ticket 同步和 Git checkpoint 判断。启用本 profile 时，`work-unit.strategic-design-handoff` 完成后 `next_route` 必须为 `null`；不得生成垂直切片、`ready-for-agent`、OpenAPI、下游技术设计或实现资产。兼容入口的输入必须回交本编排器验收；`implement` 请求直接 `blocked` 并转交下游研发团队。暂停会签时必须输出门禁 ID、指定 `role_id`、`runtime_id` 和会签文件路径。任务包的 `core_skills` / `forbidden_skills` 必须从角色注册表复制。
 
 详细执行循环、readiness、审查快照、状态传播和 Matt 边界见 [orchestration.md](references/orchestration.md)、[orchestration-contract.yaml](references/orchestration-contract.yaml)、[artifact-dependencies.md](references/artifact-dependencies.md) 和 [state-model.md](references/state-model.md)。
+
+## 便携交接工具
+
+批准交接后由 `scripts/strategic-handoff export --source-root <source> --handoff <ref> --output <new-directory> --zip` 冻结原始资产；规则身份、批准绑定、包内索引和完整快照差异以 `docs/process/strategic-handoff-package.md` 为准。接收方先 `verify` 再 `import`，目标根术语对账和 `verify-strategic-handoff-consumption` 通过后进入战术设计/相关切片；工具不能代替生命周期批准。

@@ -8,6 +8,8 @@ import { parseDocument } from "./vendor/yaml.mjs";
 import { resolveContextTermRefs, verifyContextSnapshot } from "./lib/context-contract.mjs";
 import { validateVisualBaseline } from "../.agents/skills/yss-prototype-stage/scripts/visual-baseline-contract.mjs";
 
+import { inspectSource } from "./lib/strategic-handoff.mjs";
+
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const schemaPath = path.join(repoRoot, "docs/process/schemas/strategic-design-handoff.schema.json");
 const pythonValidator = String.raw`
@@ -71,6 +73,7 @@ try {
     const evidence = path.resolve(root, ref);
     if (!evidence.startsWith(`${root}${path.sep}`) || !existsSync(evidence)) throw new TypeError(`交接证据不可读或越界: ${ref}`);
   }
+  if (value.package_export) await inspectSource(root, path.relative(root, path.resolve(positionals[0])).split(path.sep).join("/"));
   process.stdout.write("Strategic Design Handoff v3 验证通过\n");
 } catch (error) {
   process.stderr.write(`Strategic Design Handoff 验证失败: ${error.message}\n`);

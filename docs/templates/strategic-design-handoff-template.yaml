@@ -107,3 +107,6 @@ acceptance:
   - target-context-reconciliation-is-required-before-tactical-design
   - every-deferred-item-has-owner-next-action-and-target-version
   - no-aggregate-entity-repository-or-api-is-prescribed
+
+# 需要便携导出时按 docs/process/strategic-handoff-package.md 补 package_export。
+# 正式导出必须具备规则稳定 ID、当前批准绑定和离线预览证据；禁止导出占位模板。

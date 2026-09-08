@@ -81,8 +81,8 @@ export function validateHarnessProfile(profile = loadHarnessProfile(), {
   const transition = lifecycleTransitionContract.profile_next_routes?.[profile.profile_id];
   if (!transition || JSON.stringify(transition[profile.lifecycle.terminal_work_unit]) !== "[]") fail("profile 终止工作单元必须没有下一路由");
 
-  if (profile.handoff.downstream_skill !== "yss-tactical-design") fail("handoff.downstream_skill 必须为下游 yss-tactical-design");
-  if (profile.handoff.downstream_output !== "tactical-design-contract") fail("handoff.downstream_output 必须为 tactical-design-contract");
+  if (profile.handoff.downstream_skill !== "yss-technical-design") fail("handoff.downstream_skill 必须为下游 yss-technical-design");
+  if (profile.handoff.downstream_output !== "technical-design-contract") fail("handoff.downstream_output 必须为 technical-design-contract");
   requireExistingRelative(profile.handoff.package_template, "handoff.package_template");
   requireExistingRelative(profile.handoff.package_schema, "handoff.package_schema");
   for (const artifact of profile.handoff.required_source_artifacts || []) {

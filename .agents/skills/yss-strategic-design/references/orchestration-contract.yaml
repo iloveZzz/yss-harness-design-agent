@@ -24,7 +24,7 @@ profile_registry:
   terminal_work_unit: work-unit.strategic-design-handoff
   terminal_next_route: null
   downstream_team: downstream-rd-team
-  downstream_skill: yss-tactical-design
+  downstream_skill: yss-technical-design
   handoff_template: docs/templates/strategic-design-handoff-template.yaml
   handoff_schema: docs/process/schemas/strategic-design-handoff.schema.json
   handoff_schema_version: 2

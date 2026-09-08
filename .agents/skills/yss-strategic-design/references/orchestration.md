@@ -2,7 +2,7 @@
 
 ## 有界推进循环
 
-当任务使用 `harness.business-ddd-strategy-handoff` profile 时，先加载 `docs/process/harness-profile.yaml`。只向产品、需求和商务角色派发 Discovery、需求分析、DDD 战略设计、Spec、页面原型、业务级 Ticket 和 Strategic Design Handoff 工作；`work-unit.strategic-design-handoff` 完成并批准后，`next_route` 必须为 `null`，并将 `downstream_consumers` 指向 `downstream-rd-team` / `yss-tactical-design`。不得把 profile 的 `null` 终点改写成技术分析、Tactical DDD、实现或发布路由。
+当任务使用 `harness.business-ddd-strategy-handoff` profile 时，先加载 `docs/process/harness-profile.yaml`。只向产品、需求和商务角色派发 Discovery、需求分析、DDD 战略设计、Spec、页面原型、业务级 Ticket 和 Strategic Design Handoff 工作；`work-unit.strategic-design-handoff` 完成并批准后，`next_route` 必须为 `null`，并将 `downstream_consumers` 指向 `downstream-rd-team` / `yss-technical-design`。不得把 profile 的 `null` 终点改写成技术分析、Tactical DDD、实现或发布路由。
 
 1. 识别模式、仓库身份、任务规模和影响面。
 2. `setup readiness`：每个任务只执行一次，核对 tracker、五态标签和领域文档布局，并在本轮缓存结果；仅在 tracker、主远端、真实标签或配置变化时重查。
@@ -54,7 +54,7 @@ tracker 选择和冲突按 `docs/agents/issue-tracker.md` 裁决：已持久化 
 - `work-unit.technical-analysis` 是下游研发 profile 的接管工作单元；本 profile 仅在 Strategic Design Handoff 中记录待下游确认的技术问题，不生成 Tactical DDD 或 OpenAPI 资产。
 
 - `work-unit.discovery-requirements` 实际调用 `grilling` 和 `domain-modeling`；`work-unit.discovery-opportunity` 按事实类型路由 `competitive-intelligence` 或 `yss-research`。`yss-research:quick` 只用于探索；外部证据进入领域战略、阶段决策或其他生命周期批准输入前必须升级为 `evidence-audited`。战略编排器原生负责 Spec、页面原型、业务 Ticket 和 Strategic Design Handoff；`ask-matt`、`grill-me`、`grill-with-docs`、`to-spec`、`to-tickets`、`triage`、`wayfinder` 仅保留为显式兼容入口，结果必须回交战略编排器验收。
-- `harness.business-ddd-strategy-handoff` profile 的 `work-unit.strategic-design-handoff` 是本地终点；它必须引用批准的 `domain-strategy`、`stage-decision-package`、Spec、页面原型和业务级 Ticket 集，携带 schema v2 `source_context_snapshot` / `context_delta`，并把 Tactical DDD 问题交给下游研发团队。目标仓必须先完成根 `CONTEXT.md` 对账和 `context_reconciliation`，再启动 `yss-tactical-design`；profile 内不得生成或批准 `artifact.tactical-design`。
+- `harness.business-ddd-strategy-handoff` profile 的 `work-unit.strategic-design-handoff` 是本地终点；它必须引用批准的 `domain-strategy`、`stage-decision-package`、Spec、页面原型和业务级 Ticket 集，携带 schema v2 `source_context_snapshot` / `context_delta`，并把 Tactical DDD 问题交给下游研发团队。目标仓必须先完成根 `CONTEXT.md` 对账和 `context_reconciliation`，再启动 `yss-technical-design`；profile 内不得生成或批准 `artifact.tactical-design`。
 - `work-unit.business-ticket-formalization` 只生成业务能力/用户行为级 Ticket，保持 `ready-for-human`，不创建垂直切片、Slice Contract 或 `ready-for-agent`。
 - `Workflow Execution Result.next_route` 必须通过生命周期转换校验；Spec → 原型 → 业务 Ticket → Strategic Design Handoff 是本 profile 的唯一主路径。
 - `work-unit.slice-implementation`、脚手架和实现验证均由下游研发 profile 执行；本分支不存在 `implement` 入口，相关请求必须 blocked 并转交下游。

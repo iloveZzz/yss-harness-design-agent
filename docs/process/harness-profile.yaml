@@ -54,8 +54,8 @@ handoff:
   package_template: docs/templates/strategic-design-handoff-template.yaml
   package_schema: docs/process/schemas/strategic-design-handoff.schema.json
   downstream_team: downstream-rd-team
-  downstream_skill: yss-tactical-design
-  downstream_output: tactical-design-contract
+  downstream_skill: yss-technical-design
+  downstream_output: technical-design-contract
   required_source_artifacts:
     - artifact.domain-strategy
     - artifact.stage-decision-package
@@ -130,7 +130,7 @@ skill_scope:
   - yss-resilience4j
   - yss-security-algorithm
   - yss-skill-source-index-refresh
-  - yss-tactical-design
+  - yss-technical-design
   - yss-ui
   - yss-up-springboot3
   - yss-use-table-height

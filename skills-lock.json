@@ -420,7 +420,7 @@
         "source": "project",
         "sourceType": "local",
         "skillPath": ".agents/skills/yss-strategic-design/SKILL.md",
-        "effectiveHash": "d0991a5b5f148aed998b7ebdcfd49481527faff6f941e5af3b866d6c735d39a2",
+        "effectiveHash": "93f9bba366de8fd91c9147447f4796af67c647b3cd2e0789e2318add278805e7",
         "targets": [
           ".agents/skills",
           ".claude/skills",

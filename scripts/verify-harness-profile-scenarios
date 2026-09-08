@@ -7,7 +7,7 @@ const valid = validateHarnessProfile(source);
 assert.equal(valid.profile_id, STRATEGIC_PROFILE_ID);
 assert.deepEqual(valid.target_user_roles, ["role.product-manager", "role.requirements-manager", "role.business"]);
 assert.equal(valid.terminal_work_unit, "work-unit.strategic-design-handoff");
-assert.equal(valid.downstream_skill, "yss-tactical-design");
+assert.equal(valid.downstream_skill, "yss-technical-design");
 
 const mutations = [
   ["extra target role", (candidate) => candidate.audience.target_user_roles.push("role.unknown"), /target_user_roles/],

@@ -64,13 +64,13 @@ context_delta:
 target_context_reconciliation:
   target_context_ref: CONTEXT.md
   reconciliation_schema_ref: docs/process/schemas/context-reconciliation.schema.json
-  required_before_skill: yss-tactical-design
+  required_before_skill: yss-technical-design
   status: pending
 
 target:
   team: downstream-rd-team
-  skill: yss-tactical-design
-  output: tactical-design-contract
+  skill: yss-technical-design
+  output: technical-design-contract
 
 problem_and_business_outcomes:
   - <业务问题、目标和可观测结果>

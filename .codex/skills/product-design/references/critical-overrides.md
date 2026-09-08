@@ -1,5 +1,9 @@
 # Critical Overrides
 
+## 战略设计仓职责
+
+本仓以 `docs/process/harness-profile.yaml` 为准，`image-to-code` / `url-to-code` 仅构建由 `yss-prototype-stage` 持有合同的 H1/H2 原型。生产前端、后端、工程脚手架、真实 API 集成与部署交付回交下游研发项目；不得把原型适配器当作技术实现入口。
+
 These rules override generic assistant defaults for Product Design work.
 
 ## Context

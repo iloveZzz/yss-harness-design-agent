@@ -438,7 +438,7 @@
           "source": "project",
           "sourceType": "local",
           "skillPath": ".codex/skills/product-design/skills/index/SKILL.md",
-          "effectiveHash": "11dc7bbc9ac78ad0dc22d1a01efcdb958417aec81e79bea86c148684a744a90e",
+          "effectiveHash": "42e44acddc63392352e7cd86da0662c66cac7e6e6f8a32c7ed6eaaa3ff3567f1",
           "targets": [
             ".codex/skills"
           ]

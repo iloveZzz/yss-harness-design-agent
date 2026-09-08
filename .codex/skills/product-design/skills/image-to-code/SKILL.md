@@ -1,6 +1,6 @@
 ---
 name: image-to-code
-description: "Implement a selected image, screenshot, mockup, or Image Gen reference as a faithful responsive frontend after Product Design get-context has confirmed the design brief."
+description: "Render a selected visual target as an H1/H2 review prototype under yss-prototype-stage; production frontend implementation belongs to the downstream development project."
 ---
 
 # Image to Code

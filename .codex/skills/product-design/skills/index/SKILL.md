@@ -5,6 +5,8 @@ description: "Use to discover specific skills for the Product Design plugin, whe
 
 # Skill Purpose
 
+本地能力限定为战略设计、视觉探索和 H1/H2 原型评审；生产工程实现转交下游。`image-to-code` 是原型渲染适配器，不能放行生产前端或后端实现。
+
 Route Product Design requests to the right Product Design skill. Treat an `@Product Design` mention, direct Product Design invocation, or broad request like "design this app", "build a prototype", "audit this flow", "research this product", or "share this prototype" as intent to use this plugin.
 
 # Plugin Purpose

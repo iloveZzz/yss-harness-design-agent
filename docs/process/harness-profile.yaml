@@ -82,3 +82,61 @@ handoff:
     - source-digests-are-current
     - every-deferred-item-has-owner-next-action-and-target-version
     - no-aggregate-entity-repository-or-api-is-prescribed
+
+skill_scope:
+  policy: local-workflow-only
+  retired_local_skills:
+  - alibaba-java-code-style
+  - backend-agent
+  - component-selection-imports
+  - file-export-download
+  - formily-foundation
+  - formily-linkage-effects
+  - formily-mode-slot-detail
+  - formily-step-flow
+  - frontend-agent
+  - frontend-commit
+  - java-backend-commit
+  - lombok
+  - mapstruct
+  - page-form-module
+  - page-list-module
+  - page-skeleton
+  - setup-ts-deep-modules
+  - theme-token-usage
+  - vue3-best-practices
+  - yedit-table-usage
+  - yss-api-integration
+  - yss-application
+  - yss-audit-log
+  - yss-cache
+  - yss-components
+  - yss-ddd-scaffold-generator
+  - yss-distributed-id
+  - yss-domain
+  - yss-dto
+  - yss-excel-mvc
+  - yss-exception
+  - yss-formily
+  - yss-formily-schema-generator
+  - yss-frontend-scaffold-generator
+  - yss-hook
+  - yss-layered-mvc-scaffold-generator
+  - yss-microapp-commit
+  - yss-mvc-data-analysis-project-initializer
+  - yss-mybatis
+  - yss-page-module-development
+  - yss-repository
+  - yss-resilience4j
+  - yss-security-algorithm
+  - yss-skill-source-index-refresh
+  - yss-tactical-design
+  - yss-ui
+  - yss-up-springboot3
+  - yss-use-table-height
+  - yss-use-tree-height
+  - yss-userinfo
+  - yss-validation
+  - yss-web-controller
+  - ytable-usage
+  - ytree-usage

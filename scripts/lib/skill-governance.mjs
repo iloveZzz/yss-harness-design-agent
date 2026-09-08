@@ -1,3 +1,4 @@
+import { validateHarnessSkillScope } from './harness-skill-scope.mjs';
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -14,6 +15,7 @@ export function validateSkillGovernance({ read = (relative) => readFileSync(path
   // 当前分支只承载战略设计与产品设计事实；工程页面技能已由主分支维护。
   // 因此这里只验证本分支注册表、兼容 alias 与退役目录，不加载工程技能。
 
+  validateHarnessSkillScope(ROOT);
   const registry = loadSkillRegistry();
   const canonicalIds = new Set(registry.skills.map((skill) => skill.id));
   const aliases = new Map(registry.skills.flatMap((skill) => skill.aliases.map((alias) => [alias, skill.id])));

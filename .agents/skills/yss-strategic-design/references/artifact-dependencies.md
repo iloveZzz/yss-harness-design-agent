@@ -3,8 +3,8 @@
 ## 本地依赖链
 
 ```text
-Discovery → Domain Strategy → Stage Decision Package
-Discovery + Stage Decision Package → Spec / Product Overview / Functional Architecture
+Plan → Domain Strategy → Stage Decision Package
+Plan + Stage Decision Package → Spec / Product Overview / Functional Architecture
 Spec + Product Overview → Product Design → H1/H2 Prototype → User Confirmation
 Approved strategic assets → Business Ticket Set → Strategic Design Handoff
 ```

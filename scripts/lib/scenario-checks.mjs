@@ -1,5 +1,7 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, mkdtempSync, rmSync } from "node:fs";
+import os from "node:os";
 import path from "node:path";
+import { buildPlanFixture } from "../fixtures/user-decision/plan-fixture.mjs";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { parseDocument } from "../vendor/yaml.mjs";
@@ -58,8 +60,8 @@ function validateInvocationBoundary(data) {
   ensure(native?.default_entry === "yss-strategic-design" && native?.formal_artifact_owner === "yss-strategic-design", "战略编排原生入口未持有默认正式资产所有权");
   ensure(JSON.stringify(native?.user_confirmation_required_at) === JSON.stringify(["spec-baseline", "prototype-confirmation", "strategic-design-handoff"]), "战略设计人工门禁集合已漂移");
   const routes = data.work_unit_routes;
-  ensure(routes?.["work-unit.discovery-requirements"]?.skills?.includes("grilling") && routes?.["work-unit.discovery-requirements"]?.skills?.includes("domain-modeling"), "需求分析工作单元缺少 grilling/domain-modeling");
-  ensure(routes?.["work-unit.discovery-opportunity"]?.route_by?.market_or_competitor_fact === "competitive-intelligence" && routes["work-unit.discovery-opportunity"].route_by.technical_or_standard_fact === "yss-research:technical-evidence" && routes["work-unit.discovery-opportunity"].route_by.strategy_fact === "yss-research:strategy-evidence", "机会调研事实路由不准确");
+  ensure(routes?.["work-unit.plan-requirements"]?.skills?.includes("grilling") && routes?.["work-unit.plan-requirements"]?.skills?.includes("domain-modeling"), "需求分析工作单元缺少 grilling/domain-modeling");
+  ensure(routes?.["work-unit.plan-opportunity"]?.route_by?.market_or_competitor_fact === "competitive-intelligence" && routes["work-unit.plan-opportunity"].route_by.technical_or_standard_fact === "yss-research:technical-evidence" && routes["work-unit.plan-opportunity"].route_by.strategy_fact === "yss-research:strategy-evidence", "机会调研事实路由不准确");
   const strategyResearch = routes?.["work-unit.domain-strategy-design"]?.research_contract;
   ensure(strategyResearch?.profile === "strategy-evidence" && strategyResearch.mode_before_gate === "evidence-audited" && strategyResearch.artifact_owner === "yss-research" && strategyResearch.downstream_owner === "yss-stage-decision", "领域战略研究合同缺少 profile、门禁前审计或资产所有权边界");
   const stageDecisionResearch = routes?.["work-unit.stage-decision"]?.research_contract;
@@ -75,7 +77,7 @@ function validateInvocationBoundary(data) {
   }
 }
 
-function validateWorkflowExecutionResult(payload, contract, workUnitRoutes) {
+function validateWorkflowExecutionResult(payload, contract, workUnitRoutes, options = {}) {
   for (const field of contract.required) ensure(Object.hasOwn(payload, field), `Workflow Execution Result 缺少 ${field}`);
   ensure(contract.result_values.includes(payload.result), "Workflow Execution Result result 无效");
   if (Object.hasOwn(payload, "unavailable_skill")) {
@@ -88,7 +90,7 @@ function validateWorkflowExecutionResult(payload, contract, workUnitRoutes) {
   const workUnit = workUnitRoutes?.[payload.work_unit];
   ensure(workUnit, `未知 Workflow Execution Result work_unit: ${payload.work_unit}`);
   if (payload.result === "completed") {
-    const routeResult = validateNextRoute(payload.work_unit, payload.next_route, { profileId: payload.profile_id });
+    const routeResult = validateNextRoute(payload.work_unit, payload.next_route, { ...payload, profileId: payload.profile_id }, options);
     ensure(routeResult.result === "allowed", `Workflow Execution Result next_route 非法: ${routeResult.blocking_signals.join(", ")}`);
     ensure(payload.context_reconciliation?.status === "reconciled", "project-instance 完成态必须具有 reconciled context_reconciliation");
     ensure(hasText(payload.context_reconciliation?.ref) && payload.evidence_refs.includes(payload.context_reconciliation.ref) && exists(payload.context_reconciliation.ref), "context_reconciliation.ref 必须可读并包含在 evidence_refs 中");
@@ -231,7 +233,11 @@ export function runScenario(name) {
     const data = contract.toJS({ maxAliasCount: 0 });
     validateMattContract(data);
     validateInvocationBoundary(data);
+    const decisionTemp = mkdtempSync(path.join(os.tmpdir(), "matt-plan-test-"));
+    process.on("exit", () => rmSync(decisionTemp, { recursive: true, force: true }));
+    const planFixture = buildPlanFixture(path.join(decisionTemp, 'plan'));
     const validResult = {
+      ...planFixture.state,
       result_schema: "workflow-execution-result-v1",
       profile_id: "harness.business-ddd-strategy-handoff",
       work_unit: "work-unit.spec-synthesis",
@@ -245,35 +251,35 @@ export function runScenario(name) {
       next_route: "work-unit.prototype-design",
       blocking_signals: []
     };
-    validateWorkflowExecutionResult(validResult, data.workflow_execution_result, data.work_unit_routes);
+    validateWorkflowExecutionResult(validResult, data.workflow_execution_result, data.work_unit_routes, { root: planFixture.root });
     const validPrototypeResult = {
       ...validResult,
       work_unit: "work-unit.prototype-design",
       next_route: "work-unit.business-ticket-formalization",
     };
-    validateWorkflowExecutionResult(validPrototypeResult, data.workflow_execution_result, data.work_unit_routes);
+    validateWorkflowExecutionResult(validPrototypeResult, data.workflow_execution_result, data.work_unit_routes, { root: planFixture.root });
     const validBusinessTicketResult = {
       ...validResult,
       work_unit: "work-unit.business-ticket-formalization",
       next_route: "work-unit.strategic-design-handoff",
       business_ticket_set_ref: "docs/.scratch/demo/issues",
     };
-    validateWorkflowExecutionResult(validBusinessTicketResult, data.workflow_execution_result, data.work_unit_routes);
+    validateWorkflowExecutionResult(validBusinessTicketResult, data.workflow_execution_result, data.work_unit_routes, { root: planFixture.root });
     const validHandoffResult = { ...validBusinessTicketResult, work_unit: "work-unit.strategic-design-handoff", next_route: null, strategic_design_handoff_ref: "docs/templates/strategic-design-handoff-template.yaml" };
-    validateWorkflowExecutionResult(validHandoffResult, data.workflow_execution_result, data.work_unit_routes);
+    validateWorkflowExecutionResult(validHandoffResult, data.workflow_execution_result, data.work_unit_routes, { root: planFixture.root });
     const unavailableResult = structuredClone(validResult);
     unavailableResult.result = "blocked";
     unavailableResult.unavailable_skill = { skill: "yss-prototype-stage", provider: "codex", fallback: "manual-review", resolution: "needs-human" };
     unavailableResult.blocking_signals = ["missing_evidence"];
-    validateWorkflowExecutionResult(unavailableResult, data.workflow_execution_result, data.work_unit_routes);
+    validateWorkflowExecutionResult(unavailableResult, data.workflow_execution_result, data.work_unit_routes, { root: planFixture.root });
     const malformedUnavailable = structuredClone(unavailableResult);
     delete malformedUnavailable.unavailable_skill.fallback;
     let unavailableRejected = false;
-    try { validateWorkflowExecutionResult(malformedUnavailable, data.workflow_execution_result, data.work_unit_routes); } catch { unavailableRejected = true; }
+    try { validateWorkflowExecutionResult(malformedUnavailable, data.workflow_execution_result, data.work_unit_routes, { root: planFixture.root }); } catch { unavailableRejected = true; }
     ensure(unavailableRejected, "技能不可用结果缺少 fallback 时未被拒绝");
     const compatibleResult = structuredClone(validResult);
     compatibleResult.workflow_reference = { source: "mattpocock/skills", skill: "to-spec", invocation_mode: "reference" };
-    validateWorkflowExecutionResult(compatibleResult, data.workflow_execution_result, data.work_unit_routes);
+    validateWorkflowExecutionResult(compatibleResult, data.workflow_execution_result, data.work_unit_routes, { root: planFixture.root });
     for (const mutate of [
       (item) => { delete item.workflow_reference; },
       (item) => { delete item.context_reconciliation; },
@@ -289,7 +295,7 @@ export function runScenario(name) {
     ]) {
       const invalid = structuredClone(validResult); mutate(invalid);
       let rejected = false;
-      try { validateWorkflowExecutionResult(invalid, data.workflow_execution_result, data.work_unit_routes); } catch { rejected = true; }
+      try { validateWorkflowExecutionResult(invalid, data.workflow_execution_result, data.work_unit_routes, { root: planFixture.root }); } catch { rejected = true; }
       ensure(rejected, "Workflow Execution Result 完成态变异未被拒绝");
     }
     let metadataRejected = false;

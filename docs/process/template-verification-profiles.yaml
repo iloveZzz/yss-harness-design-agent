@@ -198,6 +198,7 @@ groups:
       - { run: "scripts/verify-lifecycle-registry" }
       - { run: "scripts/verify-lifecycle-checkpoint docs/process/templates/lifecycle-checkpoint-template.yaml" }
       - { run: "scripts/verify-lifecycle-transition-scenarios" }
+      - { run: "node scripts/verify-plan-spec-entry-scenarios" }
   profile:
     commands:
       - { run: "scripts/verify-harness-profile" }

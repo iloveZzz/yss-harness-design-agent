@@ -1,4 +1,12 @@
 schema_version: 1
+user_decision_policy:
+  schema_version: 1
+  default_responder: requester
+  delegate_requires_requester_evidence: true
+  source_kinds: [platform-message, session-export, user-confirmation-file]
+  gates: []
+  work_units:
+    work-unit.plan-requirements: plan-conclusion
 registry_id: yss.digital-human-roles
 status: active
 description: >-
@@ -67,7 +75,7 @@ orchestrator:
   kind: orchestrator
   title: YSS 生命周期主控
   default_dual_hat: []
-  stages: [stage.entry-triage, stage.discovery, stage.spec-architecture, stage.product-design, stage.ticket-formalization]
+  stages: [stage.entry-triage, stage.plan, stage.spec-architecture, stage.product-design, stage.ticket-formalization]
   core_skills: [yss-strategic-design]
   forbidden_skills: [yss-tactical-design, yss-openapi-governance, yss-implementation-contract-compiler, yss-domain, yss-ui, yss-page-module-development, yss-web-controller, yss-repository, implement, tdd]
   description: >-
@@ -83,12 +91,12 @@ roles:
     name: 需求经理
     kind: digital-human
     title: YSS 需求经理
-    stages: [stage.discovery, stage.spec-architecture, stage.product-design, stage.ticket-formalization]
-    draft_artifact_ids: [artifact.discovery-record, artifact.spec]
+    stages: [stage.plan, stage.spec-architecture, stage.product-design, stage.ticket-formalization]
+    draft_artifact_ids: [artifact.plan-record, artifact.spec]
     core_skills: [grilling, domain-modeling, yss-research, competitive-intelligence, grill-with-docs]
     forbidden_skills: [yss-tactical-design, yss-openapi-governance, yss-implementation-contract-compiler, yss-domain, yss-ui, yss-page-module-development, yss-web-controller, yss-repository, implement, tdd]
     description: >-
-      Own Discovery language, users, MVP, non-goals, success criteria, test
+      Own Plan language, users, MVP, non-goals, success criteria, test
       seams, and Spec prose. Propose CONTEXT.md glossary entries. Do not freeze
       visual prototypes, OpenAPI, or code. Do not guess unconfirmed business
       rules. Hand off to the orchestrator when the frontier is empty.
@@ -97,7 +105,7 @@ roles:
     name: 产品经理
     kind: digital-human
     title: YSS 产品经理
-    stages: [stage.discovery, stage.spec-architecture, stage.product-design, stage.ticket-formalization]
+    stages: [stage.plan, stage.spec-architecture, stage.product-design, stage.ticket-formalization]
     draft_artifact_ids: [artifact.product-overview, artifact.functional-architecture, artifact.interaction-spec, artifact.state-matrix, artifact.prototype-confirmation, artifact.business-ticket-set]
     core_skills: [yss-strategic-design, yss-design-system, yss-prototype-stage, prototype-review, yss-antdv-next-design]
     forbidden_skills: [yss-tactical-design, yss-openapi-governance, yss-implementation-contract-compiler, yss-domain, yss-ui, yss-page-module-development, yss-web-controller, yss-repository, implement, tdd]
@@ -110,20 +118,20 @@ roles:
     name: 商务
     kind: digital-human
     title: YSS 商务
-    stages: [stage.discovery]
-    draft_artifact_ids: [artifact.discovery-record]
+    stages: [stage.plan]
+    draft_artifact_ids: [artifact.plan-record]
     core_skills: [yss-strategic-design, competitive-intelligence, yss-research]
     forbidden_skills: [to-spec, to-tickets, yss-tactical-design, yss-openapi-governance, yss-implementation-contract-compiler, yss-domain, yss-ui, yss-page-module-development, yss-web-controller, yss-repository, implement, tdd]
     description: >-
       Own commercial constraints, delivery promises, and business non-goals in
-      Discovery and release windows. Do not finalize Spec, API, tickets, or
+      Plan and release windows. Do not finalize Spec, API, tickets, or
       code. External quotes and contracts stay behind runtime side-effect
       approval by a biological human.
 
 stage_groups:
-  - id: group.discovery
-    name: Discovery
-    stage: stage.discovery
+  - id: group.plan
+    name: Plan
+    stage: stage.plan
     members: [role.lifecycle-orchestrator, role.requirements-manager, role.product-manager, role.business]
   - id: group.spec
     name: Spec

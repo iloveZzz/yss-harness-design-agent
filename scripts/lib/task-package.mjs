@@ -6,6 +6,7 @@ import { loadDigitalHumanRoles, taskPackageDefaults } from "./digital-human-role
 import { loadRegistry, ROOT } from "./lifecycle-registry.mjs";
 import { loadMaintenanceCheckpoint, validateMaintenanceCheckpoint } from "./maintenance-intensity.mjs";
 import { validateNextRoute } from "./lifecycle-transition.mjs";
+import { assertPlanSpecEntry } from './plan-spec-entry.mjs';
 import { harnessProfileContract } from "./harness-profile.mjs";
 
 export const TASK_PACKAGE_SCHEMA = path.join(ROOT, "docs/process/schemas/digital-human-task-package.schema.json");
@@ -77,6 +78,7 @@ function validateSkillSource(value, registry) {
 }
 
 function validateCommon(value, registry, lifecycle) {
+  if (value.work_unit_id === 'work-unit.spec-synthesis') assertPlanSpecEntry(value);
   const workUnit = lifecycle.work_units.find((item) => item.id === value.work_unit_id);
   if (!workUnit && value.contract.kind !== "slice-implementation") fail(`未知 work_unit_id: ${value.work_unit_id}`);
   const roleDefaults = taskPackageDefaults(value.role_id, registry);
@@ -112,7 +114,7 @@ function validateCommon(value, registry, lifecycle) {
     assertReadableEvidenceRef(reconciliation.ref, "context_reconciliation.ref");
     if (!value.result.evidence_refs.includes(reconciliation.ref)) fail("context_reconciliation.ref 必须包含在 result.evidence_refs 中");
     if (expectedReconciliationStatus === "not-applicable" && !reconciliation.reason) fail("template-maintenance 的 context_reconciliation 必须说明 reason");
-    const routeResult = validateNextRoute(value.result.work_unit, value.result.next_route, { profileId: value.profile_id || value.result.profile_id });
+    const routeResult = validateNextRoute(value.result.work_unit, value.result.next_route, { ...value.result, profileId: value.profile_id || value.result.profile_id });
     if (routeResult.result !== "allowed") fail(`Workflow Execution Result next_route 非法: ${routeResult.blocking_signals.join(", ")}`);
     value.expected_evidence_files.forEach((ref) => assertReadableEvidenceRef(ref, "expected_evidence_files"));
     if (value.verification_results.length === 0) fail("已完成任务必须包含 verification_results");

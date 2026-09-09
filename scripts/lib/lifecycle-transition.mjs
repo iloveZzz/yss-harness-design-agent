@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { parseDocument } from "../vendor/yaml.mjs";
+import { validatePlanSpecEntry } from './plan-spec-entry.mjs';
 
 const IMPLEMENTATION_WORK_UNIT = "work-unit.slice-implementation";
 const TICKET_DECOMPOSITION_WORK_UNIT = "work-unit.ticket-decomposition";
@@ -13,7 +14,7 @@ function deepFreeze(value) {
 }
 
 const NEXT_ROUTES = deepFreeze({
-  "work-unit.entry-triage": ["work-unit.discovery-opportunity", "work-unit.discovery-requirements"],
+  "work-unit.entry-triage": ["work-unit.plan-opportunity", "work-unit.plan-requirements"],
   "work-unit.ssot-update": ["work-unit.skill-projection-sync", "work-unit.intensity-aware-verification"],
   "work-unit.skill-projection-sync": ["work-unit.template-snapshot-build", "work-unit.intensity-aware-verification"],
   "work-unit.template-snapshot-build": ["work-unit.attach-sync-integration", "work-unit.intensity-aware-verification"],
@@ -21,8 +22,8 @@ const NEXT_ROUTES = deepFreeze({
   "work-unit.intensity-aware-verification": ["work-unit.intensity-aware-review"],
   "work-unit.intensity-aware-review": ["work-unit.release-and-rollback"],
   "work-unit.release-and-rollback": [],
-  "work-unit.discovery-opportunity": ["work-unit.discovery-requirements", "work-unit.domain-strategy-design", "work-unit.stage-decision", "work-unit.spec-synthesis"],
-  "work-unit.discovery-requirements": ["work-unit.domain-strategy-design", "work-unit.stage-decision", "work-unit.spec-synthesis"],
+  "work-unit.plan-opportunity": ["work-unit.plan-requirements", "work-unit.domain-strategy-design", "work-unit.stage-decision", "work-unit.spec-synthesis"],
+  "work-unit.plan-requirements": ["work-unit.domain-strategy-design", "work-unit.stage-decision", "work-unit.spec-synthesis"],
   "work-unit.domain-strategy-design": ["work-unit.stage-decision", "work-unit.spec-synthesis"],
   "work-unit.stage-decision": ["work-unit.spec-synthesis"],
   "work-unit.spec-synthesis": ["work-unit.prototype-design", "work-unit.technical-analysis", TICKET_DECOMPOSITION_WORK_UNIT],
@@ -39,9 +40,9 @@ const NEXT_ROUTES = deepFreeze({
 // 下游研发团队从战略设计交付包接管 Tactical DDD，不在本地 profile 内继续推进。
 const PROFILE_NEXT_ROUTES = deepFreeze({
   [STRATEGIC_PROFILE_ID]: {
-    "work-unit.entry-triage": ["work-unit.discovery-opportunity", "work-unit.discovery-requirements"],
-    "work-unit.discovery-opportunity": ["work-unit.discovery-requirements", "work-unit.domain-strategy-design", "work-unit.stage-decision"],
-    "work-unit.discovery-requirements": ["work-unit.domain-strategy-design", "work-unit.stage-decision"],
+    "work-unit.entry-triage": ["work-unit.plan-opportunity", "work-unit.plan-requirements"],
+    "work-unit.plan-opportunity": ["work-unit.plan-requirements", "work-unit.domain-strategy-design", "work-unit.stage-decision"],
+    "work-unit.plan-requirements": ["work-unit.domain-strategy-design", "work-unit.stage-decision"],
     "work-unit.domain-strategy-design": ["work-unit.stage-decision"],
     "work-unit.stage-decision": ["work-unit.spec-synthesis"],
     "work-unit.spec-synthesis": ["work-unit.prototype-design"],
@@ -127,7 +128,9 @@ function validateTicketReference(ref, trackerKind) {
  * Workflow Execution Result may omit a route; completed results are checked
  * by `validateWorkflowExecutionResult` before this function is called.
  */
-export function validateNextRoute(currentWorkUnit, nextRoute, { profileId } = {}) {
+export function validateNextRoute(currentWorkUnit, nextRoute, state = {}, options = {}) {
+  const profileId = state.profileId || state.profile_id;
+
   const routes = PROFILE_NEXT_ROUTES[profileId]?.[currentWorkUnit] ?? NEXT_ROUTES[currentWorkUnit];
   if (!routes) return blockedResult([BLOCKING_SIGNALS.invalidRoute], ["known_current_work_unit"]);
   if (nextRoute === null && routes.length === 0) return allowedResult();
@@ -137,6 +140,10 @@ export function validateNextRoute(currentWorkUnit, nextRoute, { profileId } = {}
       signals.push(BLOCKING_SIGNALS.implementationBeforeTickets);
     }
     return blockedResult(signals, ["allowed_next_route"]);
+  }
+  if (nextRoute === 'work-unit.spec-synthesis' || currentWorkUnit === 'work-unit.spec-synthesis') {
+    const entry = validatePlanSpecEntry(state, options);
+    if (entry.result === 'blocked' || nextRoute === 'work-unit.spec-synthesis') return entry;
   }
   return allowedResult();
 }

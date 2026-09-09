@@ -18,6 +18,7 @@ context_schema_version: 1
 
 | 术语 | 含义 | 英文标识 | 避免 / 备注 |
 |---|---|---|---|
+| Plan（战略规划） | 确认目标、业务边界、关键规则、MVP / 非目标、优先级和交接责任，为 Spec 提供已确认的战略输入。 | — | 问题探索是其中按需开展的活动；不等同于 AI-DLC 官方阶段名、交付排期或实现合同的 Context Plan。旧阶段 ID 已弃用，不提供兼容解析。 |
 | Agent | 执行特定工作流步骤的 AI 协作者。 | — | 不要与生物人审查者、数字人角色或 Ticket 状态混用。运行时实例（Cursor Agent、Claude Code、Grok Bot 等）是 Agent 的承载，不是角色本身。 |
 | 运行时绑定 | 把数字人角色落到某个 Agent 平台的适配声明，权威清单在数字人角色注册表的 `runtimes`。 | — | 不要为每个平台复制一套职称职责。 |
 | Grok Bot | Grok 平台上的持久数字队友实例；对应 `runtime.grok`。 | — | 不是数字人角色、技能或门禁。 |
@@ -28,7 +29,7 @@ context_schema_version: 1
 | 运行时副作用审批 | 对发消息、改生产、付款、删数据等工具动作的账号级确认。 | — | 点 Allow 不等于门禁已批准或可发布。避免只称「Grok 平台审批」。 |
 | Ticket 状态 | Tracker 五态：`needs-triage`、`needs-info`、`ready-for-agent`、`ready-for-human`、`wontfix`。 | — | 不要称为数字人角色或「标准角色」。 |
 | 阶段协作组 | 某阶段需要共同可见会签的逻辑成员集合。 | — | 不是某个产品的群聊；平台人数上限只写在对应 `runtimes`。 |
-| 需求经理 | 主责 Discovery 语言、用户/MVP/非目标、Spec 正文与测试 seam 的数字人角色。 | — | 不拥有原型视觉定稿，不 Freeze API，不写实现。 |
+| 需求经理 | 主责 Plan 语言、用户/MVP/非目标、Spec 正文与测试 seam 的数字人角色。 | — | 不拥有原型视觉定稿，不 Freeze API，不写实现。 |
 | 产品经理 | 主责优先级、产品设计影响、原型确认建议和范围裁剪的数字人角色。 | — | 不写生产代码，不单独 Freeze API。 |
 | 商务 | 主责机会调研商业约束、交付承诺和发布窗口商务非目标的数字人角色。 | — | 不参与 Spec 定稿、契约、代码或 Ticket 状态推进。 |
 | Agent 入口规则 | Agent 启动任务时必须先遵守的全局路由、硬门禁和禁止事项。 | — | 不作为 YSS 后端、前端或其他专项编码规范的完整手册。 |
@@ -96,7 +97,7 @@ context_schema_version: 1
 | 模板源治理区 | 仅供 `template-source` 使用、保存审查证据、研究记录、跨仓契约、发布路线、源仓库治理决策和源仓库 LLM Wiki 编译树的归档区域。 | — | 不随 CLI 分发；不等于产品实例的研发管理资产。`wiki-root` 为 `.template-source/wiki`。 |
 | 仓库身份清单 | 显式声明仓库身份和清单结构版本的机器可读资产。 | — | 不承载项目名称、团队规模、Tracker 或其他易变业务配置。 |
 | Harness 目标用户画像 | 声明某个 Harness profile 面向哪些职能角色、哪些角色不在本地协作范围内的边界配置。 | — | 不等同于数字人角色注册表；角色职责仍以 `docs/agents/digital-human-roles.yaml` 为准。 |
-| 业务方案交接包 | 将 Discovery、方案决策和业务边界与规则设计以版本、digest、证据和研发待决问题清单封装，交给下游研发团队的交付资产。 | — | 不直接指定技术模型、API、数据库或代码；模板见 `docs/templates/strategic-design-handoff-template.yaml`。 |
+| 业务方案交接包 | 将 Plan、方案决策和业务边界与规则设计以版本、digest、证据和研发待决问题清单封装，交给下游研发团队的交付资产。 | — | 不直接指定技术模型、API、数据库或代码；模板见 `docs/templates/strategic-design-handoff-template.yaml`。 |
 | 下游研发团队 | 消费批准的业务方案交接包，并负责技术设计、API、数据、实现和验证的研发协作方。 | — | 不是本地业务方案设计 Harness 的目标用户，也不是生命周期门禁角色。 |
 
 ## 业务术语

@@ -10,7 +10,7 @@
 
 每个任务先读根目录 `yss-project.yaml`：
 
-- `template-source` 只维护模板，不生成具体产品的 Discovery、Spec、原型、业务级 Ticket 或交接包。
+- `template-source` 只维护模板，不生成具体产品的 Plan、Spec、原型、业务级 Ticket 或交接包。
 - `project-instance` 使用 `harness.business-ddd-strategy-handoff`；本地终点为 `work-unit.strategic-design-handoff`。
 - 文件缺失、schema 不支持或模式非法时停止路由并执行迁移检查；不得根据目录、Git 远程或占位符猜测身份。
 

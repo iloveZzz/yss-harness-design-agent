@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "registry_id": "yss.lifecycle",
-  "semantic_sha256": "78b230afe5c0128b0ba9415c9ed7fd653740c964f3230527141e4e97edf32d40",
+  "semantic_sha256": "00b5426afbeeed9632e4d63d7aed277c2e42781fbcd133d72f26a6d07afbdc4e",
   "published_ids": [
     "artifact.architecture-review",
     "artifact.business-ticket-set",
@@ -19,6 +19,7 @@
     "artifact.openapi-draft",
     "artifact.openapi-freeze-record",
     "artifact.parent-ticket",
+    "artifact.plan-record",
     "artifact.product-overview",
     "artifact.prototype-confirmation",
     "artifact.prototype-review",
@@ -27,8 +28,8 @@
     "artifact.spec",
     "artifact.spec-delta",
     "artifact.stage-decision-package",
-    "artifact.strategic-design-handoff",
     "artifact.state-matrix",
+    "artifact.strategic-design-handoff",
     "artifact.tactical-design",
     "artifact.vertical-slice-ticket",
     "evidence.antd-cli-validation",
@@ -70,6 +71,7 @@
     "gate.user-confirmation",
     "stage.discovery",
     "stage.entry-triage",
+    "stage.plan",
     "stage.product-design",
     "stage.spec-architecture",
     "stage.system-data-engineering",
@@ -84,10 +86,12 @@
     "work-unit.domain-strategy-design",
     "work-unit.entry-triage",
     "work-unit.fresh-verification",
+    "work-unit.frontend-implementation-verification",
     "work-unit.independent-review",
     "work-unit.intensity-aware-review",
     "work-unit.intensity-aware-verification",
-    "work-unit.frontend-implementation-verification",
+    "work-unit.plan-opportunity",
+    "work-unit.plan-requirements",
     "work-unit.prototype-design",
     "work-unit.release-and-retrospective",
     "work-unit.release-and-rollback",
@@ -98,7 +102,7 @@
     "work-unit.stage-decision",
     "work-unit.strategic-design-handoff",
     "work-unit.technical-analysis",
-    "work-unit.ticket-decomposition",
-    "work-unit.template-snapshot-build"
+    "work-unit.template-snapshot-build",
+    "work-unit.ticket-decomposition"
   ]
 }

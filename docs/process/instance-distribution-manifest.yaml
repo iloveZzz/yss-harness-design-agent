@@ -58,6 +58,7 @@ exclude_root_files:
   - yss-public-skills.json
 
 exclude_paths:
+  - docs/discovery
   - .claude/settings.local.json
   - .codex/hooks.json
   - .codex/settings.local.json

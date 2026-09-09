@@ -8,7 +8,7 @@
 
 ## 定位
 
-本模板默认作为业务方案设计 / 研发管理仓库，保留 Discovery、Spec、原型、业务级 Ticket、业务方案交接包、Agent skills 和协作约定。OpenAPI、实现仓库和运行时代码由下游研发 profile 接管。机器可读边界见 [`docs/process/harness-profile.yaml`](./docs/process/harness-profile.yaml)。
+本模板默认作为业务方案设计 / 研发管理仓库，保留 Plan、Spec、原型、业务级 Ticket、业务方案交接包、Agent skills 和协作约定。OpenAPI、实现仓库和运行时代码由下游研发 profile 接管。机器可读边界见 [`docs/process/harness-profile.yaml`](./docs/process/harness-profile.yaml)。
 
 ## 项目结构
 
@@ -108,7 +108,7 @@ scripts/verify-template
 | [docs/process/harness-executive-blueprint.md](./docs/process/harness-executive-blueprint.md) | 面向业务方和管理者的 Harness 一页式蓝图 |
 | [docs/agents/README.md](./docs/agents/README.md) | Agent 协作文档目录说明 |
 | [docs/agents/skills-maintenance.md](./docs/agents/skills-maintenance.md) | Agent skills 安装与维护 |
-| [docs/discovery/IDEATION.md](./docs/discovery/IDEATION.md) | 机会构想方法 |
+| [docs/plan/IDEATION.md](./docs/plan/IDEATION.md) | 机会构想方法 |
 
 ## 核心模板
 

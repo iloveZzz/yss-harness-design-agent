@@ -11,8 +11,8 @@ export const STRATEGIC_PROFILE_ID = "harness.business-ddd-strategy-handoff";
 const TARGET_ROLES = ["role.product-manager", "role.requirements-manager", "role.business"];
 const CONTROL_ROLES = ["role.lifecycle-orchestrator"];
 const ALLOWED_WORK_UNITS = [
-  "work-unit.discovery-opportunity",
-  "work-unit.discovery-requirements",
+  "work-unit.plan-opportunity",
+  "work-unit.plan-requirements",
   "work-unit.domain-strategy-design",
   "work-unit.stage-decision",
   "work-unit.spec-synthesis",

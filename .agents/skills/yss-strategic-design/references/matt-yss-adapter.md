@@ -11,7 +11,7 @@ Matt skills 决定如何工作；YSS Strategic Design 决定是否允许推进�
 - **直接调用兼容入口**（`ask-matt`、`grill-me`、`grill-with-docs`、`to-spec`、`to-tickets`、`triage`、`wayfinder`）时，用户仍是正式资产的创建者；战略编排器先校验前置条件，再接受结果并重新计算阶段、门禁和状态。它们不得自动调用，也不得越过 Strategic Design Handoff。
 - **直接调用 `yss-strategic-design`** 时，不机械嵌套调用任何 Matt user-invoked skill；编排器直接使用原生工作单元和允许的 model-invoked 原语。
 - `template-source` 只允许进入模板维护流程。命中 `to-spec`、`to-tickets`、Release 或 Retrospective 时返回 `blocked`，原因是 `template-source-product-artifact-forbidden`；所有兼容入口都不得为具体产品生成超出本 profile 的资产。
-- `project-instance` 才允许进入 Discovery → DDD 战略设计 → Spec → 产品设计 → 业务 Ticket → Strategic Design Handoff 链路。
+- `project-instance` 才允许进入 Plan → DDD 战略设计 → Spec → 产品设计 → 业务 Ticket → Strategic Design Handoff 链路。
 
 | 情形 | Matt flow | 生命周期验收 |
 |---|---|---|
@@ -68,7 +68,7 @@ Router 状态映射为：`draft → completed`、`blocked → blocked`、`ready-
 
 | Matt flow | 进入条件 | 生命周期结果 |
 |---|---|---|
-| `to-spec`（用户显式） | Discovery work unit 或 `grill-with-docs` 已满足退出条件，且不存在未回流 runnable blocker；用户问题、MVP/非目标、成功标准、测试 seam 和术语审查均有证据 | 生命周期只准备/验收；Spec 初稿为 `ready-for-human`，不等于批准 |
+| `to-spec`（用户显式） | Plan work unit 或 `grill-with-docs` 已满足退出条件，且不存在未回流 runnable blocker；用户问题、MVP/非目标、成功标准、测试 seam 和术语审查均有证据 | 生命周期只准备/验收；Spec 初稿为 `ready-for-human`，不等于批准 |
 | `to-tickets`（用户显式） | 必要门禁、业务范围、验收标准、依赖和风险均已明确 | 生命周期只准备/验收；只能生成业务级 Ticket，初始统一为 `ready-for-human` |
 | `implement`（已移除） | 不适用 | 直接返回 `blocked`，转交下游研发 profile |
 
@@ -102,7 +102,7 @@ Matt flow 的通用提交指令不构成 YSS Git 授权。只有用户明确给�
 
 | Matt 产物 | Local 载体 |
 |---|---|
-| Discovery | `docs/.scratch/<feature>/discovery/` |
+| Plan | `docs/.scratch/<feature>/plan/` |
 | Spec | `docs/.scratch/<feature>/spec.md` |
 | Wayfinder map | `docs/.scratch/<feature>/map.md` |
 | 产品设计与原型 | `docs/.scratch/<feature>/design/` |

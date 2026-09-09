@@ -25,8 +25,8 @@ lifecycle:
   repository_modes: [project-instance]
   entry_work_unit: work-unit.entry-triage
   allowed_work_units:
-    - work-unit.discovery-opportunity
-    - work-unit.discovery-requirements
+    - work-unit.plan-opportunity
+    - work-unit.plan-requirements
     - work-unit.domain-strategy-design
     - work-unit.stage-decision
     - work-unit.spec-synthesis

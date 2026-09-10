@@ -1,4 +1,13 @@
 schema_version: 2
+document_writing:
+  supporting_skill: i-have-adhd
+  condition: lifecycle-document-output
+  scope: current-document-work-only
+  dispatch: pass-condition-and-reference-to-document-owner
+  reference: docs/process/document-writing.md
+  examples: docs/templates/examples/lifecycle-writing-examples.md
+  artifact_ownership: unchanged
+  gate_and_status_semantics: unchanged
 supported_state_schema_versions: [1]
 
 checkpoint_policy:

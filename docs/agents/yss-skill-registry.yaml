@@ -22,6 +22,7 @@ capability_contract:
     preserve_all_reasons: true
   deterministic_order: [recipe-declaration, dependency-topology, skill-id]
 capabilities:
+  - { id: writing.lifecycle-document, primary_skill: i-have-adhd, task_modes: [guidance] }
   - { id: discovery.competitive-intelligence, primary_skill: competitive-intelligence, task_modes: [guidance] }
   - { id: discovery.domain-modeling, primary_skill: domain-modeling, task_modes: [guidance, integration] }
   - { id: discovery.requirements-interview, primary_skill: grilling, task_modes: [guidance] }
@@ -44,19 +45,27 @@ recipes:
   - { id: prototype.strategic-delivery, capabilities: [prototype.design-system, prototype.review, prototype.delivery, prototype.antdv-next-facts] }
   - { id: lifecycle.strategic-handoff, capabilities: [lifecycle.stage-decision, lifecycle.strategic-design, lifecycle.strategic-handoff] }
 skill_dependencies:
+  code-review:
+    - { skill: i-have-adhd, type: context-conditional, when: lifecycle-document-output }
+  yss-research:
+    - { skill: i-have-adhd, type: context-conditional, when: lifecycle-document-output }
   yss-prototype-stage:
+    - { skill: i-have-adhd, type: context-conditional, when: lifecycle-document-output }
     - { skill: prototype-review, type: review-only }
     - { skill: yss-design-system, type: coordination-only }
     - { skill: yss-antdv-next-design, type: context-conditional, when: h2-vue-antdv-next-default }
     - { skill: yss-antd-design, type: context-conditional, when: h2-react-antd-explicit-compatibility }
   yss-stage-decision:
+    - { skill: i-have-adhd, type: context-conditional, when: lifecycle-document-output }
     - { skill: domain-modeling, type: coordination-only }
     - { skill: yss-research, type: context-conditional, when: external-evidence }
     - { skill: grilling, type: coordination-only }
   yss-strategic-design:
+    - { skill: i-have-adhd, type: context-conditional, when: lifecycle-document-output }
     - { skill: yss-stage-decision, type: context-required }
     - { skill: handoff, type: coordination-only }
   prototype-review:
+    - { skill: i-have-adhd, type: context-conditional, when: lifecycle-document-output }
     - { skill: yss-design-system, type: coordination-only }
   llm-wiki:
     - { skill: writing-for-agents, type: coordination-only }
@@ -86,6 +95,11 @@ invocation_contract:
       invocation_mode: user
       primary_output: maintenance-operation
   overrides:
+    i-have-adhd:
+      invocation_mode: model
+      trigger_conditions: [lifecycle-document-output]
+      exclusion_conditions: [code-only-work, command-only-work, unrelated-conversation, user-disabled]
+      primary_output: document-writing-assistance
     yss-prototype-stage:
       invocation_mode: both
       trigger_conditions: [impact:prototype]
@@ -120,6 +134,7 @@ agent_runtime_roots:
   trae: .trae/skills
 
 skills:
+  - { id: i-have-adhd, layer: core, maturity: supported, instance_default_discoverable: true, aliases: [], impacts: [writing] }
   - { id: ask-matt, layer: compatibility, maturity: supported, instance_default_discoverable: false, aliases: [], impacts: [lifecycle] }
   - { id: code-review, layer: maintainer-only, maturity: supported, instance_default_discoverable: false, aliases: [], impacts: [quality] }
   - { id: competitive-intelligence, layer: core, maturity: supported, instance_default_discoverable: true, aliases: [], impacts: [discovery] }

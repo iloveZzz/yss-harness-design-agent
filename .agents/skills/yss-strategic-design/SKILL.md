@@ -7,6 +7,8 @@ description: 编排 YSS 产品或模块从机会调研到业务边界与协作�
 
 这是生命周期主控 skill：负责识别阶段、判定影响面、检查产物与门禁、选择下一工作单元并验收结果。业务实现必须交给对应的 Matt/YSS 专项 skill；本 skill 不替代它们。
 
+文档输出时按 `lifecycle-document-output` 条件调用 `i-have-adhd`，读取 `docs/process/document-writing.md`；作用域仅限当前产物，派发时传递条件及引用。
+
 ## 入口与边界
 
 Plan 入口读取 `docs/plan/README.md` 和 `docs/process/plan-migration.md`，按注册表退出条件核查战略输入。关键未决项阻断进入 Spec；非关键项须有责任人、解决时点和接收方。只使用 Plan 标识，Plan 后仍保留 Spec、原型、业务 Ticket 与交接阶段。

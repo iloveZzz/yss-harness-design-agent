@@ -9,14 +9,14 @@ const INTENSITY_POLICY = path.join(root, "docs/process/maintenance-intensity.yam
 
 const REQUIRED_EVIDENCE = {
   L1: ["relevant-check"],
-  L2: ["counterexample", "fresh-verification", "focused-independent-review"],
+  L2: ["counterexample", "fresh-verification", "self-check"],
   L3: ["fresh-verification", "self-check"]
 };
 
 const REVIEW_MODES = {
   L1: new Set(["self-check", "human-checkpoint"]),
-  L2: new Set(["focused-independent"]),
-  L3: new Set(["self-check", "formal-independent"])
+  L2: new Set(["self-check", "human-checkpoint", "focused-independent"]),
+  L3: new Set(["self-check", "human-checkpoint", "focused-independent", "formal-independent"])
 };
 
 function ensure(condition, message) {
@@ -86,7 +86,7 @@ export function validateMaintenanceCheckpoint(data) {
   const legacyFormalL3 = data.intensity === "L3" && data.review_mode === "formal-independent";
   const requiredEvidence = legacyFormalL3
     ? ["red", "green", "refactor", "pressure-scenario", "fresh-verification", "formal-independent-review"]
-    : REQUIRED_EVIDENCE[data.intensity];
+    : data.review_mode === "focused-independent" ? [...REQUIRED_EVIDENCE[data.intensity].filter(kind => kind !== "self-check"), "focused-independent-review"] : REQUIRED_EVIDENCE[data.intensity];
   for (const required of requiredEvidence) ensure(kinds.has(required), `${data.intensity} 缺少 ${required} 证据`);
   ensure(REVIEW_MODES[data.intensity].has(data.review_mode), `${data.intensity} 不允许 review_mode=${data.review_mode}`);
   if (data.schema_version === 2) validateCheckpointState(data);

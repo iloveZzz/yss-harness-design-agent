@@ -4,7 +4,12 @@ user_decision_policy:
   default_responder: requester
   delegate_requires_requester_evidence: true
   source_kinds: [platform-message, session-export, user-confirmation-file]
-  gates: []
+  required_capabilities: [strategic-decision-reuse-v1]
+  gates: [gate.spec-baseline-approved, gate.user-confirmation, gate.strategic-design-handoff-approved]
+  work_unit_gates:
+    work-unit.spec-synthesis: [gate.spec-baseline-approved]
+    work-unit.prototype-design: [gate.user-confirmation]
+    work-unit.strategic-design-handoff: [gate.strategic-design-handoff-approved]
   work_units:
     work-unit.plan-requirements: plan-conclusion
 registry_id: yss.digital-human-roles

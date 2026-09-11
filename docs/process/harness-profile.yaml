@@ -1,4 +1,4 @@
-schema_version: 1
+schema_version: 2
 profile_id: harness.business-ddd-strategy-handoff
 status: active
 name: 产品需求商务业务方案交付模式
@@ -23,6 +23,12 @@ audience:
 
 lifecycle:
   repository_modes: [project-instance]
+  allowed_stages:
+    - stage.entry-triage
+    - stage.plan
+    - stage.spec-architecture
+    - stage.product-design
+    - stage.ticket-formalization
   entry_work_unit: work-unit.entry-triage
   allowed_work_units:
     - work-unit.plan-opportunity
@@ -53,9 +59,12 @@ lifecycle:
 handoff:
   package_template: docs/templates/strategic-design-handoff-template.yaml
   package_schema: docs/process/schemas/strategic-design-handoff.schema.json
-  downstream_team: downstream-rd-team
-  downstream_skill: yss-technical-design
-  downstream_output: technical-design-contract
+  accepted_schema_versions: [3, 4]
+  current_schema_version: 4
+  consumer_capabilities:
+    - backend-technical-design
+    - frontend-engineering-design
+    - delivery-coordination
   required_source_artifacts:
     - artifact.domain-strategy
     - artifact.stage-decision-package
@@ -65,7 +74,7 @@ handoff:
   required_sections:
     - source-context-snapshot
     - context-delta
-    - target-context-reconciliation
+    - consumer-routes
     - problem-and-business-outcomes
     - bounded-context-and-subdomain-map
     - context-map-and-translation-responsibility
@@ -77,7 +86,7 @@ handoff:
   acceptance:
     - domain-strategy-status-is-approved
     - source-context-snapshot-and-context-delta-are-current
-    - target-context-reconciliation-is-required-before-tactical-design
+    - active-consumer-routes-require-target-context-reconciliation
     - stage-decision-package-status-is-approved
     - source-digests-are-current
     - every-deferred-item-has-owner-next-action-and-target-version

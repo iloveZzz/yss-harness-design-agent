@@ -83,6 +83,20 @@
     "result": {
       "type": "object", "additionalProperties": false,
       "properties": {
+        "user_decisions": {
+          "type": "array", "items": {
+            "type": "object", "additionalProperties": false,
+            "required": ["boundary", "subject_ref", "scope"],
+            "anyOf": [{"required": ["user_decision_ref"]}, {"required": ["decision_reuse_ref"]}],
+            "properties": {
+              "boundary": {"type": "string", "minLength": 1},
+              "subject_ref": {"type": "string", "minLength": 1},
+              "scope": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+              "user_decision_ref": {"type": "string", "minLength": 1},
+              "decision_reuse_ref": {"type": "string", "minLength": 1}
+            }
+          }
+        },
         "result_schema": { "const": "workflow-execution-result-v1" },
         "work_unit": { "type": "string", "minLength": 1 },
         "profile_id": { "type": "string", "pattern": "^harness\\.[a-z0-9][a-z0-9-]*$" },

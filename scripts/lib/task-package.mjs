@@ -114,7 +114,7 @@ function validateCommon(value, registry, lifecycle) {
     assertReadableEvidenceRef(reconciliation.ref, "context_reconciliation.ref");
     if (!value.result.evidence_refs.includes(reconciliation.ref)) fail("context_reconciliation.ref 必须包含在 result.evidence_refs 中");
     if (expectedReconciliationStatus === "not-applicable" && !reconciliation.reason) fail("template-maintenance 的 context_reconciliation 必须说明 reason");
-    const routeResult = validateNextRoute(value.result.work_unit, value.result.next_route, { ...value.result, profileId: value.profile_id || value.result.profile_id });
+    const routeResult = validateNextRoute(value.result.work_unit, value.result.next_route, { ...value.result, profileId: value.profile_id || value.result.profile_id || (value.contract.kind === "lifecycle-work-unit" ? "harness.business-ddd-strategy-handoff" : undefined) });
     if (routeResult.result !== "allowed") fail(`Workflow Execution Result next_route 非法: ${routeResult.blocking_signals.join(", ")}`);
     value.expected_evidence_files.forEach((ref) => assertReadableEvidenceRef(ref, "expected_evidence_files"));
     if (value.verification_results.length === 0) fail("已完成任务必须包含 verification_results");

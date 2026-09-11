@@ -107,6 +107,7 @@ exclude_paths:
   - scripts/verify-prototype-backend-scaffold-scenarios
   - scripts/verify-repository-scope-scenarios
   - scripts/verify-scaffold-generator-scenarios
+  - scripts/verify-strategic-handoff-tools-lock
   - scripts/verify-upstream-skill-source
   - scripts/verify-yss-dto-openapi-profile
   - scripts/verify-yss-dto-openapi-scenarios

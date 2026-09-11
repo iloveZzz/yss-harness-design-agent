@@ -17,9 +17,9 @@
 |---|---|---|---|
 | 模板源维护 | 影响面分析 | 修改单一事实来源、按验证与审查强度分级执行证据、必要的技能投影同步、fresh verification / review | 产品 Spec、产品设计、OpenAPI、运行时代码 |
 | 小改动 | 入口分诊 | 影响面、主 tracker 同步、fresh verification | Spec、架构、原型、切片（没有触发条件时） |
-| 中等变更 | 最近可信的 Spec / 架构阶段 | Spec、功能架构、必要工程审查、父 Ticket 和切片 | 未命中的 UI、数据或 API 门禁 |
-| 全新产品 / 模块 | Plan | Plan、Spec、产品总体设计、功能架构、必要设计 / 契约审查、父 Ticket 和切片 | 未命中的 UI、数据或 API 门禁 |
-| 高风险变更 | 既有冻结基线 | Spec Delta、架构 / 数据 / 工程审查、契约复核、切片和回滚设计 | 与风险证据无关的门禁 |
+| 中等变更 | 最近可信的 Spec / 架构阶段 | Spec、功能架构、必要业务审查、业务 Ticket 和交接 | 未命中的 UI、数据或 API 门禁 |
+| 全新产品 / 模块 | Plan | Plan、Spec、产品总体设计、功能架构、必要设计审查、业务 Ticket 和交接 | 未命中的 UI、数据或 API 门禁 |
+| 高风险变更 | 既有冻结基线 | Spec Delta、业务规则复核、受影响确认及交接范围复核 | 与风险证据无关的门禁 |
 
 任何裁剪都必须写明原因和证据，不生成空文档。对跨仓库变更，Harness 记录必须绑定实现仓库、分支、CI、验证命令、发布顺序和回滚点；没有前端、后端或 OpenAPI 影响时显式记录 `not-applicable`。
 
@@ -27,51 +27,14 @@
 
 同一独立执行者可以在一个连续工作单元内完成相邻的实现动作，但不能替代独立审查者。阶段证据在集中 checkpoint 回写，至少包含：范围、变更文件、受影响仓库、验证命令及结果、阻塞项、人工审查点、Ticket 状态和下一步。
 
-## 4. 模板维护验证与审查强度分级
+## 4. 模板维护验证与审查强度
 
-本节只适用于 `template-source` 的模板、流程规则和共享 skill 维护，不降低 `project-instance` 的 Spec、OpenAPI Freeze、垂直切片或高风险工程门禁。强度由错误逃逸损失和是否改变 Agent 行为决定，不由文件所在目录单独决定。
+等级和触发项以 `maintenance-intensity.yaml` 为准。L1 至少有相关实际检查；L2 有行为反例、Fresh Verification 和维护者自检；L3 有 Fresh Verification 和维护者自检，并覆盖权限、恢复及跨仓反例。
 
-| 强度 | 权威触发项 | 最低验证证据 | Review |
-|---|---|---|---|
-| L1 | `maintenance-intensity.yaml` 的 `levels.L1.triggers` | 至少一项与变更直接相关的实际检查 | `self-check` 或显式 `human-checkpoint` |
-| L2 | `maintenance-intensity.yaml` 的 `levels.L2.triggers`，或该策略的 `default_level` | 修改前可失败的最小反例，以及本轮 fresh verification | 一名非实施者执行 `focused-independent` 聚焦审查；结论可内联 checkpoint |
-| L3 | `maintenance-intensity.yaml` 的 `levels.L3.triggers` | 完整 RED、GREEN、REFACTOR、压力场景与本轮 fresh verification | 冻结候选后执行 `formal-independent` 正式独立审查；需要时使用完整 `code-review` |
+日常维护停在 `implementation-ready`，不因 L2/L3 自动要求独立审查或冻结候选。独立审查按需；适用时实施者不得兼任 Reviewer，旧正式审查证据保持只读兼容。产品实例的业务会签与真实用户决定不因模板维护裁剪而减少。
 
-判定规则：
+- 内循环：`scripts/verify-template-fast`；未知路径和核心校验器变更按配置回退完整检查。
+- PR：`scripts/verify-template-candidate`。
+- main 与发布前：不可裁剪的 `scripts/verify-template`；发布和 Git 操作另按实际授权执行。
 
-1. 等级只由 `maintenance-intensity.yaml` 计算；未给出 trigger 时使用该策略的 `default_level`，未知 trigger 必须更新策略后才可验证。
-2. 实施者可先分级，不要求 L1/L2 预批准；发现新影响时立即更新 `escalation`、重新分级并补齐证据。
-3. 发布、合并或阶段完成时按整体候选重新判定；不得把共同改变整体语义的修改拆成多个 L1/L2 规避 L3。
-4. RED 用于证明行为差异。L1 不人为构造失败；L2 可使用已有失败、最小 fixture 或现有测试修改前失败；只有行为无法确定性表达时才运行聚焦压力场景。L3 使用 `maintaining-skills` 并执行本节定义的完整 RED、GREEN、REFACTOR 和压力场景要求。
-5. 模板发布候选固定按 L3 聚合验证，但不追溯补造每个既有 L1/L2 修改的独立 RED。
-
-模板维护默认停在 `implementation-ready`，不自动冻结候选或派发审查。需要独立审查时显式提升到 `review-ready`；完成独立审查和最终完整门禁后才能成为 `release-ready`。三个核验入口由 `docs/process/template-verification-profiles.yaml` 统一定义：
-
-- `scripts/verify-template-fast`：按 Git 影响面运行快速检查；未映射路径或核心核验资产变化时 fail-safe 升级为完整门禁。
-- `scripts/verify-template-candidate`：运行命中影响面和候选完整性检查；PR 默认使用该入口。
-- `scripts/verify-template`：执行不可裁剪的完整发布门禁；首次正式冻结前和最终发布前运行，修复内循环不重复运行。
-
-检查组内部保持串行以便快速定位失败，不同检查组最多四路并发。任何 profile 都必须在执行前后比较工作树状态；验证命令产生工作树变化时直接失败。
-
-每个模板维护 checkpoint 使用以下轻量合同；L1/L2 可直接写入主 Ticket 或集中 checkpoint，不要求新增独立文档：
-
-```yaml
-schema_version: 2
-intensity: L1 | L2 | L3
-classification_reason: <分级理由>
-triggers: [<可观察触发项>]
-changed_assets: [<路径或资产引用>]
-verification_evidence:
-  - kind: relevant-check | counterexample | red | green | refactor | pressure-scenario | fresh-verification | focused-independent-review | formal-independent-review
-    command: <本轮实际命令或可读取证据引用>
-    result: pass
-review_mode: self-check | human-checkpoint | focused-independent | formal-independent # L2 需聚焦审查证据；L3 日常路径使用 self-check，历史 formal 记录只读兼容
-escalation: none | <升级原因和原等级>
-target_state: implementation-ready | review-ready | release-ready
-current_state: implementation-ready | review-ready | release-ready | needs-human
-verification_profile: fast | candidate | release
-review_round: 0 | 1 | 2
-candidate_digest: null | <sha256>
-```
-
-使用 `scripts/verify-maintenance-checkpoint <file>` 或通过 stdin 传入 YAML / JSON 做只读校验。`implementation-ready` 必须使用 fast、`review_round: 0`、`candidate_digest: null` 和 L3 `self-check`；它不代表已冻结候选、已完成独立审查或可发布。触发项 ID 与最低等级只由 `docs/process/maintenance-intensity.yaml` 维护；校验器消费该策略。未知触发项必须先更新该权威策略和场景，不能静默接受。
+维护 checkpoint 沿用 schema v2，日常使用 `review_mode: self-check`、`verification_profile: fast`、`review_round: 0`、`candidate_digest: null`。通过 `scripts/verify-maintenance-checkpoint` 校验，记录范围、实际命令、退出码、证据、自检和剩余风险。`release-ready` 须绑定本轮完整验证，不能由历史结果推导。

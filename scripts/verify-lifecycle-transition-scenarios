@@ -84,7 +84,8 @@ for (const current of ["work-unit.spec-synthesis", "work-unit.prototype-design",
 }
 assert.equal(validateNextRoute("work-unit.spec-synthesis", "work-unit.ticket-decomposition").result, "blocked");
 assert.equal(validateNextRoute("work-unit.stage-decision", "work-unit.spec-synthesis", { profileId: "harness.business-ddd-strategy-handoff" }).result, "blocked");
-assert.equal(validateNextRoute("work-unit.strategic-design-handoff", null, { profileId: "harness.business-ddd-strategy-handoff" }).result, "allowed");
+assert.equal(validateNextRoute("work-unit.strategic-design-handoff", null, { profileId: "harness.business-ddd-strategy-handoff" }).result, "blocked");
+assert.equal(validateNextRoute("work-unit.ticket-decomposition", "work-unit.slice-implementation", {profileId:"harness.business-ddd-strategy-handoff"}).result, "blocked");
 assert.equal(validateNextRoute("work-unit.strategic-design-handoff", "work-unit.spec-synthesis", { profileId: "harness.business-ddd-strategy-handoff" }).result, "blocked");
 assert.equal(validateNextRoute("work-unit.domain-strategy-design", "work-unit.stage-decision", { profileId: "harness.business-ddd-strategy-handoff" }).result, "allowed");
 assert.equal(validateNextRoute("work-unit.intensity-aware-verification", "work-unit.intensity-aware-review").result, "allowed");

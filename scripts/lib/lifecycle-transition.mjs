@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { parseDocument } from "../vendor/yaml.mjs";
+import { assertStrategicWorkUnitDecision } from './approval-record.mjs';
 import { validatePlanSpecEntry } from './plan-spec-entry.mjs';
 
 const IMPLEMENTATION_WORK_UNIT = "work-unit.slice-implementation";
@@ -36,7 +37,7 @@ const NEXT_ROUTES = deepFreeze({
   "work-unit.release-and-retrospective": [],
 });
 
-// 业务上游 Harness 的策略设计交付模式在 stage-decision 处结束；
+// 业务上游 Harness 的策略设计交付模式在 strategic-design-handoff 处结束；
 // 下游研发团队从战略设计交付包接管 Tactical DDD，不在本地 profile 内继续推进。
 const PROFILE_NEXT_ROUTES = deepFreeze({
   [STRATEGIC_PROFILE_ID]: {
@@ -129,10 +130,14 @@ function validateTicketReference(ref, trackerKind) {
  * by `validateWorkflowExecutionResult` before this function is called.
  */
 export function validateNextRoute(currentWorkUnit, nextRoute, state = {}, options = {}) {
-  const profileId = state.profileId || state.profile_id;
+  const profileId = state.profileId || state.profile_id || ((state.repository_mode === 'project-instance' || state.workflow_reference?.source === 'yss-strategic-design') ? STRATEGIC_PROFILE_ID : null);
 
-  const routes = PROFILE_NEXT_ROUTES[profileId]?.[currentWorkUnit] ?? NEXT_ROUTES[currentWorkUnit];
+  const routes = profileId === STRATEGIC_PROFILE_ID ? PROFILE_NEXT_ROUTES[profileId][currentWorkUnit] : NEXT_ROUTES[currentWorkUnit];
   if (!routes) return blockedResult([BLOCKING_SIGNALS.invalidRoute], ["known_current_work_unit"]);
+  if (profileId === STRATEGIC_PROFILE_ID && (routes.includes(nextRoute) || (nextRoute === null && !routes.length))) {
+    try { assertStrategicWorkUnitDecision(currentWorkUnit,state,options); }
+    catch (error) { return blockedResult(['user-decision-required'],[error.message]); }
+  }
   if (nextRoute === null && routes.length === 0) return allowedResult();
   if (!hasText(nextRoute) || !routes.includes(nextRoute)) {
     const signals = [BLOCKING_SIGNALS.invalidRoute];

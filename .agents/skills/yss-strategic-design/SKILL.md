@@ -13,7 +13,7 @@ description: 编排 YSS 产品或模块从机会调研到业务边界与协作�
 
 Plan 入口读取 `docs/plan/README.md` 和 `docs/process/plan-migration.md`，按注册表退出条件核查战略输入。关键未决项阻断进入 Spec；非关键项须有责任人、解决时点和接收方。只使用 Plan 标识，Plan 后仍保留 Spec、原型、业务 Ticket 与交接阶段。
 
-1. 先读取 `yss-project.yaml`、`CONTEXT.md`、相关 ADR、父 Ticket/checkpoint 和当前资产。
+1. 先读取 `yss-project.yaml`、`CONTEXT.md`、相关 ADR、map.md、checkpoint 和当前资产。
 2. `repository_mode=template-source` 只走模板维护流程；命中产品流程时返回 `blocked: template-source-product-artifact-forbidden`，不得生成产品 Spec、原型、OpenAPI 或切片 Ticket。
 3. `repository_mode=project-instance` 以 `docs/process/lifecycle-registry.yaml`、`harness-process-tailoring.md` 和本目录 references 为唯一阶段、门禁和裁剪事实源。数字人角色、阶段协作组、运行时绑定与会签级别以 `docs/agents/digital-human-roles.yaml` 为准；职称实例不另起编排器。
 4. 模式：`route` 只读规划；`orchestrate` 有界推进；`resume` 重建后推进；`audit` 严格只读。未明确时使用 `route`。
@@ -81,3 +81,7 @@ Plan → Spec（含正式草稿、恢复与显式 `to-spec`）写入前，按 `d
 ## 便携交接工具
 
 批准交接后由 `scripts/strategic-handoff export --source-root <source> --handoff <ref> --output <new-directory> --zip` 冻结原始资产；规则身份、批准绑定、包内索引和完整快照差异以 `docs/process/strategic-handoff-package.md` 为准。接收方先 `verify` 再 `import`，目标根术语对账和 `verify-strategic-handoff-consumption` 通过后进入战术设计/相关切片；工具不能代替生命周期批准。
+
+## 当前关键决定
+
+保留 Plan 审阅包确认；Spec 基线和命中影响的产品设计分别核验真实负责人的当前回复。按 `docs/agents/digital-human-roles.yaml.user_decision_policy`、`scripts/verify-approval-record --require-approved` 和 checkpoint 校验推进，数字人不能代答。等待状态可保存，缺当前决定不得恢复流转或宣布完成。交接复用按 `docs/process/strategic-handoff-package.md`，引用同一证明并核验范围、依据和风险；无变化不重复询问，变化只补受影响确认。

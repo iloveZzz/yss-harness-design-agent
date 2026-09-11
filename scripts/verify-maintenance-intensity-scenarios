@@ -33,7 +33,8 @@ const accepted = [
   { ...base, intensity: "L2", triggers: ["local-rule"], verification_evidence: evidence("counterexample", "fresh-verification", "focused-independent-review"), review_mode: "focused-independent" },
   { ...base, intensity: "L2", triggers: [], verification_evidence: evidence("counterexample", "fresh-verification", "focused-independent-review"), review_mode: "focused-independent" },
   legacyFormal,
-  implementationReady
+  implementationReady,
+  {...base, intensity:"L2",triggers:["local-rule"],verification_evidence:evidence("counterexample","fresh-verification","self-check"),review_mode:"self-check"}
 ];
 for (const checkpoint of accepted) validateMaintenanceCheckpoint(checkpoint);
 

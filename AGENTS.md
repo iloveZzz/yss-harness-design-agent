@@ -53,6 +53,7 @@ README、用户指南和 `CLAUDE.md` 只解释或指向上述事实，不定义�
 
 ## 6. Ticket 与状态
 
+- checkpoint 是唯一机器状态源，map.md 展示并引用，`ticket_sync.status/refs` 关联索引和业务任务；旧 parent_ticket 只读兼容。
 - 本地只产出 `artifact.business-ticket-set`：按范围、优先级、验收、依赖和业务风险组织，并保持 `ready-for-human`。
 - 本地不得创建功能父 Ticket、垂直切片 Ticket 或设置 `ready-for-agent`。Tracker 按 `docs/agents/issue-tracker.md` 选择，不得从 Git remote 推断；平台不可用时生成待发布草案。
 
@@ -75,7 +76,7 @@ README、用户指南和 `CLAUDE.md` 只解释或指向上述事实，不定义�
 ## 10. 审查、验证与 Git
 
 - 实施者不承担命中的独立审查。任何完成结论必须基于本轮 fresh verification；本仓不宣布实现可合并或产品可发布。
-- 会签按 `docs/agents/digital-human-roles.yaml` 关闭并由 `scripts/verify-approval-record` 校验；发布、商务承诺和运行时外部副作用仍须生物人。
+- 会签按 `docs/agents/digital-human-roles.yaml` 关闭并由 `scripts/verify-approval-record --require-approved` 校验；关键决定按角色表绑定真实负责人回复，当前资产、依据和范围一致时复用，历史读取不放行；发布、商务承诺和运行时外部副作用仍须生物人。
 - 在暂停、handoff 和业务方案交接边界同步范围、证据、风险、会签点、Ticket 状态和下一步。
 - Git checkpoint 只含本轮范围；获得用户授权后才提交或推送。返工或 IMPORTANT / CRITICAL finding 触发简体中文复盘并修订权威资产。
 

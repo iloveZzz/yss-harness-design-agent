@@ -1,9 +1,9 @@
 schema_version: 1
 registry_id: yss.lifecycle
-status: shadow
+status: active
 description: >-
-  YSS 生命周期结构化事实源。Phase 1 以 shadow/check 方式派生结构表并校验漂移，
-  不切换任何运行时状态 schema 或人工批准语义。
+  战略设计 Harness 的活动生命周期结构化事实源；profile 只路由业务方案设计工作单元，
+  下游兼容 ID 保留用于交接引用，不授权本仓执行技术设计或实现。
 id_policy:
   pattern: '^(stage|gate|artifact|work-unit|evidence)\.[a-z0-9][a-z0-9-]*$'
   published_ids_immutable: true

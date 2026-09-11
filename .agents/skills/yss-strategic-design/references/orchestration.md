@@ -6,7 +6,7 @@
 
 1. 识别模式、仓库身份、任务规模和影响面。
 2. `setup readiness`：每个任务只执行一次，核对 tracker、五态标签和领域文档布局，并在本轮缓存结果；仅在 tracker、主远端、真实标签或配置变化时重查。
-3. 加载父 Ticket/checkpoint 与真实资产，计算最近可信阶段。
+3. 加载map.md、checkpoint 与真实资产，计算最近可信阶段。
 4. 评估资产、门禁和 `stale`，只在 `profile_registry.allowed_local_work_units` 中选择第一个未阻塞工作单元。命中下游工作单元时返回 `blocked`，并把问题写入 Strategic Design Handoff。
 5. 执行最小生命周期工作单元：主控先按 `docs/process/schemas/digital-human-task-package.schema.json` 编译并校验任务包，再只实际调用允许的 model-invoked skill；原生工作单元可直接持有正式资产，Matt 兼容 user-invoked skill 仅作为 workflow reference，仍由用户显式启动。将结果归一化为 `Workflow Execution Result`，验收输出并回写状态与证据。本 profile 的任务包只允许 `lifecycle-work-unit` 或 `template-maintenance` 合同。
 6. 若仍在授权和自动推进边界内，回到第 3 步；否则暂停。
@@ -104,3 +104,5 @@ Matt `prototype` 的回流还必须注明 `prototype_branch`，并保留单文�
 `to-questionnaire` 未收到答案时使用 `external-input-required` 暂停，记录问卷、接收人、所需输出和恢复路由；收到答案后记录 response、重新分类影响面和更新后的权威资产，再回到 `grill-with-docs` 或 `to-spec`。
 
 Release 与 Retrospective 属于下游研发 profile。本 profile 只在 Strategic Design Handoff 中记录商务窗口、已知风险与下游责任人，不作可发布结论。
+
+Spec、原型和交接的完成结果携带 `user_decisions`（boundary、subject_ref、scope 与 user_decision_ref，交接可引用 decision_reuse_ref）。`validateNextRoute` 对战略 profile 不回退完整研发路由，并核验当前关键决定。尚待真实回复时返回 needs-human，不把可审阅草稿标成可流转的 completed；任务包 schema 只增加可选决定引用，不改变原始回复协议。

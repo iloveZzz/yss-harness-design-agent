@@ -3,7 +3,7 @@
 本文是模板仓库与模板实例共享的生命周期派生阅读视图。结构化事实源是 `docs/process/lifecycle-registry.yaml`；本文解释主阶段、条件门禁、必须持久化的产物和退出标准。具体项目只有在触发条件命中时才执行对应门禁。
 
 <!-- lifecycle-registry:structure:start -->
-> 此结构区由 `docs/process/lifecycle-registry.yaml` 生成。当前为 `shadow` 模式：它校验结构和派生文档，不改变运行时状态 schema 或人工批准语义。
+> 此结构区由 `docs/process/lifecycle-registry.yaml` 生成。当前为 `active` 模式：它校验结构和派生文档，不改变运行时状态 schema 或人工批准语义。
 
 ## 1. 主阶段
 

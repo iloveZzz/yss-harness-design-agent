@@ -125,7 +125,7 @@ syntax_files:
   - scripts/run-template-verification
   - scripts/verify-template-verification-scenarios
 routing:
-  - patterns: ["scripts/*strategic-handoff*", "scripts/lib/strategic-handoff*", "scripts/fixtures/strategic-handoff/**", "docs/process/strategic-handoff-package.md", "docs/process/schemas/strategic-handoff-*"]
+  - patterns: ["scripts/*strategic-handoff*", "scripts/*strategic-feedback*", "scripts/lib/strategic-handoff*", "scripts/lib/strategic-feedback*", "scripts/fixtures/strategic-handoff/**", ".template-source/distribution/strategic-handoff-tools.lock.json", "docs/process/strategic-handoff-package.md", "docs/process/schemas/strategic-handoff-*", "docs/process/schemas/strategic-design-handoff-*", "docs/process/schemas/strategic-*feedback*"]
     groups: [strategic-handoff-package]
   - patterns: [AGENTS.md, CONTEXT.md, yss-project.yaml, package.json, .gitignore, README.md, "docs/**"]
     groups: [hygiene]
@@ -152,6 +152,7 @@ routing:
 groups:
   strategic-handoff-package:
     commands:
+      - { run: "scripts/verify-strategic-handoff-tools-lock", when: template-source }
       - { run: "node --check scripts/lib/strategic-handoff.mjs" }
       - { run: "scripts/verify-strategic-handoff-package-scenarios" }
   hygiene:
@@ -187,7 +188,7 @@ groups:
     commands:
       - { run: "scripts/verify-digital-human-roles" }
       - { run: "scripts/verify-digital-human-roles-scenarios" }
-      - { run: "scripts/verify-approval-record docs/templates/approval-record-template.yaml" }
+      - { run: "scripts/verify-approval-record --history docs/templates/approval-record-template.yaml" }
   lifecycle:
     commands:
       - { run: "scripts/verify-context-contract --root . --json" }
@@ -201,6 +202,8 @@ groups:
       - { run: "node scripts/verify-plan-spec-entry-scenarios" }
   profile:
     commands:
+      - { run: "node scripts/verify-strategic-checkpoint-scenarios" }
+      - { run: "node scripts/verify-strategic-user-decision-scenarios" }
       - { run: "scripts/verify-harness-profile" }
       - { run: "scripts/verify-harness-profile-scenarios" }
   workspace-fixtures:
@@ -216,4 +219,5 @@ groups:
       - { run: "scripts/verify-maintenance-intensity-scenarios" }
   candidate-integrity:
     commands:
+      - { run: "scripts/verify-strategic-handoff-tools-lock --require-committed", when: template-source }
       - { run: "node scripts/verify-template-verification-scenarios" }

@@ -12,6 +12,14 @@ supported_state_schema_versions: [1]
 
 checkpoint_policy:
   strategy: consolidated
+  state_owner: yss-strategic-design
+  authoritative_state: checkpoint
+  navigation: map.md
+  ticket_references: ticket_sync.status/refs
+  historical_parent_ticket: read-only
+  user_decision_validator: scripts/verify-approval-record --require-approved
+  decision_policy_ref: docs/agents/digital-human-roles.yaml
+  reuse_contract_ref: docs/process/strategic-handoff-package.md
   flush_on: [human_pause, handoff]
   flush_immediately_on: [blocked, responsibility_changed, asset_approval]
   preserve_stage_causality: true

@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, mkdtempSync, rmSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { buildDecisionFixture } from "../fixtures/user-decision/build-fixture.mjs";
 import { buildPlanFixture } from "../fixtures/user-decision/plan-fixture.mjs";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
@@ -238,6 +239,7 @@ export function runScenario(name) {
     const planFixture = buildPlanFixture(path.join(decisionTemp, 'plan'));
     const validResult = {
       ...planFixture.state,
+      user_decisions: ["gate.spec-baseline-approved", "gate.user-confirmation", "gate.strategic-design-handoff-approved"].map(boundary => buildDecisionFixture(path.join(decisionTemp,boundary),{boundary}).requirement),
       result_schema: "workflow-execution-result-v1",
       profile_id: "harness.business-ddd-strategy-handoff",
       work_unit: "work-unit.spec-synthesis",

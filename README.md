@@ -51,7 +51,7 @@ YSS skills 的公开发布投影维护在 [iloveZzz/yss-spec-dev-skills](https:/
 
 `create-yss-harness-design` 是本 harness 的实例初始化 CLI，维护位置是独立仓库 [iloveZzz/create-yss-harness-design](https://github.com/iloveZzz/create-yss-harness-design)。它不是 `create-yss-spec`：后者面向全生命周期模板 `yss-spec-project-template`。
 
-- [create-yss-harness-design 实践指南](./docs/user-guide/外部命令行工具实践指南.md)
+- [create-yss-harness-design 使用说明](./docs/user-guide/CLI使用说明.md)
 
 推荐入口：
 
@@ -122,4 +122,6 @@ scripts/verify-template
 
 ## 用户手册
 
-首次使用请从 [本仓手册](docs/user-guide/战略设计子项目用户手册.md) 开始；练习见 [设备借用贯穿案例](docs/user-guide/设备借用贯穿案例.md)，其他入口见 [索引](docs/user-guide/用户手册索引.md)。
+首次使用请从[本仓手册](docs/user-guide/战略设计子项目用户手册.md)开始；练习见[设备借用职责案例](docs/user-guide/设备借用贯穿案例.md)，全部入口见[索引](docs/user-guide/用户手册索引.md)。
+
+CLI 创建、接入、诊断、同步及恢复见 [CLI 使用说明](docs/user-guide/CLI使用说明.md)。

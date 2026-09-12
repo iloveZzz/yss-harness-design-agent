@@ -70,7 +70,7 @@ scripts/update-skill-lock --check
 scripts/verify-upstream-skill-source --source-root <matt-skills-checkout>
 ```
 
-前者检查所有共享投影是否指向或匹配权威内容，后者检查 `skills-lock.json` 是否与当前完整目录树一致。过时技能不会保留兼容别名；旧版项目按 `docs/user-guide/规格与任务迁移指南.md` 一次性迁移。
+前者检查所有共享投影是否指向或匹配权威内容，后者检查 `skills-lock.json` 是否与当前完整目录树一致。过时技能不会保留兼容别名；旧版项目按 `docs/user-guide/CLI使用说明.md` 的身份、同步与恢复规则处理。
 
 ## skills.sh 公开发布
 

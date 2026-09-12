@@ -59,9 +59,9 @@
 结论：通过 / 阻断
 生命周期门禁：`gate.prototype-reviewed` 通过 / 不通过
 阻断项：
-- 
+-
 非阻断建议：
-- 
+-
 下一步：
 - product-design:index 路由高保真 HTML 原型产出 / 回到 Product Design focused skill 补齐原型 / 进入用户确认
 ```

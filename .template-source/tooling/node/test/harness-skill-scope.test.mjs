@@ -11,7 +11,7 @@ const profile = parseDocument(readFileSync(path.join(ROOT,'docs/process/harness-
 function fixture(run) {
   const root=mkdtempSync(path.join(tmpdir(),'harness-skill-scope-'));
   const write=(file,data)=>{mkdirSync(path.dirname(path.join(root,file)),{recursive:true});writeFileSync(path.join(root,file),JSON.stringify(data));};
-  const lock={canonicalRoot:'.agents/skills',projectionRoots:['.claude/skills','.codex/skills','.cursor/skills','.pi/skills','.qoder/skills','.trae/skills'],skills:{shared:{'local-skill':{}},platform:{}}};
+  const lock={canonicalRoot:'.agents/skills',projectionRoots:['.codex/skills','.cursor/skills','.pi/skills'],skills:{shared:{'local-skill':{}},platform:{}}};
   const registry={skills:[{id:'local-skill',aliases:[]}]};
   write('docs/process/harness-profile.yaml',profile);write('skills-lock.json',lock);write('docs/agents/yss-skill-registry.yaml',registry);
   try {run({root,write,lock,registry});} finally {rmSync(root,{recursive:true,force:true});}

@@ -1,0 +1,58 @@
+schema_version: 2
+intensity: L3
+classification_reason: >-
+  将战略设计批准后的碎片资产收敛为不可变 Strategic Delivery Bundle，并把自动成包、
+  整包验证和 checkpoint 证据设为 strategic-design-handoff 的完成条件；同时升级 Handoff v5、
+  Import Receipt v3、三条消费者路线、共享工具同步和四个 CLI 快照，命中 lifecycle-gate、
+  generation-semantics、cross-repo-contract、core-validator 与 aggregate-behavior-change。
+triggers:
+  - lifecycle-gate
+  - generation-semantics
+  - cross-repo-contract
+  - core-validator
+  - aggregate-behavior-change
+changed_assets:
+  - docs/process/lifecycle-registry.yaml
+  - docs/process/lifecycle-registry-baseline.json
+  - docs/process/harness-profile.yaml
+  - docs/templates/strategic-design-handoff-template.yaml
+  - docs/process/strategic-handoff-package.md
+  - docs/process/schemas/strategic-design-handoff.schema.json
+  - docs/process/schemas/strategic-handoff-delivery.schema.json
+  - docs/process/schemas/strategic-handoff-delivery-verification.schema.json
+  - docs/process/schemas/strategic-handoff-import-receipt-v3.schema.json
+  - scripts/strategic-handoff
+  - scripts/lib/strategic-handoff.mjs
+  - scripts/lib/harness-profile.mjs
+  - scripts/verify-strategic-handoff-package-scenarios
+  - scripts/verify-strategic-checkpoint-scenarios
+  - .agents/skills/yss-strategic-design/
+  - skills-lock.json
+  - ../yss-harness-backend-agent
+  - ../yss-harness-frontend-agent
+  - ../create-yss-spec
+  - ../create-yss-strategic-design
+  - ../create-yss-harness-backend
+  - ../create-yss-harness-frontend
+verification_evidence:
+  - kind: fresh-verification
+    command: scripts/verify-strategic-handoff-package-scenarios && node scripts/verify-strategic-checkpoint-scenarios && scripts/verify-strategic-design-handoff-scenarios && node scripts/node-verify-lifecycle-registry.mjs
+    result: pass
+  - kind: self-check
+    command: ../../scripts/sync-strategic-handoff-tools --check && scripts/sync-skills --check && scripts/update-skill-lock --check && node scripts/verify-business-language-scenarios
+    result: pass
+  - kind: generated-instance-closure
+    command: create-yss-strategic-design + create-yss-harness-backend + create-yss-harness-frontend temporary instances; finalize -> verify -> backend/frontend import
+    result: pass
+  - kind: cli-snapshot-verification
+    command: verify-bundle and test for create-yss-strategic-design, create-yss-harness-backend, create-yss-harness-frontend; contract and unit tests for create-yss-spec
+    result: pass
+review_mode: self-check
+escalation: >-
+  none；当前仅达到 implementation-ready。战略设计源仓 release profile 的功能检查已通过，
+  但固定提交完整性门禁按预期拒绝 working-tree；未提交、未推送、未发布 npm，也未执行正式 release。
+target_state: implementation-ready
+current_state: implementation-ready
+verification_profile: fast
+review_round: 0
+candidate_digest: null

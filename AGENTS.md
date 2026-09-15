@@ -24,6 +24,7 @@
 | 影响面与维护强度 | `docs/process/harness-process-tailoring.md`、`docs/process/maintenance-intensity.yaml` |
 | 技能身份与路由 | `docs/agents/yss-skill-registry.yaml`（`status: active`；由生命周期消费，Router 不消费）；来源与投影见 `skills-lock.json` |
 | 数字人角色与会签 | `docs/agents/digital-human-roles.yaml` |
+| 视觉规范 | 根 `DESIGN.md`；治理见 `docs/design/design.md`，Token 快照为派生视图 |
 | 实例分发 | `docs/process/instance-distribution-manifest.yaml`；CLI `template.manifest.json` 是投影 |
 
 README、用户指南和 `CLAUDE.md` 只解释或指向上述事实，不定义第二套规则。
@@ -65,7 +66,7 @@ README、用户指南和 `CLAUDE.md` 只解释或指向上述事实，不定义�
 ## 8. 专项入口
 
 - 技术事实或外部证据影响决策时使用 `yss-research`；竞品、市场或用户口碑事实使用 `competitive-intelligence`。
-- UI / 原型影响使用 `yss-design-system` → `yss-prototype-stage` → 独立 `prototype-review`；H2 默认 `yss-antdv-next-design`，显式 React 兼容路线才使用 `yss-antd-design`。生产前端转交下游，原型阶段不调用 `yss-ui`。
+- UI / 原型影响使用 `yss-design-system` → `yss-prototype-stage` → 独立 `prototype-review`；H1/H2 默认使用根 `DESIGN.md` 驱动的离线 HTML/CSS/JavaScript，采用其中的 Data Quality 默认浅色主题；暗色或紧凑模式仅在明确选择时启用。分别验证视觉与流程，证据绑定当前规范与所选 Token 摘要。生产前端转交下游，原型阶段不调用 `yss-ui`。
 - 数字人协同先读 `docs/agents/digital-human-roles.yaml`；角色实例不另起生命周期，不批准下游 Slice 合同、不设置 `ready-for-agent`、不宣布产品可发布。
 - 模板脚本或校验故障使用 `diagnosing-bugs`；其它技能按 `docs/agents/yss-skill-registry.yaml` 的触发条件按需加载。
 

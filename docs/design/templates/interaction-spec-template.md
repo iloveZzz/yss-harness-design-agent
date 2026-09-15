@@ -10,9 +10,9 @@
 | 产品总体设计 / 功能架构 | `docs/.scratch/<feature>/design/<feature>-product-overview-design.md` | 必需；缺失时先返回产品总体设计阶段 |
 | 领域术语 | `CONTEXT.md` | 核心名词、状态和业务规则 |
 | Plan | `docs/.scratch/<feature>/plan/<feature>-discovery.md` | 可选 |
-| 原型阶段合同 / Product Design 路由 | `yss-prototype-stage -> product-design:index -> <focused skill>` | 必需；记录 `$get-context`、`$ideate`、`$prototype`、`$image-to-code` 或 `$url-to-code` |
+| 原型阶段合同 / 视觉来源 | `yss-prototype-stage`；`source_visual.kind=design-system` 或 `visual-reference` | 默认 DESIGN.md 规范直出；独立视觉稿才条件使用 Product Design focused skill |
 | 原型 / 线框图 | `<链接或导出图片路径>` | Excalidraw / Figma / Penpot / tldraw / Axure / Markdown |
-| H1/H2 原型交付物 | `docs/.scratch/<feature>/design/prototypes/index.html` | 低保真原型评审通过后按档位补齐；H2 默认 Vue/Antdv Next，React/AntD 为显式兼容路线；产出后必须获得用户确认 |
+| H1/H2 原型交付物 | `docs/.scratch/<feature>/design/prototypes/index.html` 与本地资源 | 低保真评审后按档位补齐；默认原生 HTML，复杂控件影响评审结论时选择 AntD 预构建；产出后须用户确认 |
 | 原型验证清单 | `docs/.scratch/<feature>/verification/prototype-evidence.yaml` | 记录实际 CLI / AntD 版本、CLI JSON 输出、浏览器验证和阻塞项 |
 | 现有 API 草案 | `docs/.scratch/<feature>/api/<feature>.yaml` | 可选；通常应先完成产品设计和 Spec 校准 |
 
@@ -105,7 +105,7 @@
 - loading、empty、error、no-permission、readonly、conflict、dirty-form 状态已展示，或明确不适用。
 - 每个表格列、筛选条件、表单字段、抽屉、弹窗和按钮都有数据来源或契约反推说明。
 - 设计可以拆成独立可演示的垂直切片。
-- 低保真原型评审通过后，H2 默认使用 Vue/Antdv Next 覆盖主流程、关键状态和响应式断点；只有显式兼容需要时才使用 React/AntD。
+- 低保真评审通过后，H1 验证视觉与少量交互，H2 验证主流程和关键异常；默认离线 HTML，按实际评审风险选择条件 AntD 预构建。
 - 原型产出前已使用 `antd` CLI 查询设计语言、组件 API、demo、token 和 semantic 信息；原型产出后已在 `prototype-evidence.yaml` 记录实际版本、CLI 与浏览器验证证据。
 
 ## 9. 决策与未决问题

@@ -1,38 +1,51 @@
-# 设计系统治理与战略设计适配
+# 设计系统治理与生命周期适配
 
-## 职责边界
+> 规范源：仓库根目录 [`DESIGN.md`](../../DESIGN.md)。其中的 YAML frontmatter 和组件变体是视觉令牌的唯一事实来源；本文件只记录 YSS 的中文治理说明、运行时双轨、产品生命周期衔接和验证要求。
 
-根目录 `DESIGN.md` 是本仓库可被 Agent 和工具直接消费的视觉规范源，定义颜色、排版、布局、圆角、间距和组件视觉变体。共享章节与主模板的同步摘要见 `docs/design/design-system-sync.yaml`。
+## 与 DESIGN.md 的职责边界
 
-本文件是中文治理说明，不重新定义颜色、字体、间距或圆角的具体值。实现和原型应引用 `DESIGN.md` 中的 token 名称；`docs/design/tokens/*` 是由维护工具生成的投影，不能手工作为规范源修改。
+- `DESIGN.md`：机器可读的颜色、排版、圆角、间距和组件视觉变体规范；使用 Google `design.md` alpha 格式。
+- `docs/design/tokens/*`：由规范源投影的运行时快照，禁止直接修改后作为规范依据；使用 `scripts/design-md` 执行漂移检查。
+- 本文件：解释 YSS UI / Ant Design 双轨、页面设计约束、原型证据和生命周期门禁，不重新定义规范 token 的具体值。
+- Spec、交互说明和状态矩阵：继续承载业务状态、API、权限、并发、失败恢复和页面验收，不写入 `DESIGN.md`。
 
-## 战略设计中的使用方式
+## 来源与定位
 
-战略设计阶段使用该规范完成：
+本文件基于本地设计系统包首次分析整理，并在后续用项目 Ant Design 5 Less / `:root` CSS 变量覆盖默认亮色主题。紧凑密度、间距和容器规格同时参考既有 YSS 实现。视觉 token 的规范源改为根目录 `DESIGN.md`；本文件和 `docs/design/tokens/*` 是治理说明与派生视图。外部目录只作为历史输入或实现样本，不作为后续工程依赖，也不作为实现语言。
 
-- 产品总体设计、页面地图和低保真结构。
-- H2 Vue/Antdv Next 默认原型及 React/AntD 兼容原型的语义 token 映射。
-- 交互说明、状态矩阵和原型视觉验证。
-- 业务方案交接中的视觉约束与验收引用。
+关键来源：
 
-业务状态、用户流程、权限行为、API 影响、业务边界与规则决策和交接字段仍由对应生命周期资产承载，不写入 `DESIGN.md`。
+| 来源 | 作用 | 采用结论 |
+| --- | --- | --- |
+| Ant Design v6 官方主题与迁移文档 | semantic token、CSS variables、theme algorithm 组合与 DOM 兼容边界 | **上游机制权威**；项目覆盖不得改变其算法语义 |
+| 历史 `Product-Design-System` 包 | 首次引入 Ant Design 企业级语义、状态矩阵和验收习惯 | 仅保留原则、组件规则和审查清单 |
+| 项目 Ant Design 5 Less / `:root` 变量 | 品牌主色、运行时切换别名、色板与布局 token 的历史项目覆盖 | 保留经批准的品牌覆盖；不作为 v6 / Antdv Next API 事实 |
+| `yss-meta` 的 `packages/src/styles` | 已落地的紧凑间距、Card 圆角、CSS 变量桥接和客户主题案例 | 只提取稳定语义；utility class、客户覆盖和兼容补丁不进入默认规范 |
+| `docs/design/tokens/tokens.default.json` | 默认亮色主题派生 token | 作为实现 token 基线 |
+| `docs/design/tokens/tokens.dark.json` | 暗色主题派生 token | 暗色仍走 `darkAlgorithm`；本轮未按新 seed 重派生完整暗色色板 |
+| `docs/design/tokens/tokens.compact.json` | 紧凑密度主题派生 token | 共享亮色 seed，紧凑高度算法保持现状 |
+| `docs/design/tokens/variables.css` | `--brand-*` 与运行时别名 | 前端实现时优先转换为项目 token |
+| `docs/design/tokens/theme.json` | Ant Design `ConfigProvider` theme 配置 | React + Ant Design 项目可直接参考 |
 
-## 原型与运行时边界
+历史 Less 输入曾存在互相覆盖的默认值；裁定结果已迁入根 `DESIGN.md`。本文件不保留第二份值表。历史值、上游默认或客户覆盖只能作为追溯输入，不能反向覆盖 `DESIGN.md`；需要改变裁定时先改规范源，再重新生成 Token/CSS 投影并更新同步摘要。
 
-H2 高保真原型默认使用 Vue 3 + Antdv Next；React + Ant Design 6.x 只作为显式兼容路线。生产实现仍由下游研发 profile 使用目标仓锁定的 Vue 3 + YSS UI / Ant Design Vue 4.x。原型与生产共享语义 token、状态含义和验收目标，不把任一运行时的实现细节写成跨项目视觉规范。
+`.m-1` / `.flex-*` 等 utility class、`::-webkit-scrollbar` 定制和原始 `.less` 文件不纳入规范正文，只可作为可选实现备注。
 
-默认 H2 构建前使用 `yss-antdv-next-design` 获取组件事实；显式 React 兼容路线使用 `yss-antd-design`。构建后统一记录 fact pack、浏览器和无障碍证据。设计系统级预览位于 `preview.html` 与 `preview-dark.html`，不替代产品级原型。
+结论：这不是营销型视觉系统，而是面向中后台、数据密集、表单密集、流程密集产品的 Ant Design 风格企业级设计系统。项目内 UI 默认应以“清晰、确定、低装饰、可扫描、高一致性”为目标。
 
-## 维护与验证
+## 原型设计依据的优先级
 
-修改设计规范时，在 `.template-source/tooling/node` 使用固定版本的 design.md wrapper：
+原型使用 Ant Design 或 Antdv Next 时，上游 `design.md` 与组件查询提供的是**上游默认**和组件事实；项目根 `DESIGN.md` 是**规范覆盖**，`docs/design/design.md` 是治理解释，`docs/design/tokens/*` 是派生实现视图。当前功能只能在这些层之下完成语义组件映射。若上游默认与项目 Token 不同，以根规范源为准，并在 `prototype-evidence.yaml` 中记录根规范与 Token digest；不得把上游默认直接写回项目实现。
 
-- `lint` 校验 frontmatter、章节顺序、引用和变体命名。
-- `export` 生成 `theme.json`、默认/暗色/紧凑 token 与 CSS 变量。
-- `drift` 阻断规范源与派生文件之间的未解释漂移。
-- `diff` 区分 token、组件状态和治理文案变化。
+项目覆盖与官方默认的差异直接读取根 `DESIGN.md` 并用 `design-md diff` 核验；本文件不复制差异值。上游预设色板可以保留其自身颜色谱，但**色板预设 ≠ 品牌 seed**。
 
-共享章节变更必须同步主模板并更新同步摘要；战略设计专属治理文案可以只在本仓库修改。发布仍须通过本仓库的模板验证和 CLI 快照验证，生命周期终点保持 `work-unit.strategic-design-handoff`。
+Codex `$design-qa` 的 Colors/tokens 与 Fonts/typography 对照必须以根 `DESIGN.md` 为 source visual truth，并用 `docs/design/tokens/*` 复核实际投影；不得回退到上游默认或历史品牌值。执行清单见 `.agents/skills/yss-design-system/references/design-qa-theme.md`。
+
+原型 H1/H2 统一使用 `html-css-js`，以本地 Token CSS 保留 YSS 企业后台视觉语言。生产实现只在目标工程按 lockfile 核验组件 API；原型阶段不调用 `yss-ui`。已冻结的组件库原型和 fact pack 保留历史只读，不再生成新的 Provider 事实包。
+
+### HTML 与生产主题的映射
+
+HTML 直接使用 DESIGN.md 当前默认尺寸与主题 CSS，不要求 ConfigProvider 或组件库算法。生产库若使用 `defaultAlgorithm`、`darkAlgorithm`、`compactAlgorithm`，仍按其版本合同执行，避免把 compact 结果当 seed 再压缩。暗色能力只在派生 Token 和浏览器状态均核验后声明。
 
 ## 设计原则
 
@@ -47,120 +60,98 @@ H2 高保真原型默认使用 Vue 3 + Antdv Next；React + Ant Design 6.x 只�
 
 ## Token 基线
 
-### 颜色
+本文件不再抄写视觉 Token 的具体值。规范值只从根 `DESIGN.md` 读取，运行时名称和值只从 `docs/design/tokens/*` 派生快照读取；两者不一致时视为 drift，不在本文件中重新裁定。
 
-| Token | 值 | 用途 |
+### 颜色角色映射
+
+| YSS 角色 | 规范源 | 运行时映射 |
 | --- | --- | --- |
-| `colorPrimary` | `#3371ff` | 主按钮、链接、焦点、选中态、激活导航 |
-| `colorPrimaryHover` | `#4096ff` | 主色 hover |
-| `colorPrimaryActive` | `#0958d9` | 主色 active |
-| `colorSuccess` | `#52c41a` | 成功状态 |
-| `colorWarning` | `#faad14` | 警告状态 |
-| `colorError` | `#f5222d` | 错误状态 |
-| `colorInfo` | `#3371ff` | 信息提示 |
-| `colorBgLayout` | `#f0f2f5` | 页面背景 |
-| `colorBgContainer` | `#ffffff` | 卡片、表格、表单、面板容器 |
-| `colorBgElevated` | `#ffffff` | 弹窗、下拉、浮层 |
-| `colorText` | `rgba(0, 0, 0, 0.88)` | 主文本 |
-| `colorTextSecondary` | `rgba(0, 0, 0, 0.65)` | 次级文本 |
-| `colorTextTertiary` | `#8c8c8c` | 说明 / 弱提示 |
-| `colorTextQuaternary` | `#bfbfbf` | placeholder / disabled |
-| `colorBorder` | `#d9d9d9` | 主边框 |
-| `colorBorderSecondary` | `#f0f0f0` | 次级分割线 |
+| 品牌 seed | `colors.primary` | `colorPrimary` / `--brand-color-primary` |
+| 高对比主控件 | `components.button-primary*` | `--yss-color-primary-control*` 或组件 Token |
+| 页面 / 容器 / 浮层 | `colors.canvas-layout` / `surface` / `surface-elevated` | 对应 `colorBg*` / `--brand-color-bg-*` |
+| 主次文本 | `colors.text*` | 对应 `colorText*` / `--brand-color-text*` |
+| 功能状态 | `colors.success*` / `warning*` / `error*` / `info-bg` | 对应状态 semantic Token |
+| 边框 | `colors.border-secondary` | 对应边框 semantic Token |
 
 颜色使用规则：
 
 - 主色只表达全局主操作、链接、选中态和焦点态，不作为大面积背景装饰。
 - `success`、`warning`、`error`、`info` 只用于功能状态，不与品牌强调混用。
-- 预设色板如 `blue`、`purple`、`cyan`、`green`、`magenta`、`red`、`orange`、`yellow`、`volcano`、`geekblue`、`gold`、`lime` 主要用于 Tag、图表和分类可视化；其中 `blue-6` 仍可能是官方 `#1677ff`，不得当作品牌主色。
-- 产品代码中不要硬编码 `#ffffff`、`#fafafa` 等表面色，应引用语义 token。
-- 主色浅阶 `primary-1` 使用 `color-mix(in srgb, var(--primary-color) 10%, transparent)`，不要对 CSS 变量调用 Less `fade()`。
+- 预设色板主要用于 Tag、图表和分类可视化，不得当作项目品牌 seed。
+- 产品代码中不要硬编码表面色，应引用语义 Token。
+- 主色浅阶使用已投影的运行时变量，不要对 CSS 变量调用 Less `fade()`。
 
 ### 运行时主题变量
 
 默认亮色支持运行时切换。`:root` 中的短名别名必须指向 `--brand-*`，不要再维护第二套色值。
 
-| 运行时别名 | 指向 | 默认值 |
-| --- | --- | --- |
-| `--primary-color` | `--brand-color-primary` | `#3371ff` |
-| `--primary-color-hover` | `--brand-color-primary-hover` | `#4096ff` |
-| `--primary-color-active` | `--brand-color-primary-active` | `#0958d9` |
-| `--primary-1` | `color-mix(in srgb, var(--primary-color) 10%, transparent)` | 主色 10% 透明 |
-| `--primary-7` | `--primary-color-active` | `#0958d9` |
-| `--success-color` | `--brand-color-success` | `#52c41a` |
-| `--warning-color` | `--brand-color-warning` | `#faad14` |
-| `--error-color` | `--brand-color-error` | `#f5222d` |
-| `--info-color` | `--brand-color-info` | `#3371ff` |
-| `--text-color` | `--brand-color-text` | `rgba(0, 0, 0, 0.88)` |
-| `--text-color-secondary` | `--brand-color-text-secondary` | `rgba(0, 0, 0, 0.65)` |
-| `--border-color` | `--brand-color-border` | `#d9d9d9` |
-| `--border-color-split` | `--brand-color-border-secondary` | `#f0f0f0` |
-| `--bg-color` | `--brand-color-bg-layout` | `#f0f2f5` |
-| `--bg-color-container` | `--brand-color-bg-container` | `#ffffff` |
+| 运行时别名 | 指向 |
+| --- | --- |
+| `--primary-color` / hover / active | 对应 `--brand-color-primary*` |
+| `--success-color` / warning / error / info | 对应 `--brand-color-*` 状态变量 |
+| `--text-color*` | 对应 `--brand-color-text*` |
+| `--border-color*` | 对应 `--brand-color-border*` |
+| `--bg-color*` | 对应 `--brand-color-bg-*` |
+| `--yss-color-primary-control*` | 对应根 `DESIGN.md` 主控件变体 |
 
 切换主题时只改 `--brand-*` 或同步改短名别名；不要在页面里另写一套 Less 变量。
 
-### 排版
+### 排版角色映射
 
-| 层级 | 字号 | 字重 | 行高 | 用途 |
-| --- | --- | --- | --- | --- |
-| `fontSizeHeading1` | 38 | 600 | 1.25 | 大标题，慎用 |
-| `fontSizeHeading2` | 32 | 600 | 1.25 | 页面级标题 |
-| `fontSizeHeading3` | 26 | 600 | 1.25 | 重要分区标题 |
-| `fontSizeHeading4` | 22 | 600 | 1.25 | 分区标题 |
-| `fontSizeHeading5` | 18 | 600 | 1.25 | 卡片 / 面板标题 |
-| `fontSizeLG` | 18 | 400/600 | 1.571 | 强调正文 |
-| `fontSize` | 14 | 400 | 1.571 | 默认正文、控件、表格 |
-| `fontSizeSM` | 12 | 400 | 1.571 | 辅助信息、Tag |
-
-字体栈：
-
-```text
--apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"
-```
+| 角色 | 规范源 | 用途 |
+| --- | --- | --- |
+| 正文 | `typography.body` | 默认正文、控件、表格 |
+| 强调正文 | `typography.body-strong` | 表头与必要强调 |
+| 大 / 中标题 | `typography.heading-lg` / `heading-md` | 页面与分区层级 |
+| 辅助文本 | `typography.caption` | 说明、Tag 与次级信息 |
+| 按钮 | `typography.button` | 控件文字 |
 
 排版规则：
 
-- 中后台产品默认正文使用 14px，以保证信息密度和可扫描性。
-- UI 字重优先使用 400 和 600，不使用 700+ 的重粗字作为状态强调。
+- 字号、字重、行高和字体栈只从 `DESIGN.md` 对应排版角色读取。
+- 不使用额外重粗字作为状态强调。
 - 选中 / 激活状态优先通过颜色、边框、下划线和背景表达，不通过突然加粗制造跳动。
 - 不把 `Inter` 或其他品牌字体写成强制默认栈；项目若要引入品牌字体，必须先更新本文件和 token 快照。
 
-### 间距与尺寸
+### 间距、尺寸与圆角映射
 
-| Token | 值 | 用途 |
-| --- | --- | --- |
-| `sizeXXS` | 4 | 极小间距 |
-| `sizeXS` | 8 | 控件内小间距 |
-| `sizeSM` | 12 | 紧凑间距 |
-| `size` | 16 | 默认模块间距 |
-| `sizeMD` | 20 | 中等间距 |
-| `sizeLG` | 24 | 卡片内边距 / 分区间距 |
-| `sizeXL` | 32 | 页面大分区间距 |
-| `sizeXXL` | 48 | 大版块间距 |
-| `controlHeight` | 32 | 默认按钮、输入框、选择器高度 |
-| `controlHeightLG` | 40 | 大号控件 |
-| `controlHeightSM` | 24 | 小号控件 |
+| 角色 | 规范源 |
+| --- | --- |
+| 间距阶梯 | `spacing.*` |
+| 控件高度 | `components.button-*` / `input-*` 的 `height` |
+| 页面 / Card 内边距 | `components.page-shell` / `card-compact` |
+| 控件 / 容器圆角 | `rounded.*` 与组件变体的 `rounded` |
 
 布局规则：
 
-- 间距整体落在 4px 网格上。
+- 间距只使用 `spacing.*`；不要补写未登记的中间值。
 - 表单、筛选区、工具栏、表格和详情页应优先使用密集但有节奏的布局。
 - 不使用任意 magic number；如确需新增尺寸，应先判断是否要扩展 token。
 
+### 默认密度与可选紧凑密度
+
+原型和前端工程默认采用 Data Quality 全局主题：浅色、14px 正文、32px 控件、20px Card 内距，不默认开启 compact。下表仅用于明确选择紧凑模式的页面；紧凑模式消费 `tokens.compact.json`，不得再次压缩。
+
+| 场景 | Padding | Margin / Gap | 说明 |
+| --- | --- | --- | --- |
+| 页面内容区 | `components.page-shell.padding`；窄屏 `spacing.sm` | 一级区域 `spacing.md` | 页面外缘由布局容器统一提供，子模块不得重复增加外边距 |
+| Card | `components.card-compact.padding`；密集 Card 可用 `spacing.sm` | Card 之间 `spacing.sm` | Card header 与 body 使用同一水平 padding；禁止 Card 套 Card 制造层级 |
+| 筛选区 / 工具栏 | 垂直 `spacing.xs`、水平 `spacing.sm` | 控件间 `spacing.xs`；与主体 `spacing.sm` | 优先单行排列，空间不足时按字段组换行，不压缩到不可读 |
+| 表单 | 区块 `spacing.md` | 表单项与同行字段 `spacing.sm` | label 与控件的局部间距由组件 Token 负责，不在页面重复覆盖 |
+| 表格 / 列表 | 容器 `0` 或 `spacing.sm` | 工具栏与表格 `spacing.xs` | 表格内部 cell padding 使用组件紧凑规格，不用页面 CSS 逐列覆盖 |
+| Modal / Drawer | `spacing.md` | 内容区块 `spacing.sm`；操作区 `spacing.xs` | 复杂多步流程不塞入 Modal，改用独立页面或 Drawer 分区 |
+
+紧凑模式的计算值以 `docs/design/tokens/tokens.compact.json` 为准，它来自 `docs/design/tokens/theme.json` 的 seed 叠加一次 compact algorithm。业务页面只消费计算后的语义层级，不复制外部样例中的 `.m-*` / `.p-*` utility class，也不再次缩放。
+
+Margin 使用规则：组件自身默认不声明外部 margin，兄弟元素之间优先由父级 `gap` 管理；只有文档流语义或无法使用布局容器时才使用 margin，并仍限定在 `spacing.*` 阶梯内。禁止用负 margin 修补布局。
+
 ### 布局 token
 
-| Token | 值 | 用途 |
+| 角色 | 值来源 | 用途 |
 | --- | --- | --- |
-| `layoutHeaderHeight` | `64px` | 顶栏高度 |
-| `layoutSiderBackground` | `#001529` | 深色侧栏背景 |
-| `layoutBodyBackground` | `#f0f2f5` | 与 `colorBgLayout` 对齐的页面背景 |
-| `screenXS` | `480px` | 布局断点 |
-| `screenSM` | `576px` | 布局断点 |
-| `screenMD` | `768px` | 布局断点 |
-| `screenLG` | `992px` | 布局断点 |
-| `screenXL` | `1200px` | 布局断点 |
-| `screenXXL` | `1600px` | 布局断点 |
+| 顶栏 / 侧栏 / 页面背景 | `DESIGN.md` 的 `colors.surface` / `colors.canvas-layout` | 应用壳布局 |
+| Provider 断点 | 目标组件库精确版本的公开 Grid Token | 栅格和布局折叠 |
+| 截图视口 | 本文件“响应式与多端验收”矩阵 | 浏览器验收，不反写为组件 Token |
 
 这些断点用于栅格、隐藏工具类和布局折叠，不替换下方截图验收视口矩阵。
 
@@ -171,9 +162,9 @@ H2 高保真原型默认使用 Vue 3 + Antdv Next；React + Ant Design 6.x 只�
 | `borderRadiusXS` | 2 | 极小元素 |
 | `borderRadiusSM` | 4 | 小标签、小控件 |
 | `borderRadius` | 6 | 默认控件圆角 |
-| `borderRadiusLG` | 8 | 大容器 / 浮层 |
+| `borderRadiusLG` | 8 | Card、大容器 / 浮层 |
 
-保持“控件圆角小于或等于容器圆角”：默认控件 `6px`，小控件 `4px`，容器 `8px`。实现时以 `docs/design/tokens/tokens.default.json` 为准。
+保持“控件圆角小于或等于容器圆角”：控件使用 `rounded.sm/md`，Card 与普通容器使用 `rounded.lg`。更大的 panel 圆角属于局部产品扩展，不作为紧凑型默认值；确需使用时必须先登记规范角色，不能让同一页面任意混用。实现时以根 `DESIGN.md` 与 `docs/design/tokens/tokens.default.json` 为默认基线。
 
 ### 动效
 
@@ -196,11 +187,11 @@ H2 高保真原型默认使用 Vue 3 + Antdv Next；React + Ant Design 6.x 只�
 | --- | --- |
 | Button Primary | 每个决策区域只保留一个主按钮，表达最重要动作 |
 | Button Default | 次级动作默认使用描边 / 默认按钮，不与主操作争夺注意力 |
-| Input / Select | 默认高度 32px，focus 使用主色边框和可见焦点反馈 |
-| Card | 用作真实内容容器，默认白底，容器间距清晰；避免卡片套卡片 |
+| Input / Select | 使用 `components.input-*` 的高度与圆角；focus 使用主色边框和可见焦点反馈 |
+| Card | 使用 `components.card-compact`；外部 gap 使用 `spacing.sm`，避免卡片套卡片 |
 | Modal | 用于阻断式决策或关键表单，不承载复杂多页流程 |
 | Menu | 选中态使用淡蓝背景 + 主色文本，保证导航位置明确 |
-| Tabs | 激活态使用主色文本 + 2px 下划线，不使用背景填充 |
+| Tabs | 激活态使用主色文本 + Provider semantic indicator，不使用背景填充 |
 | Table | 表头使用浅表面色和 600 字重；默认不做斑马纹，hover 再强调行 |
 | Tag | 用于分类标签，不用于关键状态或错误提示 |
 | Alert | 用于语义反馈，状态由图标、浅色背景和文案共同表达 |
@@ -217,6 +208,33 @@ H2 高保真原型默认使用 Vue 3 + Antdv Next；React + Ant Design 6.x 只�
 - 表格、筛选区、批量操作、详情面板、抽屉、弹窗和状态提示应保持一致的控件语言。
 - 避免大面积渐变、装饰插画、夸张 hero、过多卡片化包装和单色系视觉堆叠。
 - 权限不足、只读、空数据、加载中、校验失败、冲突、提交成功等状态必须在设计阶段明确。
+
+## 原型交付规格
+
+原型交付物必须提供可在浏览器运行或复验的稳定入口，而不是只给截图、设计说明或生产前端代码。默认入口为 `docs/.scratch/<feature>/design/prototypes/index.html`；也可交付稳定 URL。关联资源保持相对路径可移植，不强制内联成单文件。
+
+低保真与状态矩阵经独立 `prototype-review` 后，按风险选择满足当前决策的最低档位：
+
+| 档位 | 用途 | 技术边界 | 最低验证 |
+|---|---|---|---|
+| H1 `visual-review` | 布局、密度、层级、文案和少量关键交互 | 语义 HTML/CSS/最小 JS 或设计工具导出；无需 Node、package、lockfile 或 AntD CLI | desktop/narrow 非空渲染、项目 Token、console、关键交互、基础键盘/焦点/对比度；zoom/reduced-motion 按影响 |
+| H2 `flow-review` | 主流程、权限、失败恢复、复杂联动和冲突 | 浏览器可运行流程；默认 HTML/CSS/JavaScript 离线资源包，场景可重复触发和重置 | H1 共同证据 + 主流程、关键异常、zoom/reduced-motion；视觉回归按风险 |
+
+- H1 不得为了“显得完整”创建空 `package.json`、lockfile 或 AntD 证据。H2 不得声明真实目标组件已验证。
+- 原型中识别出的生产组件假设与待验行为写入 `implementation_handoff`，由 `frontend_implementation_plan` 和 `frontend_implementation_verification` 承接；不得在原型阶段引入 `yss-ui`、目标 lockfile 或 Storybook。
+- 新视觉方向、信息架构不确定或有多个合理方案时执行三方案 ideation；复用已批准视觉模式时记录 source visual 与 `not-applicable` 理由。
+- 默认使用 Data Quality 的32px控件与20px Card内距，紧凑模式显式选择；页面 padding、gap、Card 圆角、Card padding 和控件高度必须在浏览器计算样式中可复核。
+- Design QA、浏览器验证和视觉目标使用同一视口与同一状态；默认 desktop `1440×900`、narrow `390×844`。
+- Design QA 统一覆盖 visual、layout、interaction、content、accessibility、cross-platform 六轴，不再复制第二份检查清单。
+- 交付包包含所有实际使用的本地资源和 Token 副本，登记摘要；复制到独立目录后以 `file://` 无网络复验。模板结构检查不替代浏览器证据。
+- 原型源码默认 throwaway；项目 Token、组件语义映射、状态、测试场景和验收标准可以进入下游，源码复用仍需 实现合同编译器、Slice Contract 与 TDD。
+- 用户确认只覆盖原型确认的决定、可操作范围、模拟/gap 与接受结论；HTML、story 或截图存在都不代表产品设计聚合门禁已经通过。
+
+### 无障碍覆盖
+
+品牌 Seed `colors.primary` 保持项目身份，不等于每个组件状态都必须直接使用该填充。普通文本或控件状态不满足 WCAG 2.2 AA 时，优先使用 `components.*` 的高对比变体或通过组件 Token 调整，并同时验证 default、hover、active、disabled 与 focus；不得用单页特例色绕过主题层。
+
+原型证据按档位覆盖无障碍：所有档位至少检查对比度、键盘导航、焦点顺序与可见焦点；H2 追加语义标签/Dialog、200% zoom、`prefers-reduced-motion`、目标尺寸及适用扫描。组件库默认能力不能替代对真实页面 DOM 与交互的验证。
 
 ## 响应式验收矩阵
 
@@ -248,16 +266,23 @@ H2 高保真原型默认使用 Vue 3 + Antdv Next；React + Ant Design 6.x 只�
 如果前端使用 React + Ant Design：
 
 - 使用 `ConfigProvider` 注入 `docs/design/tokens/theme.json` 中的 theme 配置。
+- 默认采用 Data Quality 浅色与 32px 控件；仅显式紧凑模式使用 `compactAlgorithm`；暗色工作界面组合 `darkAlgorithm` 与 `compactAlgorithm`。seed 与计算结果分别从 `theme.json`、`tokens.compact.json` 读取。
 - 组件样式优先通过 Ant Design token、component token、CSS variables 或主题算法表达。
 - 消息、通知、Modal 静态方法应使用 `App`、hook API 或 context holder，避免主题上下文丢失。
 - 暗色模式使用 `darkAlgorithm` 或 `docs/design/tokens/variables.dark.css`，不要手工反转颜色。本轮只同步了暗色的字体栈和圆角 seed；完整暗色色板仍是历史算法结果，启用暗色前应再派生一次。
-- 紧凑模式使用 `compactAlgorithm` 或 `docs/design/tokens/tokens.compact.json`，不要逐组件压缩高度。
+- 紧凑模式默认使用 `compactAlgorithm` 或 `docs/design/tokens/tokens.compact.json`，不要逐组件压缩高度；选择紧凑模式的原型交付物按紧凑 token 验收实际 padding、gap、Card 圆角和控件高度。
+
+H1/H2 原型使用 HTML/CSS/JavaScript：
+
+- 使用根 `DESIGN.md` 派生的本地 Token CSS，保留来源摘要。
+- 规范直出按 Token、状态矩阵和页面模式验收；已有批准视觉稿时按相同视口与状态比对。首版截图通过审查与用户确认后冻结，不能自我比较作为质量证明。
+- 提供场景入口和重置，覆盖关键异常恢复、代表性业务内容、长文本与窄屏。复杂控件的生产能力假设进入既有 handoff。
 
 如果前端不是 Ant Design：
 
 - 先把 `docs/design/tokens/tokens.default.json` 转为项目设计 token，再映射到目标 UI 库。
 - 保留组件语义和状态语义，不要只复制颜色。
-- 尽量保持 32px 默认控件高度、14px 默认字号、4px 间距网格和三层表面模型。
+- 保持 `theme.json` 的基础 seed，并映射 `tokens.compact.json` 的计算结果；排版、间距和表面角色从根 `DESIGN.md` 读取。
 - 运行时动态换肤使用 `--primary-color` 等短名别名，或直接改 `--brand-*`。
 
 ## 设计审查清单
@@ -275,16 +300,15 @@ H2 高保真原型默认使用 Vue 3 + Antdv Next；React + Ant Design 6.x 只�
 
 ## 后续落地 TODO
 
-- 将 `docs/design/tokens/theme.json` 接入前端工程主题配置。
+- 将 `docs/design/tokens/theme.json` 作为 Data Quality 默认主题接入原型主题配置。
 - 将 `docs/design/tokens/variables.css` 中的 `--brand-*` 与运行时别名纳入项目 token 管理。
 - 如果项目启用暗色模式，用 `darkAlgorithm` 按新 seed 重派生 `docs/design/tokens/tokens.dark.json`，并补充截图验收。
-- 如果项目存在高密度表格 / 审批 / 运营台，补充 `docs/design/tokens/tokens.compact.json` 的适用边界。
+- 让 H1/H2 原型适配器默认接入项目 Token，并在浏览器证据中记录实际计算后的 padding、gap、Card 圆角和控件高度。
 
-## Ant Design v6 原型补充基线
+## HTML 原型补充基线
 
-本节根据 `antdv6-design.md` 的设计说明提炼，用于高保真原型和后续前端实现，不替代项目 token。
+参见 `.agents/skills/yss-prototype-stage/references/html-prototype-practices.md`。复用现有六轴 QA 与 Visual Baseline，新增能力只补充其执行方式，不另建交接文档。原生语义优先，弹窗与自定义控件的 ARIA 属性必须对应真实键盘/焦点行为。样式采用项目 Token，关键反馈保留可读文本，场景重置后再采集浏览器证据。
 
-- 先按 `bg-layout`、`bg-container`、`bg-elevated`、文本、边框、状态、圆角和阴影等 semantic token 角色设计，再映射到 `ConfigProvider`、组件 token 或 CSS variables；不得用页面局部色值替代主题层。
-- 默认亮色使用 `theme.defaultAlgorithm`；暗色和紧凑密度通过 theme algorithm 切换，禁止手工反色或逐控件压缩。
-- 每个决策区域只保留一个 single primary action。保存、提交、审批、发布、导出和重试等动作必须提供 interaction feedback；不可逆或高风险动作使用确认弹窗。
-- 对实际字号、图标和背景复核 accessibility contrast。默认 token 不足时，通过种子 token 或组件 token 调整，不引入单页特例色。
+## AntD 条件预构建
+
+高保真默认原生 HTML；简化模拟影响关键评审结论时，按原型技能的 `references/antd-integration.md` 条件使用 `react-antd-prebuilt`。交付格式与视觉权威不变；React 仅作为随包浏览器运行时，作者依赖与构建工具不交付给接收者。

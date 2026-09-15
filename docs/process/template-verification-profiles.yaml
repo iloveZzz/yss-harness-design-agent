@@ -180,10 +180,9 @@ groups:
       - { run: "node .agents/skills/yss-stage-decision/tests/run-scenarios.mjs" }
       - { run: "node .agents/skills/yss-research/tests/run-scenarios.mjs" }
       - { run: "node .agents/skills/yss-prototype-stage/tests/run-scenarios.mjs" }
+      - { run: "node --test .agents/skills/yss-prototype-stage/tests/antd-reference.test.mjs" }
       - { run: "node .agents/skills/yss-prototype-stage/scripts/visual-baseline-contract.mjs validate docs/design/templates/visual-baseline-template.yaml --allow-template" }
       - { run: "node --test .agents/skills/yss-design-system/scripts/validate-frontmatter.test.mjs" }
-      - { run: "node --test .agents/skills/yss-antd-design/scripts/validate-frontmatter.test.mjs" }
-      - { run: "node .agents/skills/yss-antdv-next-design/tests/run-scenarios.mjs" }
   collaboration:
     commands:
       - { run: "scripts/verify-digital-human-roles" }

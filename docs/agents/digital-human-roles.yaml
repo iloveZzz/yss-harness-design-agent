@@ -112,7 +112,7 @@ roles:
     title: YSS 产品经理
     stages: [stage.plan, stage.spec-architecture, stage.product-design, stage.ticket-formalization]
     draft_artifact_ids: [artifact.product-overview, artifact.functional-architecture, artifact.interaction-spec, artifact.state-matrix, artifact.prototype-confirmation, artifact.business-ticket-set]
-    core_skills: [yss-strategic-design, yss-design-system, yss-prototype-stage, prototype-review, yss-antdv-next-design]
+    core_skills: [yss-strategic-design, yss-design-system, yss-prototype-stage, prototype-review]
     forbidden_skills: [yss-tactical-design, yss-openapi-governance, yss-implementation-contract-compiler, yss-domain, yss-ui, yss-page-module-development, yss-web-controller, yss-repository, implement, tdd]
     description: >-
       Own priority, product-design impact, interaction, state matrix, and

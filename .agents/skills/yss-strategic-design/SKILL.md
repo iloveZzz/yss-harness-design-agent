@@ -62,11 +62,13 @@ Matt 的 `ask-matt`、`grill-me`、`grill-with-docs`、`to-spec`、`to-tickets`�
 | 入口分诊 | 身份、影响面、最近可信阶段 | `yss-strategic-design` + `triage` / `wayfinder`（兼容入口） | `yss-project.yaml` 合法且影响面可解释 |
 | 机会、目标与业务故事 | 用户/MVP/非目标/成功标准、业务故事、规则示例、测试 seam；需要时补充业务边界与规则设计和方案决策包 | `work-unit.plan-opportunity` + `work-unit.plan-requirements` + `work-unit.domain-strategy-design` + `work-unit.stage-decision`；市场/竞品事实用 `competitive-intelligence`，技术/标准事实用 `yss-research:technical-evidence`，业务边界与方案决策证据用 `yss-research:strategy-evidence`；业务词汇和责任区梳理用 `domain-modeling`；`grill-with-docs` 为兼容入口 | 未决事实已由 `yss-research` 核验或 handoff；业务板块、责任区、统一业务词汇、协作关系和不可违反规则可审查；方案决策包完成必要确认 |
 | Spec/功能架构 | Spec、产品总体设计、功能架构；必要时 Spec Delta | 原生 `work-unit.spec-synthesis`；`to-spec` 为兼容入口 | 初稿先为 `ready-for-human`；只有 Spec baseline 会签批准后资产才为 `approved` 并进入下游 |
-| 原型设计 | 交互说明、低保真、状态矩阵、H1/H2 原型交付物、评审记录 | `yss-design-system` → `yss-prototype-stage` → 默认 `yss-antdv-next-design` / 显式 React 兼容 `yss-antd-design`（仅原型事实）→ Codex `product-design:index`（非 Codex 交付等价合同） | `gate.prototype-reviewed`、`gate.prototype-verified`、`gate.user-confirmation` 均有证据 |
+| 产品设计与页面验证 | 交互说明、低保真评审、状态矩阵、H1/H2 原型、视觉基线与用户确认 | `yss-prototype-stage` 持有合同，配合 `yss-design-system` 和独立 `prototype-review`；默认 `html-css-js` 适配器，条件使用独立视觉稿 | 消费当前根 `DESIGN.md` 与所选主题快照；视觉、状态和流程证据完整，产品设计取得当前真实负责人确认 |
 | 业务方案交接 | 业务方案交接包、研发待决问题和证据索引 | `yss-stage-decision` + `yss-strategic-design`；下游研发团队接管技术设计 | `artifact.domain-strategy`、`artifact.stage-decision-package`、Spec、适用的原型或既有 UI 基线、业务级 Ticket 已批准且版本当前，交接包字段完整；本地不生成技术模型 |
 | 技术分析（下游兼容阶段） | OpenAPI Draft/Freeze、数据架构、工程基线和架构审查 | 下游研发团队的技术技能 | 不属于本 profile 的本地工作单元 |
 | Ticket 正式化 | 业务级功能 Ticket 集（范围、优先级、验收、依赖、风险） | 本 profile 使用 `work-unit.business-ticket-formalization`；`to-tickets` 为兼容入口 | 业务行为可验证且不含 Adapter/Application/Domain/Infrastructure 技术拆分；下游再细化垂直切片 |
 | 下游接管 | 技术设计、工程契约和实现 | 交接给下游研发团队；本 skill 不调用实现技能 | 业务方案交接包已批准且下游上下文、责任人和版本边界完整 |
+
+页面验证默认采用根 `DESIGN.md` 中的 Data Quality 浅色主题；AntD v6 是设计参考，组件运行时由下游实现合同确定。暗色或紧凑模式仅在明确选择时启用，并使用对应派生快照。交接复用 `prototype-evidence.yaml` 的 `design_baseline`（规范与 Token 引用、摘要）和 `visual_baseline`，视觉基线的 `cases[].theme` 与截图保持一致；按既有 Handoff v5 合同核验当前证据，不另建主题合同。脚手架与生产前端实现由下游研发 profile 接管。
 
 Plan → Spec（含正式草稿、恢复与显式 `to-spec`）写入前，按 `docs/plan/entry-review.md` 持久化审阅包并运行 `node scripts/verify-plan-spec-entry <state.yaml>`。检查默认 pending，缺项、过期或无真实回复即阻断；独立调研可继续。
 

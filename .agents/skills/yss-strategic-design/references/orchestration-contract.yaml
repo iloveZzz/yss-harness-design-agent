@@ -196,7 +196,7 @@ skill_source_contract:
 lifecycle_native_entries:
   default_entry: yss-strategic-design
   formal_artifact_owner: yss-strategic-design
-  user_confirmation_required_at: [spec-baseline, prototype-confirmation, strategic-design-handoff]
+  user_confirmation_required_at: [plan-approval, spec-baseline, product-design-when-applicable]
   compatibility_entries:
     to-spec: lifecycle-validate-and-accept
     to-tickets: lifecycle-validate-and-accept
@@ -218,13 +218,15 @@ work_unit_routes:
     skills: [grilling, domain-modeling]
     applies_when: requirements_or_domain_boundary_unclear
     not_applicable_reason: requirements_already_confirmed
+    review_bundle: review-bundle.plan
+    human_gate: gate.plan-approved
   work-unit.domain-strategy-design:
     native: {source: yss-strategic-design, skill: yss-stage-decision, invocation_mode: model-invoked}
     primary_skill: yss-stage-decision
     supporting_skills: [domain-modeling, yss-research, grilling]
     skills: [yss-stage-decision, domain-modeling, yss-research, grilling]
     research_contract: {profile: strategy-evidence, mode_before_gate: evidence-audited, artifact_owner: yss-research, downstream_owner: yss-stage-decision}
-    human_gate: domain-strategy-approved
+    internal_check: check.domain-strategy-approved
     applies_when: domain_boundary_or_language_or_core_rule_impact
     not_applicable_reason: no_domain_strategy_impact
   work-unit.stage-decision:
@@ -233,7 +235,8 @@ work_unit_routes:
     supporting_skills: [domain-modeling, yss-research]
     skills: [yss-stage-decision, domain-modeling, yss-research]
     research_contract: {profile: strategy-evidence, mode_before_gate: evidence-audited, artifact_owner: yss-research, downstream_owner: yss-stage-decision}
-    human_gate: stage-decision-package-approved
+    internal_check: check.stage-decision-package-approved
+    aggregate_gate: gate.plan-approved
     applies_when: plan_to_spec_requires_stable_decision_package
     not_applicable_reason: existing_approved_stage_decision_current
   work-unit.spec-synthesis:
@@ -242,7 +245,7 @@ work_unit_routes:
     supporting_skills: [domain-modeling]
     compatibility: {source: mattpocock/skills, skill: to-spec, invocation_mode: reference, formal_artifact_owner: explicit-user-entry}
     skills: [domain-modeling]
-    human_gate: spec-baseline
+    human_gate: gate.spec-baseline-approved
     applies_when: new_feature_or_behavior_change
     not_applicable_reason: existing_frozen_spec_is_current
   work-unit.prototype-design:
@@ -250,7 +253,7 @@ work_unit_routes:
     primary_skill: yss-prototype-stage
     supporting_skills: [prototype-review, yss-design-system, product-design:index]
     skills: [prototype-review, yss-design-system, yss-prototype-stage, product-design:index]
-    human_gate: prototype-confirmation
+    human_gate: gate.product-design-approved
     applies_when: product_design_impact
     not_applicable_reason: no_ui_or_product_design_impact
   work-unit.business-ticket-formalization:
@@ -267,7 +270,7 @@ work_unit_routes:
     primary_skill: yss-strategic-design
     supporting_skills: []
     skills: [yss-strategic-design]
-    human_gate: strategic-design-handoff-approved
+    human_gate: gate.strategic-design-handoff-approved
     post_approval_action:
       command: scripts/strategic-handoff finalize --source-root <project-root> --handoff <approved-v5-ref>
       output_root: docs/deliveries/strategic/<handoff-id>/<version>

@@ -60,17 +60,17 @@ Matt 的 `ask-matt`、`grill-me`、`grill-with-docs`、`to-spec`、`to-tickets`�
 | 阶段 | 必需产物/门禁 | 工作单元与技能 | 通过条件 |
 |---|---|---|---|
 | 入口分诊 | 身份、影响面、最近可信阶段 | `yss-strategic-design` + `triage` / `wayfinder`（兼容入口） | `yss-project.yaml` 合法且影响面可解释 |
-| 机会、目标与业务故事 | 用户/MVP/非目标/成功标准、业务故事、规则示例、测试 seam；需要时补充业务边界与规则设计和方案决策包 | `work-unit.plan-opportunity` + `work-unit.plan-requirements` + `work-unit.domain-strategy-design` + `work-unit.stage-decision`；市场/竞品事实用 `competitive-intelligence`，技术/标准事实用 `yss-research:technical-evidence`，业务边界与方案决策证据用 `yss-research:strategy-evidence`；业务词汇和责任区梳理用 `domain-modeling`；`grill-with-docs` 为兼容入口 | 未决事实已由 `yss-research` 核验或 handoff；业务板块、责任区、统一业务词汇、协作关系和不可违反规则可审查；方案决策包完成必要确认 |
+| 机会、目标与业务故事 | 用户/MVP/非目标/成功标准、业务故事、规则示例、测试 seam；需要时补充业务边界与规则设计和方案决策包 | `work-unit.plan-opportunity` + `work-unit.plan-requirements` + `work-unit.domain-strategy-design` + `work-unit.stage-decision`；市场/竞品事实用 `competitive-intelligence`，技术/标准事实用 `yss-research:technical-evidence`，业务边界与方案决策证据用 `yss-research:strategy-evidence`；业务词汇和责任区梳理用 `domain-modeling`；`grill-with-docs` 为兼容入口 | 产品经理用一个 `review-bundle.plan` 任务逐项关闭命中的 `check.domain-strategy-approved` 与 `check.stage-decision-package-approved`，再以同一 `review_session_id` 汇总到 `gate.plan-approved`；只针对当前 Plan 审阅包请求一次真实用户确认 |
 | Spec/功能架构 | Spec、产品总体设计、功能架构；必要时 Spec Delta | 原生 `work-unit.spec-synthesis`；`to-spec` 为兼容入口 | 初稿先为 `ready-for-human`；只有 Spec baseline 会签批准后资产才为 `approved` 并进入下游 |
-| 产品设计与页面验证 | 交互说明、低保真评审、状态矩阵、H1/H2 原型、视觉基线与用户确认 | `yss-prototype-stage` 持有合同，配合 `yss-design-system` 和独立 `prototype-review`；默认 `html-css-js` 适配器，条件使用独立视觉稿 | 消费当前根 `DESIGN.md` 与所选主题快照；视觉、状态和流程证据完整，产品设计取得当前真实负责人确认 |
-| 业务方案交接 | 业务方案交接包、研发待决问题和证据索引 | `yss-stage-decision` + `yss-strategic-design`；下游研发团队接管技术设计 | `artifact.domain-strategy`、`artifact.stage-decision-package`、Spec、适用的原型或既有 UI 基线、业务级 Ticket 已批准且版本当前，交接包字段完整；本地不生成技术模型 |
+| 产品设计与页面验证 | 交互说明、低保真评审、状态矩阵、H1/H2 原型、视觉基线与用户确认 | `yss-prototype-stage` 持有合同，配合 `yss-design-system` 和独立 `prototype-review`；默认 `html-css-js` 适配器，条件使用独立视觉稿 | `check.prototype-reviewed`、`check.prototype-verified` 通过后关闭 `gate.product-design-approved`；无 UI/体验取舍时带依据标记 `not-applicable`，不暂停询问 |
+| 业务方案交接 | 业务方案交接包、研发待决问题和证据索引 | `yss-stage-decision` + `yss-strategic-design`；下游研发团队接管技术设计 | Plan、Spec 和适用产品设计批准均当前；需求经理独立复核产品经理起草的完整包并关闭 `gate.strategic-design-handoff-approved`，整包 Fresh Verification 通过；不再请求新的用户回复 |
 | 技术分析（下游兼容阶段） | OpenAPI Draft/Freeze、数据架构、工程基线和架构审查 | 下游研发团队的技术技能 | 不属于本 profile 的本地工作单元 |
 | Ticket 正式化 | 业务级功能 Ticket 集（范围、优先级、验收、依赖、风险） | 本 profile 使用 `work-unit.business-ticket-formalization`；`to-tickets` 为兼容入口 | 业务行为可验证且不含 Adapter/Application/Domain/Infrastructure 技术拆分；下游再细化垂直切片 |
 | 下游接管 | 技术设计、工程契约和实现 | 交接给下游研发团队；本 skill 不调用实现技能 | 业务方案交接包已批准且下游上下文、责任人和版本边界完整 |
 
 页面验证默认采用根 `DESIGN.md` 中的 Data Quality 浅色主题；AntD v6 是设计参考，组件运行时由下游实现合同确定。暗色或紧凑模式仅在明确选择时启用，并使用对应派生快照。交接复用 `prototype-evidence.yaml` 的 `design_baseline`（规范与 Token 引用、摘要）和 `visual_baseline`，视觉基线的 `cases[].theme` 与截图保持一致；按既有 Handoff v5 合同核验当前证据，不另建主题合同。脚手架与生产前端实现由下游研发 profile 接管。
 
-Plan → Spec（含正式草稿、恢复与显式 `to-spec`）写入前，按 `docs/plan/entry-review.md` 持久化审阅包并运行 `node scripts/verify-plan-spec-entry <state.yaml>`。检查默认 pending，缺项、过期或无真实回复即阻断；独立调研可继续。
+Plan → Spec（含正式草稿、恢复与显式 `to-spec`）写入前，按 `docs/plan/entry-review.md` 持久化 `bundled-plan-review-v1` 审阅包、适用检查的组合审查、独立 Plan 批准记录与当前用户回复，并运行 `node scripts/verify-plan-spec-entry <state.yaml>`。检查默认 pending，缺项、分散审查、会话不一致、过期或无真实回复即阻断；旧审阅包保持兼容，独立调研可继续。
 
 ## 结果与暂停
 
@@ -86,4 +86,4 @@ Plan → Spec（含正式草稿、恢复与显式 `to-spec`）写入前，按 `d
 
 ## 当前关键决定
 
-保留 Plan 审阅包确认；Spec 基线和命中影响的产品设计分别核验真实负责人的当前回复。按 `docs/agents/digital-human-roles.yaml.user_decision_policy`、`scripts/verify-approval-record --require-approved` 和 checkpoint 校验推进，数字人不能代答。等待状态可保存，缺当前决定不得恢复流转或宣布完成。交接复用按 `docs/process/strategic-handoff-package.md`，引用同一证明并核验范围、依据和风险；无变化不重复询问，变化只补受影响确认。
+真实用户决定只覆盖 `gate.plan-approved`、`gate.spec-baseline-approved` 与命中 UI/体验影响的 `gate.product-design-approved`。领域战略、阶段决策、原型评审和浏览器验证写入 `check.*`；`gate.strategic-design-handoff-approved` 由需求经理独立复核产品经理起草的交接包，并结合 Fresh Verification 关闭，不产生新的用户询问。旧 gate 与旧批准只允许历史读取；活动资产命中时返回 `STRATEGIC_GATE_MIGRATION_REQUIRED`，按 `docs/process/strategic-gate-migration.md` 生成计划、应用迁移并重新确认聚合资产。

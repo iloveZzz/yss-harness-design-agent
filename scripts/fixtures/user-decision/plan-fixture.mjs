@@ -16,15 +16,20 @@ export function buildPlanFixture(root) {
   const c = parseContextContract({ root });
   write('reconciliation.json', { schema_version: 1, repository_mode: 'project-instance', stage: 'stage.plan', work_unit: 'work-unit.plan-requirements', status: 'reconciled', context_snapshot: { context_ref: c.context_ref, context_schema_version: c.context_schema_version, document_digest: c.document_digest, referenced_terms_digest: resolveContextTermRefs(c, []).referenced_terms_digest, term_refs: [] }, changes: { added: [], updated: [], deprecated: [] }, unresolved_terms: [], evidence_refs: ['CONTEXT.md'] });
   const policy = planEntryPolicy({ root });
-  const review = { schema_version: 1, kind: 'plan-entry-review', feature_id: 'feature.demo', plan_ref: 'plan.md', context_reconciliation_ref: 'reconciliation.json', basis: ['plan.md', 'CONTEXT.md', 'docs/process/lifecycle-registry.yaml', 'reconciliation.json'].map(ref => ({ ref, digest: decisionDigest(readFileSync(path.join(root, ref))) })), checks: Object.fromEntries(policy.required_checks.map(id => [id, { status: 'passed', evidence_refs: ['plan.md'] }])), open_items: [], impacts: { domain_strategy: false, stage_decision: false }, gates: Object.fromEntries(Object.keys(policy.gate_impacts).map(id => [id, { status: 'not-applicable', reason: '本次仅修订已确认范围内的细节，不改变边界、规则或阶段合同', evidence_refs: ['plan.md'] }])) };
+  const review = { schema_version: 1, kind: 'plan-entry-review', review_protocol: 'bundled-plan-review-v1', gate_id: 'gate.plan-approved', feature_id: 'feature.demo', plan_ref: 'plan.md', context_reconciliation_ref: 'reconciliation.json', basis: ['plan.md', 'CONTEXT.md', 'docs/process/lifecycle-registry.yaml', 'reconciliation.json'].map(ref => ({ ref, digest: decisionDigest(readFileSync(path.join(root, ref))) })), checks: Object.fromEntries(policy.required_checks.map(id => [id, { status: 'passed', evidence_refs: ['plan.md'] }])), open_items: [], impacts: { domain_strategy: false, stage_decision: false }, internal_checks: Object.fromEntries(Object.keys(policy.check_impacts).map(id => [id, { status: 'not-applicable', reason: '本次仅修订已确认范围内的细节，不改变边界、规则或阶段合同', evidence_refs: ['plan.md'] }])) };
   const reviewRef = path.join(root, 'review.json');
   const save = () => write(reviewRef, review);
   save();
-  const approval = buildDecisionFixture(path.join(root, 'approval'), { boundary: 'plan-conclusion', subjectRef: reviewRef });
+  const approval = buildDecisionFixture(path.join(root, 'approval'), { boundary: 'gate.plan-approved', subjectRef: reviewRef });
+  const planApprovalRef = path.join(root, 'plan-approval.json');
+  const planApproval = { schema_version: 1, gate_id: 'gate.plan-approved', decision: 'approved', actor_kind: 'digital-human', role_id: 'role.product-manager', runtime_id: 'runtime.skill-projection', principal_ref: 'test-only.product-reviewer', drafter_role_id: 'role.requirements-manager', drafter_principal_ref: 'test-only.requirements-drafter', subject_ref: reviewRef, subject_digest: '', approval_scope: ['feature.demo'], user_decision_ref: approval.ref, review_session_id: 'review-session.plan.demo', evidence_refs: [reviewRef] };
+  const savePlanApproval = () => { planApproval.subject_digest = decisionDigest(readFileSync(reviewRef)).slice(7); write(planApprovalRef, planApproval); };
+  savePlanApproval();
   const reapprove = () => {
     save();
     approval.record.request.items[0].subject.digest = decisionDigest(readFileSync(reviewRef));
     approval.present(); approval.record.responses = []; approval.respond(); approval.save();
+    savePlanApproval();
   };
-  return { root, review, save, write, approval, reapprove, state: { feature_id: review.feature_id, plan_review_ref: reviewRef, plan_user_decision_ref: approval.ref, user_decisions: [approval.requirement] } };
+  return { root, review, save, write, approval, planApproval, planApprovalRef, savePlanApproval, reapprove, state: { feature_id: review.feature_id, plan_review_ref: reviewRef, plan_user_decision_ref: approval.ref, plan_approval_ref: planApprovalRef, user_decisions: [approval.requirement] } };
 }

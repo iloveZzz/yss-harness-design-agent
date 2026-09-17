@@ -1,7 +1,8 @@
 import path from 'node:path';
 import { verifyContextReconciliation } from './context-reconciliation.mjs';
 import { decisionIO, decisionDigest, assertUserDecisionRequirement } from './user-decision.mjs';
-import { validateApprovalRecord } from './approval-record.mjs';
+import { validateApprovalRecord, selectApprovalRecord } from './approval-record.mjs';
+import { loadDigitalHumanRoles } from './digital-human-roles.mjs';
 
 const fail = message => { throw new TypeError(`plan-spec-entry-blocked: ${message}`); };
 const text = value => typeof value === 'string' && value.trim().length > 0;
@@ -12,6 +13,8 @@ export function planEntryPolicy(options = {}) {
   if (!policy?.required_checks?.length || !policy?.gate_impacts) fail('缺少 Plan 入口策略');
   const gateIds = registry.gates.filter(gate => gate.stage === 'stage.plan').map(gate => gate.id).sort();
   if (JSON.stringify(gateIds) !== JSON.stringify(Object.keys(policy.gate_impacts).sort())) fail('Plan 门禁触发策略覆盖不完整');
+  const checkIds = registry.checks.filter(check => check.stage === 'stage.plan').map(check => check.id).sort();
+  if (JSON.stringify(checkIds) !== JSON.stringify(Object.keys(policy.check_impacts || {}).sort())) fail('Plan 内部检查触发策略覆盖不完整');
   return policy;
 }
 
@@ -21,7 +24,9 @@ export function assertPlanSpecEntry(state, options = {}) {
   const io = decisionIO(options);
   const policy = planEntryPolicy(options);
   const review = io.document(state.plan_review_ref);
-  if (review.schema_version !== 1 || review.kind !== 'plan-entry-review' || review.feature_id !== state.feature_id) fail('审阅包身份或范围不匹配');
+  if (review.schema_version !== 1 || review.kind !== 'plan-entry-review' || review.gate_id !== 'gate.plan-approved' || review.feature_id !== state.feature_id) fail('审阅包身份或范围不匹配');
+  const bundled = review.review_protocol != null;
+  if (bundled && review.review_protocol !== 'bundled-plan-review-v1') fail(`不支持的 Plan 审查协议: ${review.review_protocol}`);
   if (!Array.isArray(review.basis) || !review.basis.length) fail('缺少带摘要依据');
   const basis = new Map();
   for (const asset of review.basis) {
@@ -48,30 +53,62 @@ export function assertPlanSpecEntry(state, options = {}) {
     for (const field of ['noncritical_reason', 'owner', 'resolution_point', 'downstream_recipient']) if (!text(item[field])) fail(`延期项缺少 ${field}`);
     evidence(item.evidence_refs);
   }
-  for (const [gateId, impact] of Object.entries(policy.gate_impacts)) {
+  const applicableChecks = [];
+  const approvalRefs = new Set();
+  for (const [gateId, impact] of Object.entries(policy.check_impacts)) {
     if (typeof review.impacts?.[impact] !== 'boolean') fail(`未评估影响面: ${impact}`);
-    const gate = review.gates?.[gateId];
+    const gate = review.internal_checks?.[gateId];
     evidence(gate?.evidence_refs);
     if (review.impacts[impact]) {
       if (gate.status !== 'approved' || !basis.has(gate.approval_ref) || !basis.has(gate.subject_ref)) fail(`命中门禁未批准或未绑定依据: ${gateId}`);
-      const record = io.document(gate.approval_ref);
+      const source = io.document(gate.approval_ref);
+      const record = selectApprovalRecord(source, gateId);
       if (record.gate_id !== gateId || record.subject_ref !== gate.subject_ref || !gate.approval_scope?.includes(state.feature_id) || JSON.stringify([...(gate.approval_scope || [])].sort()) !== JSON.stringify([...(record.approval_scope || [])].sort())) fail(`会签资产或范围不匹配: ${gateId}`);
+      if (bundled) {
+        if (source.kind !== 'review-bundle') fail(`PLAN_REVIEW_BUNDLE_REQUIRED: ${gateId}`);
+        if (record.subject_digest !== decisionDigest(io.bytes(gate.subject_ref)).slice(7)) fail(`组合审查资产摘要不匹配: ${gateId}`);
+        applicableChecks.push(gateId);
+        approvalRefs.add(gate.approval_ref);
+      }
       validateApprovalRecord(record, { ...options, requireApproved: true });
-      assertUserDecisionRequirement({ boundary: gateId, subject_ref: gate.subject_ref, scope: gate.approval_scope, user_decision_ref: record.user_decision_ref }, options);
     } else if (gate.status !== 'not-applicable' || !text(gate.reason)) fail(`未命中门禁须有原因和依据: ${gateId}`);
+  }
+  let reviewBundle = null;
+  if (bundled && applicableChecks.length) {
+    if (approvalRefs.size !== 1) fail('PLAN_REVIEW_BUNDLE_REQUIRED: Plan 内部检查必须共用一个 review-bundle');
+    const approvalRef = [...approvalRefs][0];
+    reviewBundle = io.document(approvalRef);
+    const roles = options.rolesDoc || loadDigitalHumanRoles();
+    const declared = (roles.gate_policy.review_execution?.review_bundles || []).find(item => item.aggregate_gate === 'gate.plan-approved');
+    if (!declared || reviewBundle.bundle_id !== declared.bundle_id || reviewBundle.work_unit_id !== declared.work_unit) fail('Plan review-bundle 与角色策略不匹配');
+    const actual = [...reviewBundle.reviews.map(item => item.gate_id)].sort();
+    if (JSON.stringify(actual) !== JSON.stringify([...applicableChecks].sort())) fail('Plan review-bundle 必须只包含本次实际命中的内部检查');
   }
   // 门禁依赖不能通过将上游标成 N/A 来跳过。
   const registry = io.document('docs/process/lifecycle-registry.yaml');
-  for (const gate of registry.gates.filter(gate => gate.stage === 'stage.plan')) {
-    if (review.gates[gate.id]?.status === 'approved') {
-      for (const dependency of gate.requires_gates || []) if (review.gates[dependency]?.status !== 'approved') fail(`门禁依赖未批准: ${dependency}`);
+  for (const gate of registry.checks.filter(gate => gate.stage === 'stage.plan')) {
+    if (review.internal_checks[gate.id]?.status === 'approved') {
+      for (const dependency of gate.requires_checks || []) if (review.internal_checks[dependency]?.status !== 'approved') fail(`门禁依赖未批准: ${dependency}`);
     }
   }
   const reconciliation = io.document(review.context_reconciliation_ref);
   if (reconciliation.status !== 'reconciled' || reconciliation.repository_mode !== 'project-instance') fail('Context 未调和');
   try { verifyContextReconciliation(path.resolve(io.root, review.context_reconciliation_ref), { root: io.root }); }
   catch (error) { fail(`Context reconciliation 验证失败: ${error.message}\n`); }
-  assertUserDecisionRequirement({ boundary: 'plan-conclusion', subject_ref: state.plan_review_ref, scope: [state.feature_id], user_decision_ref: state.plan_user_decision_ref }, options);
+  assertUserDecisionRequirement({ boundary: 'gate.plan-approved', subject_ref: state.plan_review_ref, scope: [state.feature_id], user_decision_ref: state.plan_user_decision_ref, continuation_ref: state.plan_continuation_ref }, options);
+  if (bundled) {
+    const approvalRef = state.plan_approval_ref || state.gates?.['gate.plan-approved']?.approval_ref;
+    if (!text(approvalRef)) fail('bundled-plan-review-v1 缺少 plan_approval_ref');
+    const approval = io.document(approvalRef);
+    if (approval.kind === 'review-bundle' || approval.gate_id !== 'gate.plan-approved') fail('Plan 聚合门禁必须使用独立批准记录');
+    if (approval.subject_ref !== state.plan_review_ref || approval.subject_digest !== decisionDigest(io.bytes(state.plan_review_ref)).slice(7)) fail('Plan 批准未绑定当前审阅包');
+    if (!approval.approval_scope?.includes(state.feature_id) || approval.user_decision_ref !== state.plan_user_decision_ref || !text(approval.review_session_id)) fail('Plan 批准范围、用户决定或审查会话不匹配');
+    if (reviewBundle) {
+      const bundleRef = [...approvalRefs][0];
+      if (approval.review_bundle_ref !== bundleRef || approval.review_session_id !== reviewBundle.review_session_id || approval.role_id !== reviewBundle.role_id || approval.runtime_id !== reviewBundle.runtime_id || approval.principal_ref !== reviewBundle.principal_ref) fail('Plan 门禁未复用内部检查的同一审查会话');
+    } else if (approval.review_bundle_ref != null) fail('内部检查均不适用时不得绑定空 review-bundle');
+    validateApprovalRecord(approval, { ...options, requireApproved: true });
+  }
   return { result: 'allowed', blocking_signals: [], missing_requirements: [], evidence_refs: [state.plan_review_ref, ...basis.keys()], next_work_unit: null };
 }
 

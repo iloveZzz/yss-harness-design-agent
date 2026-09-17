@@ -3,14 +3,14 @@
 本文是模板仓库与模板实例共享的生命周期派生阅读视图。结构化事实源是 `docs/process/lifecycle-registry.yaml`；本文解释主阶段、条件门禁、必须持久化的产物和退出标准。具体项目只有在触发条件命中时才执行对应门禁。
 
 <!-- lifecycle-registry:structure:start -->
-> 此结构区由 `docs/process/lifecycle-registry.yaml` 生成。当前为 `active` 模式：它校验结构和派生文档，不改变运行时状态 schema 或人工批准语义。
+> 此结构区由 `docs/process/lifecycle-registry.yaml` 生成。当前为 `active` 模式：正式门禁、内部检查和派生文档共同消费此事实源。
 
 ## 1. 主阶段
 
 | 稳定 ID | 阶段 | 目标 | 退出标准 |
 |---|---|---|---|
 | `stage.entry-triage` | 入口分诊 | 确认仓库身份、问题范围和影响面。 | yss-project.yaml 合法，影响面和最近可信阶段可解释。 |
-| `stage.plan` | Plan（战略规划） | 确认目标、业务边界、关键规则、MVP / 非目标、优先级和交接责任，为 Spec 提供战略输入；按影响面探索并复用仍有效的结论。 | 用户确认规划结论，命中的战略与阶段决策门禁通过；影响业务边界、关键规则或 MVP 的问题已解决，其他未决项有责任人和解决时点；下游可进入 Spec，不代表可实现。 |
+| `stage.plan` | Plan（战略规划） | 确认目标、业务边界、关键规则、MVP / 非目标、优先级和交接责任，为 Spec 提供战略输入；按影响面探索并复用仍有效的结论。 | 命中的业务边界与阶段决策检查通过，用户统一批准当前 Plan；关键问题已解决，非关键项有责任人、解决时点和接收方；下游可进入 Spec，不代表可实现。 |
 | `stage.spec-architecture` | Spec / 功能架构 | 固化解决方案和功能边界。 | Spec 基线和功能边界可审查。 |
 | `stage.product-design` | 产品设计 | 在存在产品设计影响时校准页面流和状态。 | 命中的设计门禁通过；未命中项记录 not-applicable 及原因。 |
 | `stage.system-data-engineering` | 系统 / 数据架构与工程契约 | 固化系统、数据、工程基线和 API 契约。 | 受影响工程契约冻结或记录无 API 影响；required 脚手架证据齐全。 |
@@ -24,25 +24,24 @@
 
 ### 2.1 条件门禁
 
-| 稳定 ID | 门禁 | 所属阶段 | 触发条件 | 前置门禁 | 必须留下的证据 |
+| 稳定 ID | 门禁 | 所属阶段 | 触发条件 | 前置门禁 / 检查 | 必须留下的证据 |
 |---|---|---|---|---|---|
-| `gate.repository-identity-valid` | 仓库身份校验 | `stage.entry-triage` | 每次进入流程。 | 无 | `evidence.repository-identity-check` |
-| `gate.domain-strategy-approved` | 业务边界与规则确认 | `stage.plan` | 需要确定业务板块、业务责任区、统一业务词汇、协作关系或关键规则。 | 无 | `evidence.domain-strategy-review`、`evidence.approval-record` |
-| `gate.stage-decision-package-approved` | 阶段决策包批准 | `stage.plan` | Plan 到 Spec 入口需要稳定的阶段决策合同。 | `gate.domain-strategy-approved` | `evidence.stage-decision-package`、`evidence.approval-record` |
-| `gate.strategic-design-handoff-approved` | 业务方案交接确认 | `stage.ticket-formalization` | 业务方案设计 Harness 完成 Spec、页面原型和业务级 Ticket，需要交付下游研发团队。 | `gate.stage-decision-package-approved`、`gate.spec-baseline-approved`、`gate.user-confirmation` | `evidence.strategic-design-handoff`、`evidence.approval-record` |
+| `gate.plan-approved` | Plan 批准 | `stage.plan` | Plan 结论进入 Spec；汇总业务边界与阶段决策检查，核验当前规划范围的原始批准。 | `check.domain-strategy-approved`、`check.stage-decision-package-approved` | `evidence.approval-record` |
 | `gate.spec-baseline-approved` | Spec 基线批准 | `stage.spec-architecture` | 新功能、行为变化或范围扩大进入 Spec 基线。 | 无 | `evidence.approval-record` |
-| `gate.prototype-reviewed` | 原型评审 | `stage.product-design` | 命中产品设计影响，且低保真页面、流程、状态或 API 反推需要独立评审。 | 无 | `evidence.prototype-review-result` |
-| `gate.prototype-verified` | 高保真原型验证 | `stage.product-design` | 需要高保真 HTML 原型进行视觉与交互校准。 | 无 | `evidence.antd-cli-validation`、`evidence.browser-prototype-verification` |
-| `gate.user-confirmation` | 用户确认 | `stage.product-design` | 产品设计影响尚未被人工确认。 | 无 | `evidence.prototype-confirmation` |
-| `gate.openapi-draft-reviewed` | OpenAPI Draft Review | `stage.system-data-engineering` | 有 API 影响且 Draft 已生成。 | 无 | `evidence.openapi-draft-review` |
-| `gate.design-reviewed` | 设计审查 | `stage.system-data-engineering` | API 或架构影响。 | 无 | `evidence.design-review-result` |
-| `gate.openapi-frozen` | OpenAPI Freeze | `stage.system-data-engineering` | API 进入实现。 | 无 | `evidence.approval-record` |
-| `gate.engineering-baseline-accepted` | 工程基线 | `stage.system-data-engineering` | 后端、前端或高风险工程变化。 | 无 | `evidence.fresh-verification` |
-| `gate.architecture-reviewed` | 架构审查 | `stage.system-data-engineering` | 高风险或跨边界变化。 | 无 | `evidence.design-review-result` |
-| `gate.slice-contract-approved` | Slice Implementation Contract 批准 | `stage.ticket-formalization` | Agent 进入实现；脚手架完成后每个后续生成代码工作单元。 | 无 | `evidence.contract-approval` |
-| `gate.slice-ready-for-agent` | 垂直切片实现就绪 | `stage.ticket-formalization` | 垂直切片具备直接实现条件。 | 无 | `evidence.contract-approval`、`evidence.approval-record` |
-| `gate.frontend-implementation-verified` | 前端实现还原验证 | `stage.verification-release-retrospective` | UI 影响切片完成实现并准备合并、发布或阶段完成。 | 无 | `evidence.frontend-implementation-verification` |
-| `gate.release-ready` | 发布就绪 | `stage.verification-release-retrospective` | 合并、发布或阶段完成。 | `gate.frontend-implementation-verified` | `evidence.fresh-verification`、`evidence.checkpoint-and-rollback` |
+| `gate.product-design-approved` | 产品设计批准 | `stage.product-design` | 存在产品设计影响；原型评审与交付物验证通过后，由当前真实负责人确认体验取舍。 | `check.prototype-reviewed`、`check.prototype-verified` | `evidence.prototype-confirmation` |
+| `gate.strategic-design-handoff-approved` | 业务方案交接验收 | `stage.ticket-formalization` | 业务方案设计已完成，需要形成完整、可验证且可接收的交付包。 | `gate.plan-approved`、`gate.spec-baseline-approved`、`gate.product-design-approved` | `evidence.strategic-design-handoff`、`evidence.approval-record`、`evidence.fresh-verification` |
+
+### 内部检查与自动前置条件
+
+检查失败仍阻断。专业审查记录作为聚合门禁证据，不单独请求用户批准；自动检查通过不授权实现或发布。
+
+| 稳定 ID | 检查 | 阶段 | 触发条件 |
+|---|---|---|---|
+| `check.repository-identity-valid` | 仓库身份校验 | `stage.entry-triage` | 每次进入流程。 |
+| `check.domain-strategy-approved` | 业务边界与规则评审 | `stage.plan` | 需要确定业务板块、责任区、统一词汇、协作关系或关键规则。 |
+| `check.stage-decision-package-approved` | 方案决策包评审 | `stage.plan` | Plan 到 Spec 入口需要稳定、可追溯的方案决策合同。 |
+| `check.prototype-reviewed` | 原型评审 | `stage.product-design` | 命中产品设计影响，需要独立评审页面、流程、状态和异常路径。 |
+| `check.prototype-verified` | 原型交付物验证 | `stage.product-design` | 产品设计影响需要通过 H1/H2 原型进行视觉或流程校准。 |
 
 ### 2.2 生命周期产物
 
@@ -60,8 +59,8 @@
 | `artifact.low-fidelity-prototype` | 低保真原型 | `stage.product-design` | 命中产品设计影响。 |
 | `artifact.state-matrix` | 状态矩阵 | `stage.product-design` | 存在状态流转、异常或恢复。 |
 | `artifact.high-fidelity-html-prototype` | 高保真 HTML 原型 | `stage.product-design` | 需要视觉与交互校准。 |
-| `artifact.prototype-review` | 原型评审记录 | `stage.product-design` | 命中 gate.prototype-reviewed。 |
-| `artifact.prototype-confirmation` | 原型确认记录 | `stage.product-design` | 命中 gate.user-confirmation。 |
+| `artifact.prototype-review` | 原型评审记录 | `stage.product-design` | 命中 check.prototype-reviewed。 |
+| `artifact.prototype-confirmation` | 原型确认记录 | `stage.product-design` | 命中 gate.product-design-approved。 |
 | `artifact.openapi-draft` | OpenAPI Draft | `stage.system-data-engineering` | 有 API 影响。 |
 | `artifact.openapi-freeze-record` | OpenAPI Freeze 记录 | `stage.system-data-engineering` | API 进入实现。 |
 | `artifact.data-architecture` | 数据架构 | `stage.system-data-engineering` | 数据模型、存储或一致性变化。 |

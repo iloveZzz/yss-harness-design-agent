@@ -35,6 +35,10 @@ try {
   const schemaResult = run("python3", ["-c", schemaValidator, schemaPath], { input: JSON.stringify(registry) });
   if (schemaResult.status !== 0) throw new TypeError(`JSON Schema 校验失败: ${schemaResult.stdout}${schemaResult.stderr}`);
   validateRegistry(registry);
+  if (registryPath === DEFAULT_REGISTRY && !isTemplateSource(ROOT)) {
+    const migration = run("node", ["scripts/verify-strategic-gate-migration", "--root", ROOT]);
+    if (migration.status !== 0) throw new TypeError(`${migration.stdout}${migration.stderr}`.trim());
+  }
   if (registryPath === DEFAULT_REGISTRY) {
     const generated = run("node", ["scripts/node-generate-lifecycle-artifacts.mjs", "--check"]);
     if (generated.status !== 0) throw new TypeError(`${generated.stdout}${generated.stderr}`.trim());

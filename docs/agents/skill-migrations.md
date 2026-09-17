@@ -12,7 +12,7 @@
 - 高保真默认入口：`yss-prototype-stage` 离线 HTML；独立视觉稿按需使用 `product-design:index`
 - 独立低保真评审：`prototype-review`
 
-迁移时保留原型评审记录、AntD CLI 验证、浏览器验证和用户确认，并由 `yss-strategic-design` 裁决 `gate.prototype-reviewed`、`gate.prototype-verified` 和 `gate.user-confirmation`。不得创建同名兼容目录。
+迁移时保留原型评审记录、AntD CLI 验证、浏览器验证和用户确认，并由 `yss-strategic-design` 将专业结论登记为 `check.prototype-reviewed`、`check.prototype-verified`，再裁决 `gate.product-design-approved`。旧 `gate.*` 记录仅作为历史证据，不得创建同名兼容目录或自动继承批准。
 
 ## 2026-09-14：HTML 原型与 Provider 退役
 

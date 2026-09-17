@@ -68,7 +68,7 @@ test("approval records reject the wrong signer and approved countersign gates ne
   }, { rolesDoc }), /会签角色必须是/);
   assert.throws(() => validateApprovalRecord({
     schema_version: 1,
-    gate_id: "gate.release-ready",
+    gate_id: "gate.product-design-approved",
     decision: "approved",
     actor_kind: "digital-human",
     role_id: "role.business",
@@ -84,5 +84,5 @@ test("approval records reject the wrong signer and approved countersign gates ne
         evidence_refs: []
       }
     }
-  }, repositoryRoot), /缺少 approval_ref/);
+  }, repositoryRoot), /缺少当前证据摘要|缺少 approval_ref/);
 });

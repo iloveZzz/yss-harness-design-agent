@@ -59,7 +59,7 @@ function validateInvocationBoundary(data) {
   ensure(includesAll(result?.required, ["result_schema", "work_unit", "workflow_reference", "result", "context_reconciliation", "evidence_refs", "changed_artifacts", "new_impacts", "stale_candidates", "next_route", "blocking_signals"]) && includesAll(result?.result_values, ["completed", "blocked", "needs-human", "failed"]) && includesAll(result?.blocking_signals, ["drift", "new_impacts", "violation", "missing_evidence", "stale_candidates"]) && includesAll(result?.completed_requires_empty, ["new_impacts", "stale_candidates"]) && includesAll(result?.completed_requires_non_empty, ["evidence_refs"]) && result?.completed_requires_readable_evidence_refs === true && result?.evidence_ref_validation === "readable-or-resolvable" && result?.completed_requires_no_blocking_signals === true && result?.context_reconciliation?.creates_gate === false && includesAll(result?.workflow_reference?.required, ["source", "skill", "invocation_mode"]), "Workflow Execution Result 的完成态证据、阻断信号、context_reconciliation 或 workflow_reference 契约不完整");
   const native = data.lifecycle_native_entries;
   ensure(native?.default_entry === "yss-strategic-design" && native?.formal_artifact_owner === "yss-strategic-design", "战略编排原生入口未持有默认正式资产所有权");
-  ensure(JSON.stringify(native?.user_confirmation_required_at) === JSON.stringify(["spec-baseline", "prototype-confirmation", "strategic-design-handoff"]), "战略设计人工门禁集合已漂移");
+  ensure(JSON.stringify(native?.user_confirmation_required_at) === JSON.stringify(["plan-approval", "spec-baseline", "product-design-when-applicable"]), "战略设计人工门禁集合已漂移");
   const routes = data.work_unit_routes;
   ensure(routes?.["work-unit.plan-requirements"]?.skills?.includes("grilling") && routes?.["work-unit.plan-requirements"]?.skills?.includes("domain-modeling"), "需求分析工作单元缺少 grilling/domain-modeling");
   ensure(routes?.["work-unit.plan-opportunity"]?.route_by?.market_or_competitor_fact === "competitive-intelligence" && routes["work-unit.plan-opportunity"].route_by.technical_or_standard_fact === "yss-research:technical-evidence" && routes["work-unit.plan-opportunity"].route_by.strategy_fact === "yss-research:strategy-evidence", "机会调研事实路由不准确");
@@ -223,8 +223,8 @@ export function runScenario(name) {
     const result = spawnSync("scripts/verify-lifecycle-registry", [], { cwd: root, encoding: "utf8" });
     ensure(result.status === 0, result.stderr || result.stdout);
     const registry = parseDocument(read("docs/process/lifecycle-registry.yaml"), { uniqueKeys: true }).toJS({ maxAliasCount: 0 });
-    const releaseGate = registry.gates.find((gate) => gate.id === "gate.release-ready");
-    ensure(releaseGate?.requires_gates?.includes("gate.frontend-implementation-verified"), "发布就绪未依赖前端实现还原门禁");
+    ensure(JSON.stringify(registry.gates.map(gate => gate.id)) === JSON.stringify(["gate.plan-approved", "gate.spec-baseline-approved", "gate.product-design-approved", "gate.strategic-design-handoff-approved"]), "战略活动 gate 必须恰好收敛为四个聚合边界");
+    ensure(JSON.stringify(registry.checks.map(check => check.id)) === JSON.stringify(["check.repository-identity-valid", "check.domain-strategy-approved", "check.stage-decision-package-approved", "check.prototype-reviewed", "check.prototype-verified"]), "战略内部检查集合不完整");
     const contract = parseDocument(read(".agents/skills/yss-strategic-design/references/orchestration-contract.yaml"), { uniqueKeys: true }).toJS({ maxAliasCount: 0 });
     ensure(contract.profile_registry?.terminal_work_unit === "work-unit.strategic-design-handoff" && contract.profile_registry?.terminal_next_route === null, "战略设计 profile 终点契约缺失");
     ensure(contract.work_unit_routes?.["work-unit.business-ticket-formalization"]?.native?.skill === "yss-strategic-design", "业务 Ticket 正式化未绑定战略编排器");
@@ -241,7 +241,7 @@ export function runScenario(name) {
     const planFixture = buildPlanFixture(path.join(decisionTemp, 'plan'));
     const validResult = {
       ...planFixture.state,
-      user_decisions: ["gate.spec-baseline-approved", "gate.user-confirmation", "gate.strategic-design-handoff-approved"].map(boundary => buildDecisionFixture(path.join(decisionTemp,boundary),{boundary}).requirement),
+      user_decisions: ["gate.plan-approved", "gate.spec-baseline-approved", "gate.product-design-approved"].map(boundary => buildDecisionFixture(path.join(decisionTemp,boundary),{boundary}).requirement),
       result_schema: "workflow-execution-result-v1",
       profile_id: "harness.business-ddd-strategy-handoff",
       work_unit: "work-unit.spec-synthesis",
@@ -269,7 +269,7 @@ export function runScenario(name) {
       business_ticket_set_ref: "docs/.scratch/demo/issues",
     };
     validateWorkflowExecutionResult(validBusinessTicketResult, data.workflow_execution_result, data.work_unit_routes, { root: planFixture.root });
-    const validHandoffResult = { ...validBusinessTicketResult, work_unit: "work-unit.strategic-design-handoff", next_route: null, strategic_design_handoff_ref: "docs/templates/strategic-design-handoff-template.yaml", strategic_delivery_record_ref: "docs/process/schemas/strategic-handoff-delivery.schema.json", strategic_delivery_verification_ref: "docs/process/schemas/strategic-handoff-delivery-verification.schema.json" };
+    const validHandoffResult = { ...validBusinessTicketResult, result: "blocked", blocking_signals: ["missing_evidence"], work_unit: "work-unit.strategic-design-handoff", next_route: null, strategic_design_handoff_ref: "docs/templates/strategic-design-handoff-template.yaml", strategic_delivery_record_ref: "docs/process/schemas/strategic-handoff-delivery.schema.json", strategic_delivery_verification_ref: "docs/process/schemas/strategic-handoff-delivery-verification.schema.json" };
     validateWorkflowExecutionResult(validHandoffResult, data.workflow_execution_result, data.work_unit_routes, { root: planFixture.root });
     const unavailableResult = structuredClone(validResult);
     unavailableResult.result = "blocked";

@@ -1,3 +1,4 @@
+import { assertApprovalUserDecision } from './user-decision-reuse.mjs';
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { parseDocument } from "../vendor/yaml.mjs";
@@ -7,9 +8,9 @@ import {
   loadDigitalHumanRoles,
   collectCountersignGateIds
 } from "./digital-human-roles.mjs";
-import { ROOT } from "./lifecycle-registry.mjs";
-
-import { assertApprovalUserDecision } from "./user-decision-reuse.mjs";
+import { assertGateChecks } from "./lifecycle-controls.mjs";
+import { ROOT, loadRegistry } from "./lifecycle-registry.mjs";
+import { assertUserDecisionRequirement, assertWorkUnitUserDecision, assertImplementationDecision, decisionIO, decisionDigest } from "./user-decision.mjs";
 
 const DECISIONS = new Set(["approved", "rejected", "vetoed"]);
 const ACTOR_KINDS = new Set(["digital-human", "biological-human", "orchestrator"]);
@@ -37,8 +38,36 @@ function yamlFromFile(filePath, label) {
   return value;
 }
 
-export function loadApprovalRecord(filePath) {
-  return yamlFromFile(filePath, "会签记录");
+export function loadApprovalRecord(filePath, gateId) {
+  return selectApprovalRecord(yamlFromFile(filePath, "会签记录"), gateId);
+}
+
+function reviewBundleRows(bundle) {
+  if (bundle?.schema_version !== 1 || bundle.kind !== "review-bundle") fail("组合审查身份无效");
+  for (const field of ["bundle_id", "task_id", "work_unit_id", "review_session_id", "role_id", "runtime_id", "principal_ref"]) requireString(bundle[field], field);
+  if (!/^review-bundle\.[a-z0-9][a-z0-9-]*$/.test(bundle.bundle_id)) fail("组合审查 bundle_id 格式非法");
+  if (!/^work-unit\.[a-z0-9][a-z0-9-]*$/.test(bundle.work_unit_id)) fail("组合审查 work_unit_id 格式非法");
+  if (!Array.isArray(bundle.reviews) || !bundle.reviews.length) fail("组合审查不能为空");
+  if (new Set(bundle.reviews.map(row => row?.gate_id)).size !== bundle.reviews.length) fail("组合审查 gate_id 重复");
+  for (const row of bundle.reviews) {
+    if (!row || typeof row !== "object" || Array.isArray(row)) fail("组合审查结论必须是对象");
+    if (row.role_id !== bundle.role_id || row.runtime_id !== bundle.runtime_id || row.principal_ref !== bundle.principal_ref) fail("组合审查必须来自同一复核角色、运行时和实例");
+    if (row.review_session_id != null && row.review_session_id !== bundle.review_session_id) fail("组合审查 review_session_id 不一致");
+  }
+  return bundle.reviews;
+}
+
+export function selectApprovalRecord(record, gateId) {
+  if (record.kind !== 'review-bundle') return record;
+  const selected = reviewBundleRows(record).filter(x => x.gate_id === gateId);
+  if (selected.length !== 1) fail('组合审查缺少当前检查的明确结论');
+  return {
+    ...selected[0],
+    review_bundle_id: record.bundle_id,
+    review_task_id: record.task_id,
+    review_work_unit_id: record.work_unit_id,
+    review_session_id: record.review_session_id
+  };
 }
 
 export function resolveApprovalRef(approvalRef, fromFile = ROOT) {
@@ -66,7 +95,13 @@ export function validateApprovalRecord(record, { rolesDoc, requireApproved = fal
   if (!runtimeIds.has(record.runtime_id)) fail(`未知 runtime_id: ${record.runtime_id}`);
   if (record.actor_kind === "orchestrator") fail("编排器门禁不使用会签记录关闭");
 
-  const rule = countersignRuleForGate(registry.gate_policy, record.gate_id);
+  if (!requireApproved && loadRegistry().id_policy.deprecated_ids.includes(record.gate_id)) return { bucket: "historical", gate: record.gate_id };
+  let rule = countersignRuleForGate(registry.gate_policy, record.gate_id);
+  const continuationReviewers = registry.gate_policy.continuation_reviews?.[record.gate_id];
+  if (record.continuation_ref && record.actor_kind === 'digital-human' && continuationReviewers) {
+    rule = { bucket: 'digital_human_review', gate: record.gate_id, countersigners: continuationReviewers };
+    if (!record.drafter_principal_ref || record.drafter_principal_ref === record.principal_ref) fail('延续批准必须由独立审查者核验');
+  }
   if (!rule) fail(`${record.gate_id} 不是会签门禁；evidence_only / orchestrator 门禁不写 approval-record`);
 
   if (requireApproved && record.decision !== "approved") {
@@ -98,8 +133,26 @@ export function validateApprovalRecord(record, { rolesDoc, requireApproved = fal
   return rule;
 }
 
+function assertRecordUserDecision(record, registry, options) {
+  if (!registry.user_decision_policy.gates.includes(record.gate_id)) return;
+  const result = assertApprovalUserDecision(record, registry, options);
+  if (record.actor_kind === "biological-human" && result.validated.some((item) => item.principal_ref !== record.principal_ref)) fail("user-decision-responder-mismatch: 生物人会签者与原始回复者不一致");
+}
+
 export function validateApprovalRecordFile(filePath, options = {}) {
-  return validateApprovalRecord(loadApprovalRecord(filePath), options);
+  const record = yamlFromFile(filePath, "会签记录");
+  if (record.kind === 'review-bundle') {
+    return reviewBundleRows(record).map(item => {
+      const row = loadApprovalRecord(filePath, item.gate_id);
+      if (options.requireApproved) {
+        if (!row.drafter_principal_ref || row.drafter_principal_ref === row.principal_ref) fail('组合审查必须保留独立身份');
+        const io = decisionIO(options);
+        if (!row.subject_ref || decisionDigest(io.bytes(row.subject_ref)) !== `sha256:${row.subject_digest}`) fail('组合审查主体缺失或已过期');
+      }
+      return validateApprovalRecord(row, options);
+    });
+  }
+  return validateApprovalRecord(record, options);
 }
 
 export function assertApprovedGateHasValidApproval(gateId, gateState, { checkpointPath } = {}) {
@@ -113,64 +166,60 @@ export function assertApprovedGateHasValidApproval(gateId, gateState, { checkpoi
   }
   const resolved = resolveApprovalRef(gateState.approval_ref, checkpointPath || ROOT);
   if (!existsSync(resolved)) fail(`${gateId} 的 approval_ref 不可读: ${gateState.approval_ref}`);
-  const record = loadApprovalRecord(resolved);
+  const record = loadApprovalRecord(resolved, gateId);
   if (record.gate_id !== gateId) fail(`${gateId} 的会签记录 gate_id 不匹配`);
-  if (rolesDoc.user_decision_policy.gates.includes(gateId) && (!gateState.subject_ref || gateState.subject_ref !== record.subject_ref || !gateState.approval_scope?.length || JSON.stringify([...gateState.approval_scope].sort()) !== JSON.stringify([...(record.approval_scope || [])].sort()))) fail('user-decision-subject-mismatch: 当前 gate 与会签资产范围不一致');
+  if (!gateState.subject_ref || gateState.subject_ref !== record.subject_ref || !gateState.approval_scope?.length || JSON.stringify([...gateState.approval_scope].sort()) !== JSON.stringify([...(record.approval_scope || [])].sort())) {
+    fail(`${gateId} user-decision-subject-mismatch: 当前门禁资产与会签范围不匹配`);
+  }
   validateApprovalRecord(record, { rolesDoc, requireApproved: true });
 }
 
 export function assertCheckpointApprovals(checkpoint, checkpointPath) {
   const gates = checkpoint?.gates;
   if (!gates || typeof gates !== "object") return;
-  if (checkpoint.artifacts?.['artifact.spec']?.ref && gates['gate.spec-baseline-approved']?.status === 'approved' && checkpoint.artifacts['artifact.spec'].ref !== gates['gate.spec-baseline-approved'].subject_ref) fail('user-decision-subject-mismatch: Spec 与当前批准不一致');
+  const known = new Set(loadRegistry().gates.map(gate => gate.id));
   for (const [gateId, state] of Object.entries(gates)) {
+    if (!known.has(gateId)) fail(`STRATEGIC_GATE_MIGRATION_REQUIRED: 未知或已退役门禁 ${gateId}；历史记录只读，不自动迁移批准`);
+    if (state.status === "approved") assertGateChecks(gateId, checkpoint);
     assertApprovedGateHasValidApproval(gateId, state, { checkpointPath });
   }
 }
 
-function assertRecordUserDecision(record, registry, options) {
-  if (!registry.user_decision_policy.gates.includes(record.gate_id)) return;
-  return assertApprovalUserDecision(record, registry, options);
-}
-
-// Drafts may wait for a reply. Advancement derives requirements from current state,
-// rather than trusting a caller-supplied completed_work_unit marker alone.
+// Called on resume/transition as well as completion; drafting while waiting stays allowed.
 export function assertCheckpointUserDecisions(checkpoint) {
-  if (checkpoint.repository_mode !== 'project-instance') return;
-  const advancing = ['running','completed'].includes(checkpoint.status) || (checkpoint.mode === 'resume' && checkpoint.status === 'routing');
+  if (checkpoint.repository_mode !== "project-instance") return;
+  const review = checkpoint.human_review || {};
+  const advancing = ["running", "completed"].includes(checkpoint.status) || (checkpoint.mode === "resume" && checkpoint.status === "routing");
   if (!advancing) return;
-  if (checkpoint.status === 'completed' && (checkpoint.blockers?.length || Object.values(checkpoint.gates || {}).some(gate => !['approved','not-applicable'].includes(gate.status)))) fail('user-decision-completion-blocked: 尚有阻塞或未通过门禁');
-  const required = new Set();
-  const artifacts = checkpoint.artifacts || {};
-  const gates = checkpoint.gates || {};
-  for (const [artifact, gate] of [['artifact.spec','gate.spec-baseline-approved'],['artifact.prototype-confirmation','gate.user-confirmation'],['artifact.strategic-design-handoff','gate.strategic-design-handoff-approved']]) {
-    if (artifacts[artifact]?.status === 'approved') required.add(gate);
-  }
-  const units = [checkpoint.next_work_unit,checkpoint.stage_trace?.current_work_unit,checkpoint.stage_trace?.completed_work_unit];
-  if (units.some(unit => ['work-unit.prototype-design','work-unit.business-ticket-formalization','work-unit.strategic-design-handoff'].includes(unit)) || ['stage.product-design','stage.ticket-formalization'].includes(checkpoint.stage)) required.add('gate.spec-baseline-approved');
-  const designPresent = ['artifact.prototype-confirmation','artifact.interaction-spec','artifact.state-matrix','artifact.low-fidelity-prototype','artifact.high-fidelity-html-prototype'].some(id => artifacts[id] && artifacts[id].status !== 'not-applicable');
-  if (designPresent && (checkpoint.stage === 'stage.ticket-formalization' || units.some(unit => ['work-unit.business-ticket-formalization','work-unit.strategic-design-handoff'].includes(unit)))) required.add('gate.user-confirmation');
-  if (checkpoint.status === 'completed' || checkpoint.stage_trace?.completed_work_unit === 'work-unit.strategic-design-handoff') required.add('gate.strategic-design-handoff-approved');
-  for (const id of required) {
-    if (gates[id]?.status !== 'approved') fail(`user-decision-response-required: ${id}`);
-    assertApprovedGateHasValidApproval(id,gates[id]);
-  }
-  for (const entry of checkpoint.human_review?.decision_reuse || []) {
-    const record = loadApprovalRecord(resolveApprovalRef(gates[entry.target_gate]?.approval_ref));
-    if (record.decision_reuse_ref !== entry.ref) fail('user-decision-reuse-invalid: checkpoint 与会签复用引用不一致');
+  const state = { user_decisions: review.user_decisions || [], user_decision_not_applicable: review.not_applicable || [] };
+  const completedUnit = checkpoint.stage_trace?.completed_work_unit;
+  if (completedUnit) assertWorkUnitUserDecision(completedUnit, state);
+  if (checkpoint.next_work_unit === "work-unit.slice-implementation") assertImplementationDecision({ ...review.implementation, ...state });
+  for (const requirement of review.required_decisions || []) assertUserDecisionRequirement(requirement);
+  if (review.external_input) assertUserDecisionRequirement({ ...review.external_input, boundary: "external-input" });
+  if (checkpoint.status === "completed") {
+    if (checkpoint.blockers?.length || Object.values(checkpoint.gates || {}).some(gate => !["approved", "not-applicable"].includes(gate.status))) throw new TypeError("lifecycle-control-blocked: 仍有阻塞或未通过门禁，不可完成");
+    if (checkpoint.gates?.["gate.strategic-design-handoff-approved"]?.status !== "approved") throw new TypeError("lifecycle-control-blocked: 战略设计完成须通过交接验收");
   }
 }
 
 export function assertStrategicWorkUnitDecision(workUnit, state, options = {}) {
+  if (workUnit === "work-unit.strategic-design-handoff") {
+    const gate = state.gates?.["gate.strategic-design-handoff-approved"];
+    if (gate?.status !== "approved") fail("strategic-gate-migration-required: gate.strategic-design-handoff-approved");
+    assertGateChecks("gate.strategic-design-handoff-approved", state, options);
+    assertApprovedGateHasValidApproval("gate.strategic-design-handoff-approved", gate);
+    return;
+  }
   const roles = options.rolesDoc || loadDigitalHumanRoles();
-  for (const boundary of roles.user_decision_policy.work_unit_gates?.[workUnit] || []) {
+  for (const boundary of [...(roles.user_decision_policy.work_unit_gates?.[workUnit] || []), ...(roles.user_decision_policy.work_units?.[workUnit] ? [roles.user_decision_policy.work_units[workUnit]] : [])]) {
     const gate = state.gates?.[boundary];
-    if (gate?.status === 'approved') {
-      assertApprovedGateHasValidApproval(boundary,gate);
+    if (gate?.status === "approved") {
+      assertGateChecks(boundary, state, options);
+      assertApprovedGateHasValidApproval(boundary, gate);
       continue;
     }
-    const requirement = (state.user_decisions || state.human_review?.user_decisions || []).find(item => item.boundary === boundary);
-    if (!requirement) fail(`user-decision-response-required: ${boundary}`);
-    assertApprovalUserDecision({gate_id:boundary,subject_ref:requirement.subject_ref,approval_scope:requirement.scope,user_decision_ref:requirement.user_decision_ref,decision_reuse_ref:requirement.decision_reuse_ref},roles,options);
+    assertWorkUnitUserDecision(workUnit, { user_decisions: state.user_decisions || state.human_review?.user_decisions || [], user_decision_not_applicable: state.user_decision_not_applicable || state.human_review?.not_applicable || [] }, { ...options, rolesDoc: roles });
+    break;
   }
 }

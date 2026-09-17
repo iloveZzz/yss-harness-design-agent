@@ -54,10 +54,10 @@ assert.match(profile, /profile_id: harness\.business-ddd-strategy-handoff/);
 assert.match(profile, /name: 产品需求商务业务方案交付模式/);
 
 const registry = read("docs/process/lifecycle-registry.yaml");
-for (const stableId of ["work-unit.domain-strategy-design", "artifact.domain-strategy", "gate.domain-strategy-approved"]) {
+for (const stableId of ["work-unit.domain-strategy-design", "artifact.domain-strategy", "check.domain-strategy-approved"]) {
   assert.match(registry, new RegExp(`id: ${stableId.replaceAll(".", "\\.")}`));
 }
-for (const displayName of ["业务边界与协作梳理", "业务边界与规则设计", "业务边界与规则确认", "业务方案交接包"]) {
+for (const displayName of ["业务边界与协作梳理", "业务边界与规则设计", "业务边界与规则评审", "业务方案交接包"]) {
   assert.match(registry, new RegExp(displayName));
 }
 
@@ -70,7 +70,7 @@ for (const collection of ["stages", "gates", "artifacts", "work_units", "evidenc
 }
 assert.equal(semanticDigest(registryContract), semanticDigest(withoutPublicPresentation), "public_* 展示字段不得改变稳定 ID 语义摘要");
 const rendered = `${renderLifecycleStructure(registryContract)}${renderWorkUnits(registryContract)}`;
-for (const displayName of ["业务边界与协作梳理", "业务边界与规则设计", "业务边界与规则确认", "业务方案交接包"]) {
+for (const displayName of ["业务边界与协作梳理", "业务边界与规则设计", "业务边界与规则评审", "业务方案交接包"]) {
   assert.match(rendered, new RegExp(displayName));
 }
 const invalidPresentation = structuredClone(registryContract);

@@ -26,17 +26,24 @@
 
 ## 会签人
 
-`gate_policy.digital_human_review` 与 `dual_digital_human` 是「门禁 × 起草者 × 会签人」规则，不是门禁名单。主控按 `countersigners` 派会签任务。
+`gate_policy.digital_human_review` 与 `dual_digital_human` 是「门禁 × 起草者 × 会签人」规则，不是门禁名单。`stage_groups` 只表示可协作成员，商务和主控不会因此成为会签人。战略 profile 使用 `default_if_unlisted: reject-unlisted`；新增活动 gate 未显式分类时以 `GATE_POLICY_REQUIRED` 阻断，不回退为人工会签。
 
 | 门禁 / 工作单元 | 起草 | 会签 |
 |---|---|---|
-| `gate.prototype-reviewed` | `role.product-manager` | `role.requirements-manager` |
+| `check.domain-strategy-approved` | `role.requirements-manager` | `role.product-manager` |
+| `check.stage-decision-package-approved` | `role.requirements-manager` | `role.product-manager` |
+| `check.prototype-reviewed` | `role.product-manager` | `role.requirements-manager` |
+| `check.repository-identity-valid` / `check.prototype-verified` | 自动校验 | — |
+| `gate.plan-approved` | `role.requirements-manager` | `role.product-manager` + 当前真实用户决定 |
 | `gate.spec-baseline-approved` | `role.requirements-manager` | `role.product-manager` |
 | `gate.strategic-design-handoff-approved` | `role.product-manager` | `role.requirements-manager` |
-| `gate.user-confirmation` | — | `role.product-manager`；生物人可否决 |
-| `gate.release-ready` | — | 生物人（`role.biological-human`） |
+| `gate.product-design-approved` | `role.product-manager` | 当前真实用户；无 UI/体验影响时带依据 `not-applicable` |
 
-未列入表的门禁（含 `gate.design-reviewed`、`gate.architecture-reviewed`）走 `default_if_unlisted: biological-human`。
+按战略主路径计算，Plan bundle、Spec 复核和 Handoff 复核构成无 UI 场景的 3 次数字人审查任务，用户只在 Plan、Spec 暂停 2 次。命中 UI/体验影响时增加一次原型独立复核和一次产品设计确认，因此为 4 次数字人审查任务、3 次用户确认。`stage_groups`、商务输入、主控和自动检查不计为会签任务。
+
+当前活动战略 gate 只有 Plan、Spec、条件性产品设计和战略交接。`check.*` 保留专业结论与证据，不单独请求用户批准；旧 gate 只读，不得继续流转。
+
+Plan 的领域战略与阶段决策检查由产品经理在一个 `review-bundle.plan` 任务中逐项给出结论。bundle 只包含实际命中的 check；`gate.plan-approved` 使用独立批准记录，并通过同一个 `review_session_id` 复用本次审查。没有领域或阶段决策影响时不生成空 bundle。旧独立批准记录继续可读，不因协议升级失效。
 
 会签写入 `docs/.scratch/<feature>/gates/<gate-id>-approval.yaml`，形状见 `docs/templates/approval-record-template.yaml`。恢复前运行 `scripts/verify-approval-record`。错误会签只能得到 `blocked`，不能把门禁标成 `approved`。Checkpoint 里会签桶门禁为 `approved` 时必须有可读 `approval_ref`。
 
@@ -73,7 +80,7 @@ Grok 专用操作见 `docs/templates/grok-bot-profile-template.md`。通用实�
 | 运行时副作用审批 | 发消息、改生产、付款、删数据等工具动作 | 生物人（各平台自己的 Allow / 确认框） |
 | 生命周期会签 | `gate.*` 与独立 code review | 见 YAML `gate_policy` |
 
-会签写入 `docs/templates/approval-record-template.yaml`，带 `runtime_id`、`principal_ref` 与实例引用。起草者不得出现在会签人里。`gate.release-ready`、对外商务合同、运行时外部副作用，以及未列入会签表的 `gate.design-reviewed` / `gate.architecture-reviewed` 仍须生物人。
+会签写入 `docs/templates/approval-record-template.yaml`，带 `runtime_id`、`principal_ref` 与实例引用。起草者不得出现在会签人里。Plan、Spec 与适用产品设计按 `user_decision_policy` 核验当前真实回复；交接由需求经理独立复核，不新增用户回复。对外商务合同与运行时外部副作用仍须生物人。
 
 ## 实例化
 

@@ -23,6 +23,7 @@ const STRING_GATE_BUCKETS = [
   "biological_human"
 ];
 const COUNTERSIGN_STRING_BUCKETS = ["product_digital_human_with_biological_veto", "biological_human"];
+const DEFAULT_GATE_POLICIES = new Set(["biological-human", "reject-unlisted"]);
 export const BIOLOGICAL_ROLE_ID = "role.biological-human";
 const OVERFLOWS = new Set(["not-applicable", "one-to-one-handoff", "forbid"]);
 const GROK_FIELDS = ["grok_title", "grok_description", "grok_default_dual_hat", "grok_runtime_root", "grok_platform_approval"];
@@ -56,8 +57,11 @@ function requireStringArray(value, field) {
   }
   if (new Set(value).size !== value.length) fail(`${field} 包含重复项`);
 }
+
 function requireStringArrayOrEmpty(value, field) {
-  if (!Array.isArray(value) || value.some((item) => typeof item !== "string" || !item.trim())) fail(`${field} 必须是字符串数组`);
+  if (!Array.isArray(value) || value.some((item) => typeof item !== "string" || !item.trim())) {
+    fail(`${field} 必须是字符串数组`);
+  }
   if (new Set(value).size !== value.length) fail(`${field} 包含重复项`);
 }
 
@@ -198,21 +202,28 @@ function validateSignRule(rule, { actors, gateIds, claimed, field }) {
 }
 
 export function collectCountersignGateIds(policy) {
-  const ids = [];
+  const ids = [...(policy.unlisted_kept_biological || [])];
   for (const bucket of COUNTERSIGN_STRING_BUCKETS) {
     const gates = policy?.[bucket];
     if (Array.isArray(gates)) ids.push(...gates);
   }
-  for (const rule of policy?.digital_human_review || []) {
+  for (const rule of [...(policy?.digital_human_review || []), ...(policy?.check_reviews || [])]) {
     if (rule?.gate) ids.push(rule.gate);
   }
   for (const rule of policy?.dual_digital_human || []) {
     if (rule?.gate) ids.push(rule.gate);
   }
-  return ids;
+  if (policy.default_if_unlisted === "biological-human") {
+    for (const gate of loadRegistry().gates) {
+      if (!(policy.evidence_only || []).includes(gate.id) && !(policy.orchestrator || []).includes(gate.id)) ids.push(gate.id);
+    }
+  }
+  return [...new Set(ids)];
 }
 
 export function countersignRuleForGate(policy, gateId) {
+  const internal = (policy?.check_reviews || []).find(rule => rule.gate === gateId);
+  if (internal) return { bucket: "check_reviews", ...internal };
   const dual = (policy?.dual_digital_human || []).find((rule) => rule.gate === gateId);
   if (dual) return { bucket: "dual_digital_human", ...dual };
   const review = (policy?.digital_human_review || []).find((rule) => rule.gate === gateId);
@@ -221,6 +232,10 @@ export function countersignRuleForGate(policy, gateId) {
     return { bucket: "product_digital_human_with_biological_veto", gate: gateId, countersigners: ["role.product-manager"] };
   }
   if ((policy?.biological_human || []).includes(gateId)) {
+    return { bucket: "biological_human", gate: gateId, countersigners: [BIOLOGICAL_ROLE_ID] };
+  }
+  if ((policy?.evidence_only || []).includes(gateId) || (policy?.orchestrator || []).includes(gateId)) return null;
+  if (policy?.default_if_unlisted === "biological-human" && loadRegistry().gates.some((gate) => gate.id === gateId)) {
     return { bucket: "biological_human", gate: gateId, countersigners: [BIOLOGICAL_ROLE_ID] };
   }
   return null;
@@ -313,7 +328,7 @@ export function validateDigitalHumanRoles(doc, { skillIds, stageIds, gateIds, ar
 
   const policy = doc.gate_policy;
   if (!policy || typeof policy !== "object") fail("缺少 gate_policy");
-  if (policy.default_if_unlisted !== "biological-human") fail("default_if_unlisted 必须为 biological-human");
+  if (!DEFAULT_GATE_POLICIES.has(policy.default_if_unlisted)) fail("default_if_unlisted 必须为 biological-human 或 reject-unlisted");
   if (policy.runtime_side_effect_approval !== "biological-human") fail("runtime_side_effect_approval 必须为 biological-human");
   if (policy.commercial_contract !== "biological-human") fail("commercial_contract 必须为 biological-human");
   if (policy.unlisted_kept_biological) {
@@ -324,8 +339,7 @@ export function validateDigitalHumanRoles(doc, { skillIds, stageIds, gateIds, ar
   }
   const claimed = new Set();
   for (const bucket of STRING_GATE_BUCKETS) {
-    if (bucket === "orchestrator") requireStringArrayOrEmpty(policy[bucket], `gate_policy.${bucket}`);
-    else requireStringArray(policy[bucket], `gate_policy.${bucket}`);
+    requireStringArrayOrEmpty(policy[bucket], `gate_policy.${bucket}`);
     for (const gate of policy[bucket]) {
       if (!gateIds.has(gate)) fail(`gate_policy.${bucket} 引用了未知门禁: ${gate}`);
       if (claimed.has(gate)) fail(`门禁被多个会签桶重复占用: ${gate}`);
@@ -338,11 +352,17 @@ export function validateDigitalHumanRoles(doc, { skillIds, stageIds, gateIds, ar
   for (const [index, rule] of policy.digital_human_review.entries()) {
     if (typeof rule === "string") fail("digital_human_review 必须是含 gate 与 countersigners 的规则");
     validateSignRule(rule, { actors, gateIds, claimed, field: `digital_human_review[${index}]` });
-    if (rule.gate === "gate.release-ready") fail("gate.release-ready 不得放入 digital_human_review");
   }
-  if (!policy.biological_human.includes("gate.release-ready")) {
-    fail("gate.release-ready 必须属于 biological_human");
+  const checkIds = new Set(loadRegistry().checks.map(check => check.id));
+  const checkClaimed = new Set();
+  for (const id of policy.automatic_checks || []) {
+    if (!checkIds.has(id) || checkClaimed.has(id)) fail(`未知或重复自动检查: ${id}`);
+    checkClaimed.add(id);
   }
+  for (const [index, rule] of (policy.check_reviews || []).entries()) {
+    validateSignRule(rule, { actors, gateIds: checkIds, claimed: checkClaimed, field: `check_reviews[${index}]` });
+  }
+  if (checkClaimed.size !== checkIds.size) fail("内部检查职责覆盖不完整");
   if (!Array.isArray(policy.digital_human_review_work_units) || policy.digital_human_review_work_units.length === 0) {
     fail("缺少 digital_human_review_work_units");
   }
@@ -371,7 +391,59 @@ export function validateDigitalHumanRoles(doc, { skillIds, stageIds, gateIds, ar
   for (const gate of policy.unlisted_kept_biological || []) {
     if (claimed.has(gate)) fail(`unlisted_kept_biological 与会签桶重复: ${gate}`);
   }
+  if (policy.default_if_unlisted === "reject-unlisted") {
+    const missing = [...gateIds].filter(gate => !claimed.has(gate));
+    if (missing.length) fail(`GATE_POLICY_REQUIRED: ${missing.join(", ")}`);
+    if ((policy.unlisted_kept_biological || []).length) fail("reject-unlisted 不允许 unlisted_kept_biological");
+  }
 
+  const bundles = policy.review_execution?.review_bundles;
+  if (!Array.isArray(bundles) || bundles.length === 0) fail("缺少 review_execution.review_bundles");
+  const bundleIds = new Set();
+  const bundledChecks = new Set();
+  for (const [index, bundle] of bundles.entries()) {
+    const field = `review_execution.review_bundles[${index}]`;
+    requireString(bundle?.bundle_id, `${field}.bundle_id`);
+    if (!/^review-bundle\.[a-z0-9][a-z0-9-]*$/.test(bundle.bundle_id)) fail(`${field}.bundle_id 格式非法`);
+    if (bundleIds.has(bundle.bundle_id)) fail(`组合审查 ID 重复: ${bundle.bundle_id}`);
+    bundleIds.add(bundle.bundle_id);
+    requireString(bundle.work_unit, `${field}.work_unit`);
+    if (!workUnitIds.has(bundle.work_unit)) fail(`${field}.work_unit 未知: ${bundle.work_unit}`);
+    requireString(bundle.aggregate_gate, `${field}.aggregate_gate`);
+    if (!gateIds.has(bundle.aggregate_gate)) fail(`${field}.aggregate_gate 未知: ${bundle.aggregate_gate}`);
+    requireStringArray(bundle.checks, `${field}.checks`);
+    const aggregateRule = countersignRuleForGate(policy, bundle.aggregate_gate);
+    if (!aggregateRule?.drafter) fail(`${bundle.bundle_id} 聚合门禁必须声明起草者与独立复核者`);
+    for (const check of bundle.checks) {
+      if (!checkIds.has(check)) fail(`${bundle.bundle_id} 引用未知检查: ${check}`);
+      if (bundledChecks.has(check)) fail(`检查被多个组合审查重复占用: ${check}`);
+      bundledChecks.add(check);
+      const checkRule = countersignRuleForGate(policy, check);
+      if (!checkRule?.drafter || checkRule.drafter !== aggregateRule.drafter || JSON.stringify(checkRule.countersigners) !== JSON.stringify(aggregateRule.countersigners)) {
+        fail(`${bundle.bundle_id} 的 aggregate_gate 与 checks 必须使用同一起草者和复核者`);
+      }
+    }
+  }
+
+  const decisions = doc.user_decision_policy;
+  if (decisions?.continuation) {
+    const continuation = decisions.continuation;
+    if (continuation.capability !== 'approved-scope-continuation-v1' || continuation.source_boundary !== 'delivery-scope' || continuation.unknown_change !== 'blocked' || continuation.external_policy_unconfirmed !== 'no-automatic-continuation') fail('授权延续策略不能省略未知变化或外部制度保护');
+    requireStringArray(continuation.boundaries, 'continuation.boundaries');
+    for (const boundary of continuation.boundaries) {
+      if (!gateIds.has(boundary) && boundary !== 'implementation-scope') fail(`未支持的延续边界: ${boundary}`);
+      requireStringArray(policy.continuation_reviews?.[boundary], `${boundary}.continuation_reviews`);
+      for (const role of policy.continuation_reviews[boundary]) if (!actors.has(role)) fail(`未知延续审查角色: ${role}`);
+    }
+  }
+  if (decisions?.schema_version !== 1 || decisions.default_responder !== "requester" || decisions.delegate_requires_requester_evidence !== true) fail("缺少统一用户决定策略");
+  requireStringArray(decisions.gates, "user_decision_policy.gates");
+  for (const gate of decisions.gates) if (!gateIds.has(gate)) fail(`用户决定引用未知门禁: ${gate}`);
+  for (const unit of Object.keys(decisions.work_units || {})) if (!workUnitIds.has(unit)) fail(`用户决定引用未知工作单元: ${unit}`);
+  if (!policy.biological_human.includes("gate.product-design-approved")) fail("gate.product-design-approved 必须由真实用户裁决");
+  for (const gate of [...(policy.unlisted_kept_biological || []), ...policy.biological_human]) {
+    if (!decisions.gates.includes(gate)) fail(`${gate} 缺少真实回复要求`);
+  }
   return {
     role_count: doc.roles.length,
     group_count: doc.stage_groups.length,

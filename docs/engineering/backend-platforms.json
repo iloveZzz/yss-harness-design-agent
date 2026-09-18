@@ -65,11 +65,14 @@
       },
       "candidate_blockers": [
         "YSS parent/BOM/starter combination and real Maven/startup evidence required",
-        "component-unavailable-for-platform: no YSS Jakarta/Boot-specific component artifacts are registered for this profile"
+        "component-evidence-missing: Boot 3/JDK17 candidate artifacts, exact resolution metadata, AutoConfiguration.imports and DDD/MVC evidence are not published"
       ],
       "spring_cloud_line": "2025.0",
       "openfeign_line": "4.3",
-      "component_platform_line": "boot3-java17-mainline"
+      "component_platform_line": "boot3-java17",
+      "spring_cloud_version": "2025.0.3",
+      "spring_cloud_alibaba_version": "2025.0.0.0",
+      "auto_configuration_imports_path": "META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports"
     },
     {
       "id": "spring-boot-3.5-jdk21",
@@ -574,7 +577,7 @@
             {
               "group_id": "com.yss.cloud",
               "artifact_id": "yss-component-cache-starter",
-              "declared_version": "3.0.0-SNAPSHOT",
+              "declared_version": "3.1.0-SNAPSHOT",
               "resolved_version": null,
               "pom_sha256": null,
               "jar_sha256": null,
@@ -583,9 +586,9 @@
           ],
           "evidence": [],
           "blockers": [
-            "component-evidence-missing: Boot 3/JDK 17 component 3.x artifacts, Jakarta namespace, AutoConfiguration.imports and DDD/MVC reports are not available"
+            "component-evidence-missing: yss-component-cache-starter 3.1.0-SNAPSHOT resolved timestamp, POM/JAR SHA-256, source tree, AutoConfiguration.imports and DDD/MVC evidence are not published"
           ],
-          "component_digest": "sha256:c6c3049779211fce63cbbccb0e7751421fa4a051e5e98a16918fc4062f5fbc47",
+          "component_digest": "sha256:c57c6b6a2fae78d92f4c3101b9c51b8be8dd00e80a081cf45813bda67923b191",
           "platform_line": "boot3-java17",
           "lifecycle": "active",
           "adoption_policy": "allowed"
@@ -642,15 +645,6 @@
           "artifacts": [
             {
               "group_id": "com.yss.cloud",
-              "artifact_id": "yss-component-excel-starter",
-              "declared_version": "3.0.0-SNAPSHOT",
-              "resolved_version": null,
-              "pom_sha256": null,
-              "jar_sha256": null,
-              "source_tree": null
-            },
-            {
-              "group_id": "com.yss.cloud",
               "artifact_id": "yss-component-excel-mvc",
               "declared_version": "3.0.0-SNAPSHOT",
               "resolved_version": null,
@@ -661,9 +655,10 @@
           ],
           "evidence": [],
           "blockers": [
-            "component-evidence-missing: Boot 3/JDK 17 component 3.x artifacts, Jakarta namespace, AutoConfiguration.imports and DDD/MVC reports are not available"
+            "component-evidence-missing: yss-component-excel-mvc 3.0.0-SNAPSHOT resolved timestamp, POM/JAR SHA-256, source tree and DDD/MVC evidence are not published",
+            "component-evidence-missing: org.apache.fesod:fesod-sheet:2.0.2-incubating is byte-bound, but Excel consuming-application evidence is not recorded"
           ],
-          "component_digest": "sha256:5c77e93b7a870b2c96a6ba5ecff86f96b380d513a8f0bf69737799572068e8ee",
+          "component_digest": "sha256:9ebc0322ef6cb941cb2ceb8ef31cdd07c905fc3b8a55f1ae1c460bf97a3eda11",
           "platform_line": "boot3-java17",
           "lifecycle": "active",
           "adoption_policy": "allowed"
@@ -675,7 +670,7 @@
             {
               "group_id": "com.yss.cloud",
               "artifact_id": "yss-component-distributed-id",
-              "declared_version": "3.0.0-SNAPSHOT",
+              "declared_version": "3.1.0-SNAPSHOT",
               "resolved_version": null,
               "pom_sha256": null,
               "jar_sha256": null,
@@ -684,9 +679,9 @@
           ],
           "evidence": [],
           "blockers": [
-            "component-evidence-missing: Boot 3/JDK 17 component 3.x artifacts, Jakarta namespace, AutoConfiguration.imports and DDD/MVC reports are not available"
+            "component-evidence-missing: yss-component-distributed-id 3.1.0-SNAPSHOT resolved timestamp, POM/JAR SHA-256, source tree, AutoConfiguration.imports and DDD/MVC evidence are not published"
           ],
-          "component_digest": "sha256:ef73c849570533f88de22977f49d6f122d776dc03e08a8e15e5b62297cbdf66a",
+          "component_digest": "sha256:8348b9848a0da511a13f34f4680feccc477066eee3871ef087c3f12d97a44fa6",
           "platform_line": "boot3-java17",
           "lifecycle": "active",
           "adoption_policy": "allowed"
@@ -738,9 +733,87 @@
           "platform_line": "boot3-java17",
           "lifecycle": "active",
           "adoption_policy": "allowed"
+        },
+        "contract.request-validation": {
+          "status": "blocked",
+          "provider_kind": "platform-managed",
+          "verified_architectures": [],
+          "artifacts": [
+            {
+              "group_id": "org.springframework.boot",
+              "artifact_id": "spring-boot-starter-validation",
+              "declared_version": "3.5.16",
+              "resolved_version": null,
+              "pom_sha256": null,
+              "jar_sha256": null,
+              "source_tree": null
+            }
+          ],
+          "evidence": [],
+          "blockers": [
+            "component-evidence-missing: Spring Boot 3.5.16 managed Validation resolution, Jakarta runtime and DDD/MVC consuming-application evidence are not recorded"
+          ],
+          "platform_line": "boot3-java17",
+          "lifecycle": "active",
+          "adoption_policy": "allowed",
+          "component_digest": "sha256:06d28817d0ef95d7c6db3637adc3426a691aac19c6e17b41e0bdb2bfec51cfec"
         }
       },
-      "evidence": []
+      "evidence": [],
+      "platform_artifact_bindings": {
+        "parent": {
+          "role": "parent",
+          "status": "candidate",
+          "group_id": "com.yss.cloud",
+          "artifact_id": "yss-cloud-microservice",
+          "declared_version": "3.0.0-SNAPSHOT",
+          "resolved_version": null,
+          "published_at": null,
+          "pom_sha256": null,
+          "jar_sha256": null,
+          "source_tree": null,
+          "evidence": [],
+          "blockers": [
+            "component-evidence-missing: Boot 3 parent POM has not been published and byte-bound to a source tree"
+          ],
+          "sources_jar_sha256": null
+        },
+        "bom": {
+          "role": "bom",
+          "status": "candidate",
+          "group_id": "com.yss.cloud",
+          "artifact_id": "yss-components-bom",
+          "declared_version": "3.0.0-SNAPSHOT",
+          "resolved_version": null,
+          "published_at": null,
+          "pom_sha256": null,
+          "jar_sha256": null,
+          "source_tree": null,
+          "evidence": [],
+          "blockers": [
+            "component-evidence-missing: Boot 3 component BOM has not been published and byte-bound to a source tree"
+          ],
+          "sources_jar_sha256": null
+        }
+      },
+      "external_snapshot_bindings": [],
+      "external_artifact_bindings": [
+        {
+          "role": "excel-engine",
+          "status": "resolved",
+          "group_id": "org.apache.fesod",
+          "artifact_id": "fesod-sheet",
+          "declared_version": "2.0.2-incubating",
+          "resolved_version": "2.0.2-incubating",
+          "published_at": null,
+          "pom_sha256": "sha256:9c1f7a78ad39264c4d2a2689251562192a6074a79291adfe6b1806f199ee8df1",
+          "jar_sha256": "sha256:39d43ea6e6fcb26b712181869859c035d1cb0742a842e2758c8c58e79c112b4e",
+          "source_tree": null,
+          "evidence": [],
+          "blockers": [],
+          "sources_jar_sha256": "sha256:fb34dffa2a8844ea1033fc3896f497a55684842e98af428a9b7c5e29047a8b38"
+        }
+      ]
     }
   ],
   "component_retirement_policy": {

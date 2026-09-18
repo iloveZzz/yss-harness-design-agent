@@ -21,6 +21,7 @@ function parseArgs(argv) {
 function componentView(entry) {
   return Object.fromEntries(Object.entries(entry.component_capabilities ?? {}).map(([capabilityId, item]) => [capabilityId, {
     status: item.status,
+    provider_kind: item.provider_kind ?? "yss-component",
     lifecycle: item.lifecycle ?? "active",
     adoption_policy: item.adoption_policy ?? "allowed",
     platform_line: item.platform_line ?? null,
@@ -52,6 +53,9 @@ try {
           bom: entry.bom,
           architectures: [...new Set(componentValues.flatMap(item => item.verified_architectures))],
           capabilities: entry.capabilities ?? [],
+          platform_artifact_bindings: entry.platform_artifact_bindings ?? {},
+          external_snapshot_bindings: entry.external_snapshot_bindings ?? [],
+          external_artifact_bindings: entry.external_artifact_bindings ?? [],
           component_capabilities: componentCapabilities,
           component_status: {
             verified: componentValues.filter(item => item.status === "verified").length,

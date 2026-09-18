@@ -28,13 +28,72 @@ const retirementEvidenceComplete = value => {
   for (const item of value) required.delete(item.kind);
   return required.size === 0;
 };
+const candidateArtifactFieldsEmpty = binding =>
+  ["resolved_version", "published_at", "pom_sha256", "jar_sha256", "sources_jar_sha256", "source_tree"].every(field => binding[field] === null) &&
+  Array.isArray(binding.evidence) && binding.evidence.length === 0 &&
+  Array.isArray(binding.blockers) && binding.blockers.length > 0;
+function validateArtifactBinding(binding, label, { role, expected, snapshot, allowedStatuses = ["candidate"] }) {
+  if (!binding || typeof binding !== "object" || typeof role !== "string" || !role.length || binding.role !== role || !allowedStatuses.includes(binding.status)) componentFail("component-binding-drift", `invalid artifact binding: ${label}`);
+  if (!binding.group_id || !binding.artifact_id || !exactVersion(binding.declared_version)) componentFail("component-artifact-coordinate-conflict", `invalid candidate artifact coordinate: ${label}`);
+  if (expected && (binding.group_id !== expected.group_id || binding.artifact_id !== expected.artifact_id || binding.declared_version !== expected.version)) componentFail("component-binding-drift", `candidate artifact differs from compatibility coordinates: ${label}`);
+  if (snapshot !== binding.declared_version.endsWith("-SNAPSHOT")) componentFail("component-artifact-coordinate-conflict", `candidate artifact release kind mismatch: ${label}`);
+  if (binding.status === "candidate" && !candidateArtifactFieldsEmpty(binding)) componentFail("component-evidence-missing", `candidate artifact must remain unresolved until evidence is published: ${label}`);
+  if (binding.status === "resolved") {
+    if (snapshot || binding.resolved_version !== binding.declared_version || !sha256(binding.pom_sha256) || !sha256(binding.jar_sha256) || !sha256(binding.sources_jar_sha256)) componentFail("component-evidence-missing", `resolved external release lacks immutable version or POM/JAR/sources digest: ${label}`);
+    if (binding.published_at !== null && (typeof binding.published_at !== "string" || !binding.published_at.length)) componentFail("component-binding-drift", `invalid external release timestamp: ${label}`);
+    if (binding.source_tree !== null && !gitTree(binding.source_tree)) componentFail("component-binding-drift", `invalid external release source tree: ${label}`);
+    if (!Array.isArray(binding.evidence) || !Array.isArray(binding.blockers)) componentFail("component-evidence-missing", `resolved external release evidence fields are invalid: ${label}`);
+  }
+}
 export function componentCapabilityDigest(value, capabilityId = value?.capability_id) {
   const { capability_id, component_digest, status, evidence, blockers, ...recipe } = value ?? {};
   return platformDigest({ capability_id: capabilityId, ...recipe });
 }
+function validateBoot3Java17Policy(entry, profile) {
+  if (profile.component_platform_line !== "boot3-java17") return;
+  if (profile.spring_cloud_version !== "2025.0.3" || profile.spring_cloud_alibaba_version !== "2025.0.0.0" || profile.validation_namespace !== "jakarta" || profile.jackson_major !== 2 || profile.auto_configuration_imports_path !== "META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports") componentFail("component-binding-drift", `Boot 3.5/JDK17 platform constraints changed: ${profile.id}`);
+  if (!entry.platform_artifact_bindings || !Array.isArray(entry.external_snapshot_bindings) || !Array.isArray(entry.external_artifact_bindings)) componentFail("component-binding-drift", `Boot 3.5/JDK17 artifact binding structures are missing: ${entry.id}`);
+  if (entry.external_snapshot_bindings.length) componentFail("component-artifact-coordinate-conflict", `Boot 3.5/JDK17 does not allow unresolved external SNAPSHOT bindings: ${entry.id}`);
+  const components = entry.component_capabilities ?? {};
+  const exactComponent = (capabilityId, expected) => {
+    const artifacts = components[capabilityId]?.artifacts;
+    if (!Array.isArray(artifacts) || artifacts.length !== expected.length || artifacts.some((artifact, index) => `${artifact.group_id}:${artifact.artifact_id}:${artifact.declared_version}` !== expected[index])) componentFail("component-binding-drift", `Boot 3.5/JDK17 component coordinates changed: ${entry.id}:${capabilityId}`);
+  };
+  exactComponent("contract.request-validation", [`org.springframework.boot:spring-boot-starter-validation:${profile.spring_boot_version}`]);
+  exactComponent("component.cache", ["com.yss.cloud:yss-component-cache-starter:3.1.0-SNAPSHOT"]);
+  exactComponent("component.distributed-id", ["com.yss.cloud:yss-component-distributed-id:3.1.0-SNAPSHOT"]);
+  if (Object.values(components).some(item => item.artifacts?.some(artifact => artifact.artifact_id === "yss-component-excel-starter"))) componentFail("component-new-adoption-forbidden", `removed yss-component-excel-starter is present: ${entry.id}`);
+  exactComponent("component.excel-import-export", ["com.yss.cloud:yss-component-excel-mvc:3.0.0-SNAPSHOT"]);
+  for (const [capabilityId, item] of Object.entries(components)) {
+    if (item.status !== "blocked" || item.verified_architectures.length || item.evidence.length || item.artifacts.some(artifact => ["resolved_version", "pom_sha256", "jar_sha256", "source_tree"].some(field => artifact[field] !== null))) componentFail("component-evidence-missing", `Boot 3.5/JDK17 unpublished component must remain blocked and unresolved: ${entry.id}:${capabilityId}`);
+  }
+  const external = entry.external_artifact_bindings;
+  if (external.length !== 1 || `${external[0].group_id}:${external[0].artifact_id}:${external[0].declared_version}` !== "org.apache.fesod:fesod-sheet:2.0.2-incubating" || external[0].status !== "resolved") componentFail("component-binding-drift", `Boot 3.5/JDK17 Fesod release binding changed: ${entry.id}`);
+}
 function validateComponentCatalog(value, root = PLATFORM_ROOT) {
   if (Object.hasOwn(value, "component_capabilities") || Object.hasOwn(value, "component_capability_ids")) componentFail("component-binding-drift", "component capabilities must be nested in their compatibility entry");
   for (const entry of value.compatibility) {
+    const profile = value.profiles.find(item => item.id === entry.profile_id && item.spring_boot_version === entry.spring_boot_version);
+    if (!profile) componentFail("component-unavailable-for-platform", `compatibility profile is missing: ${entry.id}`);
+    const generation = platformGeneration(profile);
+    if (generation.line === "boot3-java17" && profile.component_platform_line !== generation.line) componentFail("component-platform-generation-mismatch", `profile component line does not match ${generation.line}: ${profile.id}`);
+    if (entry.platform_artifact_bindings !== undefined) {
+      if (!entry.platform_artifact_bindings || Array.isArray(entry.platform_artifact_bindings) || Object.keys(entry.platform_artifact_bindings).sort().join(",") !== "bom,parent") componentFail("component-binding-drift", `platform artifact bindings must contain parent and bom: ${entry.id}`);
+      validateArtifactBinding(entry.platform_artifact_bindings.parent, `${entry.id}:parent`, { role: "parent", expected: entry.parent, snapshot: true });
+      validateArtifactBinding(entry.platform_artifact_bindings.bom, `${entry.id}:bom`, { role: "bom", expected: entry.bom, snapshot: true });
+    }
+    for (const [field, snapshot] of [["external_snapshot_bindings", true], ["external_artifact_bindings", false]]) {
+      const bindings = entry[field];
+      if (bindings === undefined) continue;
+      if (!Array.isArray(bindings)) componentFail("component-binding-drift", `${field} must be an array: ${entry.id}`);
+      const coordinates = new Set();
+      for (const binding of bindings) {
+        validateArtifactBinding(binding, `${entry.id}:${field}:${binding?.group_id ?? "?"}:${binding?.artifact_id ?? "?"}`, { role: binding?.role, snapshot, allowedStatuses: field === "external_artifact_bindings" ? ["candidate", "resolved"] : ["candidate"] });
+        const coordinate = `${binding.group_id}:${binding.artifact_id}`;
+        if (coordinates.has(coordinate)) componentFail("component-artifact-coordinate-conflict", `duplicate ${field} coordinate: ${entry.id}:${coordinate}`);
+        coordinates.add(coordinate);
+      }
+    }
     let artifactResolution = null;
     if (entry.artifact_resolution_evidence !== undefined) {
       const binding = entry.artifact_resolution_evidence;
@@ -54,6 +113,12 @@ function validateComponentCatalog(value, root = PLATFORM_ROOT) {
       const key = `${entry.id}:${capabilityId}`;
       if (!capabilityId.includes(".") || !item || typeof item !== "object") componentFail("component-binding-drift", `invalid component capability binding: ${key}`);
       if (!["candidate", "verified", "blocked"].includes(item.status) || !Array.isArray(item.verified_architectures) || !Array.isArray(item.artifacts) || !Array.isArray(item.evidence) || !Array.isArray(item.blockers)) componentFail("component-evidence-missing", `incomplete capability entry: ${key}`);
+      if (item.provider_kind !== undefined && !["yss-component", "platform-managed"].includes(item.provider_kind)) componentFail("component-binding-drift", `invalid component provider kind: ${key}`);
+      if (item.provider_kind === "platform-managed") {
+        if (capabilityId !== "contract.request-validation" || item.artifacts.length !== 1) componentFail("component-binding-drift", `unsupported platform-managed capability: ${key}`);
+        const artifact = item.artifacts[0];
+        if (artifact.group_id !== "org.springframework.boot" || artifact.artifact_id !== "spring-boot-starter-validation" || artifact.declared_version !== profile.spring_boot_version) componentFail("component-binding-drift", `platform-managed validation must match Spring Boot ${profile.spring_boot_version}: ${key}`);
+      }
       if (!["active", "maintenance", "deprecated", "retired"].includes(item.lifecycle ?? "active") || !["allowed", "forbidden"].includes(item.adoption_policy ?? "allowed")) componentFail("component-binding-drift", `invalid component lifecycle/adoption policy: ${key}`);
       if (item.lifecycle === "retired" && !retirementEvidenceComplete(item.retirement_evidence)) componentFail("component-retirement-evidence-missing", `organizational zero-consumption evidence is incomplete: ${key}`);
       if (new Set(item.verified_architectures).size !== item.verified_architectures.length || item.verified_architectures.some(family => !["domain-driven", "layered-mvc"].includes(family))) componentFail("component-binding-drift", `invalid verified architectures: ${key}`);
@@ -83,6 +148,7 @@ function validateComponentCatalog(value, root = PLATFORM_ROOT) {
         if (item.evidence.some(evidence => !portableEvidence(evidence) || !item.verified_architectures.includes(evidence.architecture_family))) componentFail("component-evidence-missing", `verified capability evidence is invalid: ${key}`);
       } else if (!item.blockers.length) componentFail("component-evidence-missing", `unverified capability lacks blockers: ${key}`);
     }
+    validateBoot3Java17Policy(entry, profile);
   }
 }
 export function loadBackendPlatforms(root = PLATFORM_ROOT) {
@@ -102,7 +168,7 @@ export function platformProfile(id, catalog = loadBackendPlatforms(), version) {
 }
 export function platformRecipeDigest(profile, entry) {
   const { candidate_blockers, recommended, ...recipe } = profile;
-  return platformDigest({ profile: recipe, entry: { id: entry.id, profile_id: entry.profile_id, spring_boot_version: entry.spring_boot_version, parent: entry.parent, bom: entry.bom, components: entry.components ?? {} } });
+  return platformDigest({ profile: recipe, entry: { id: entry.id, profile_id: entry.profile_id, spring_boot_version: entry.spring_boot_version, parent: entry.parent, bom: entry.bom, components: entry.components ?? {}, platform_artifact_bindings: entry.platform_artifact_bindings ?? {}, external_snapshot_bindings: entry.external_snapshot_bindings ?? [], external_artifact_bindings: entry.external_artifact_bindings ?? [] } });
 }
 export function platformBinding(profile, entry) {
   return { schema_version: 2, profile_id: profile.id, spring_boot_version: profile.spring_boot_version, java_version: profile.java_version, parent: entry.parent, bom: entry.bom, compatibility_id: entry.id, compatibility_digest: platformRecipeDigest(profile, entry) };

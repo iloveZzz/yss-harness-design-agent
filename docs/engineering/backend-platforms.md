@@ -32,6 +32,8 @@ Project Scaffold Contract v4 新增 `platform_configuration` v2，两个脚手�
 
 每项记录 `status`、`verified_architectures`、`artifacts`、`evidence`、`blockers` 和 `component_digest`。每个构件固定字段为 `group_id`、`artifact_id`、`declared_version`、`resolved_version`、`pom_sha256`、`jar_sha256`、`source_tree`。SNAPSHOT 的声明版本与仓库实际解析版本必须分离；已验证条目的 POM/JAR 摘要使用 `sha256:<64 位小写十六进制>`，`source_tree` 使用 40 位小写 Git tree SHA。阻断条目可将尚未取得的解析版本、摘要和 tree 设为 `null`，但必须给出稳定 blocker。
 
+Boot 3.5 / JDK 17 Profile 固定 `Spring Cloud 2025.0.3`、`Spring Cloud Alibaba 2025.0.0.0`、Jakarta Validation、Jackson 2，并要求 `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`。同一 compatibility entry 通过 `platform_artifact_bindings.parent/bom` 保存父 POM 与组件 BOM 候选，通过 `external_snapshot_bindings` 和 `external_artifact_bindings` 区分外部 SNAPSHOT 与正式发布构件。候选未发布或未完成本地解析时，`resolved_version`、`published_at`、POM/JAR SHA、`source_tree` 保持 `null`，`evidence` 保持空数组并写明 blocker；这些字段参与平台 recipe digest，不能在批准后静默变化。
+
 `resolveComponentCapabilities(binding, capabilityIds, architectureFamily, options?)` 先按 binding 精确找到同一 compatibility entry，再解析其中的 capability map。成功结果是可序列化 binding 数组；未登记、非 `verified`、架构不符、构件字段缺失、同坐标解析不一致、组件摘要或证据字节漂移均 fail-closed。错误前缀及稳定码为：
 
 - `component-capability: component-unavailable-for-platform`
@@ -43,15 +45,15 @@ Project Scaffold Contract v4 新增 `platform_configuration` v2，两个脚手�
 
 当前 `spring-boot-2.7-jdk8` 组合登记为 `blocked`。阿里云 Maven 私服已解析出 12 个 timestamped SNAPSHOT 及 POM/JAR SHA-256；其中 11 个构件的发布 POM 与 sources JAR 可逐字节绑定到固定 Git tree，Cache 3.x 没有发布 sources JAR，仍缺源码绑定。Exception、UserInfo、Security 和 Resilience4j 的已解析构件对应固定提交，不包含当前隔离工作树中的加固候选。所有能力仍缺 DDD 与 Layered MVC 消费应用认证，因此未写入 `verified_architectures` 或组件 evidence。
 
-Cache 源模块和私服构件为 `3.0.0-SNAPSHOT`，但使用 JDK 8 构建且 BOM 2.x 管理的是 `2.0.0-SNAPSHOT`；Distributed ID 3.x 同样是 JDK 8 / `javax` 代际。这两个 3.x 坐标不能作为 Boot 3 主线证据。UserInfo 源模块继承 `com.yss.cloud`，BOM 仍登记 `com.yss.datamiddle`，坐标冲突继续阻断。Boot 3.5 有候选 compatibility entry，但现有能力全部 blocked；Boot 4.1 没有 compatibility entry。只有补齐当前候选发布和两类架构报告并通过门禁后，Boot 2.7 / JDK 8 才可转为 `verified`；当前目录不对任何 Profile 宣称可选择。
+Boot 2 私服中的 Cache `3.0.0-SNAPSHOT` 使用 JDK 8 构建且 BOM 2.x 管理的是 `2.0.0-SNAPSHOT`；Distributed ID 3.x 同样是 JDK 8 / `javax` 代际。这两个坐标不能作为 Boot 3 主线证据。UserInfo 源模块继承 `com.yss.cloud`，BOM 仍登记 `com.yss.datamiddle`，坐标冲突继续阻断。Boot 3.5 候选单独绑定 Cache 与 Distributed ID `3.1.0-SNAPSHOT`，Validation 使用平台管理的 `org.springframework.boot:spring-boot-starter-validation:3.5.16`；Excel 只保留 `yss-component-excel-mvc`，已移除的 `yss-component-excel-starter` 不再登记。Fesod `2.1.0-SNAPSHOT` 在当前私服不可解析，因此 `external_snapshot_bindings` 为空；Excel 外部依赖改用 Apache 正式发布的 `org.apache.fesod:fesod-sheet:2.0.2-incubating`，并以实际 POM、二进制 JAR 与 sources JAR SHA-256 保存为不可变 `resolved` release binding。Fesod 字节绑定不替代消费认证；YSS parent/BOM、timestamped SNAPSHOT、源码绑定、`AutoConfiguration.imports` 与 DDD/Layered MVC 消费证据仍未闭合，所以 Boot 3.5 compatibility 继续 `blocked`。Boot 4.1 没有 compatibility entry；当前目录不对任何 Profile 宣称可选择。
 
 `compatibility[].artifact_resolution_evidence` 绑定私服解析报告的相对路径和原始字节摘要。加载 catalog 时会同时核对 report ID、仓库 ID、timestamped version、POM/JAR SHA-256 与可证明的 Git tree；报告字节或任一构件绑定变化都返回 `component-binding-drift`。报告不保存 Maven 用户名、密码或令牌。用户级 `settings.xml` 只提供下载配置；其中 profile 下的 `distributionManagement` 会被 Maven 忽略，发布目标必须由发布 POM 持有。
 
 ## 依赖与验证
 
-Boot BOM 管理 Spring Framework/MVC、嵌入式容器、Servlet、Validation、Jackson 等依赖，Boot Plugin 与 Boot 精确版本相同。YSS 父 POM/BOM 仍由用户确认，解析结果冲突则阻断，不能依靠属性覆盖宣称兼容。清单记录构建工具、Lombok、MapStruct、Swagger、ArchUnit 的候选版本；YSS 组件源码不在脚手架步骤中改造。
+Boot BOM 管理 Spring Framework/MVC、嵌入式容器、Servlet、Validation、Jackson 等依赖，Boot Plugin 与 Boot 精确版本相同。Boot 3.5 Validation 作为 `platform-managed` capability 解析，不再要求 YSS Validation starter。YSS 父 POM/BOM 仍由用户确认，解析结果冲突则阻断，不能依靠属性覆盖宣称兼容。清单记录构建工具、Lombok、MapStruct、Swagger、ArchUnit 的候选版本；YSS 组件源码不在脚手架步骤中改造。
 
-Boot 4 使用对应 MVC / MVC 测试 starter、Jackson 3 默认栈与新的模块结构；MyBatis-Plus 必须使用相应 Boot 分支。Web/Validation 的 Jakarta 迁移不替换 `javax.sql` 等 Java SE API。Feign 等可选能力须在兼容条目的 `capabilities` 内有验证记录。清单记录 Cloud 2021.0 / 2025.0 / 2025.1（Boot 4.1 至少 2025.1.2）及 OpenFeign 3.1 / 4.3 / 5.0 线；实际内部 BOM 必须解析到对应组合。测试覆盖 Validation、JSON、MyBatis 查询映射和适用的 Feign JSON Decoder。
+Boot 4 使用对应 MVC / MVC 测试 starter、Jackson 3 默认栈与新的模块结构；MyBatis-Plus 必须使用相应 Boot 分支。Web/Validation 的 Jakarta 迁移不替换 `javax.sql` 等 Java SE API。Feign 等可选能力须在兼容条目的 `capabilities` 内有验证记录。清单记录 Boot 3.5 的 Spring Cloud `2025.0.3`、Spring Cloud Alibaba `2025.0.0.0`，以及其他候选线；实际内部 BOM 必须解析到对应组合。测试覆盖 Validation、JSON、MyBatis 查询映射和适用的 Feign JSON Decoder。
 
 真实验证保存 Maven 实际 JDK、effective POM、每个模块的依赖树、固定三条 Wrapper 命令结果，以及显式 `scaffold-local` 打包启动结果。启动检查只绑定回环地址，通过启动日志与 HTTP 响应验证机械 Web 服务；测试内 Controller 通过随机端口覆盖 JSON POST 往返及非法参数 400，不编译进生产 Jar，并终止验证进程。H2 仅用于测试和显式本地 Profile，不绑定生产数据库。生成器不添加用户业务示例。
 

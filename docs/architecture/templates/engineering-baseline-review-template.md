@@ -48,7 +48,7 @@ owner: ai
 | 场景 | 推荐 skill | 是否需要 | 备注 |
 |------|-------------|----------|------|
 | 新服务骨架 | `yss-ddd-scaffold-generator` | 是 / 否 |  |
-| 后端基线检查 | `yss-backend-scaffold-parent` | 是 / 否 |  |
+| 后端基线检查 | `yss-ddd-scaffold-generator/references/engineering-baseline.md` | 是 / 否 |  |
 | 领域建模 | `yss-domain` | 是 / 否 |  |
 | Application 用例编排 / 事务边界 | `yss-application` | 是 / 否 |  |
 | Repository / MyBatis | `yss-repository` / `yss-mybatis` | 是 / 否 |  |
@@ -62,7 +62,7 @@ owner: ai
 | `scaffold_status=required` 时先由 Router 编译脚手架合同并经生命周期批准，再使用 `yss-ddd-scaffold-generator` | 是 / 否 / 不适用 | 结构化 `contract_id` / `contract_version`、Router draft、批准引用、持久化引用和生成结果 |
 | 脚手架生成结果只包含工程结构、配置和机械模板 | 是 / 否 | 禁止生成业务行为 |
 | 生成器输入、预期文件和实际 `./mvnw validate` / `./mvnw test` / `./mvnw package` 已留证 | 是 / 否 | 每条命令记录 `exit_code`、`duration_ms`、stdout/stderr 引用和执行时间；打印命令不算证据 |
-| `yss-backend-scaffold-parent` 基线校验已完成并重新进入 `yss-router` | 是 / 否 / 不适用 |  |
+| DDD 内部 `engineering-baseline` 校验已完成并重新进入 `yss-implementation-contract-compiler` | 是 / 否 / 不适用 |  |
 | 脚手架后所有业务代码均绑定批准 Slice Implementation Contract 和 YSS Skill Execution Result | 是 / 否 |  |
 
 ## 5. 完成标准
@@ -73,7 +73,7 @@ owner: ai
 - [ ] 对象转换优先 MapStruct，重复 mapping 有处理策略。
 - [ ] 所需 YSS skills 已最小化选择。
 - [ ] 风险影响、验证证据和责任人已记录。
-- [ ] 原型确认后已按脚手架顺序完成工程基线、生成器、`yss-backend-scaffold-parent` 和 Router 重编译；脚手架未生成业务行为。
+- [ ] 原型确认后已按脚手架顺序完成工程基线、生成器、内部 `engineering-baseline` 校验和实现合同编译器重编译；脚手架未生成业务行为。
 
 ## 6. 下一步门禁
 

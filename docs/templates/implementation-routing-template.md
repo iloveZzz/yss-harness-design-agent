@@ -215,7 +215,7 @@ owner: ai
 
 ### 4.3 后端脚手架工作单元
 
-当 backend `scaffold_status=required` 时，先登记一个 `controlled-generation` 工作单元：`primary_skill=yss-ddd-scaffold-generator`，并在后续追加 `yss-backend-scaffold-parent` 基线校验和 `yss-router` 合同重编译。`existing` / `initialized` 不重复全量生成，但必须提供等价基线和 Wrapper 证据。
+当 backend `scaffold_status=required` 时，先登记一个 `controlled-generation` 工作单元：`primary_skill=yss-ddd-scaffold-generator`，并在后续校验生成器内部 `engineering-baseline` 合同，再由 `yss-implementation-contract-compiler` 重编译。`existing` / `initialized` 不重复全量生成，但必须提供等价基线和 Wrapper 证据。
 
 | 项 | 内容 |
 |---|---|
@@ -226,7 +226,7 @@ owner: ai
 | 禁止生成 | 业务规则、状态机、权限、事务、复杂查询、错误映射、业务字段和用户可见行为 |
 | 生成选项 | 关闭 `--with-example`；非空目录 `--force` 默认阻断，覆盖范围、备份、回滚点和批准引用齐全后才能单独审查 |
 | 验证 | 受控验证器实际执行项目根目录 `./mvnw validate`、`./mvnw test`、`./mvnw package`，逐条记录 `exit_code`、`duration_ms`、stdout/stderr 引用和执行时间；打印命令不算证据 |
-| 后置 | `yss-backend-scaffold-parent`、`yss-router` 业务合同重编译、YSS Skill Execution Result |
+| 后置 | 内部 `engineering-baseline` 校验、`yss-implementation-contract-compiler` 业务合同重编译、YSS Skill Execution Result |
 
 所有后续生成代码必须绑定当前批准且版本一致的 Slice Implementation Contract、主 YSS skill、依赖闭包、允许写路径、预期证据和 Execution Result。业务行为必须使用 `behavior-tdd`；缺任一条件即阻断，不得以脚手架成功或时间压力豁免。
 

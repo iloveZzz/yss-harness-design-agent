@@ -56,6 +56,8 @@ README、用户指南和 `CLAUDE.md` 只解释或指向上述事实，不定义�
 
 ## 6. Ticket 与状态
 
+- Plan / Spec / Design 按 `docs/process/stage-tracking.md` 从阶段入口登记工作、按需拆分并在恢复 / 流转时验证；工作项进度不替代 Ticket 五态和阶段批准。
+
 - checkpoint 是唯一机器状态源，map.md 展示并引用，`ticket_sync.status/refs` 关联索引和业务任务；旧 parent_ticket 只读兼容。
 - 本地只产出 `artifact.business-ticket-set`：按范围、优先级、验收、依赖和业务风险组织，并保持 `ready-for-human`。
 - 本地不得创建功能父 Ticket、垂直切片 Ticket 或设置 `ready-for-agent`。Tracker 按 `docs/agents/issue-tracker.md` 选择，不得从 Git remote 推断；平台不可用时生成待发布草案。

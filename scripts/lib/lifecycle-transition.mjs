@@ -1,3 +1,5 @@
+import { ROOT } from './lifecycle-registry.mjs';
+import { assertTrackingTransition } from './stage-tracking.mjs';
 import { existsSync, readFileSync } from "node:fs";
 import { parseDocument } from "../vendor/yaml.mjs";
 import { assertStrategicWorkUnitDecision } from './approval-record.mjs';
@@ -130,6 +132,8 @@ function validateTicketReference(ref, trackerKind) {
  * by `validateWorkflowExecutionResult` before this function is called.
  */
 export function validateNextRoute(currentWorkUnit, nextRoute, state = {}, options = {}) {
+  try { assertTrackingTransition(currentWorkUnit, nextRoute, state, { root: options.root || ROOT }); }
+  catch (error) { return blockedResult(['stage-tracking-blocked'], [error.message]); }
   const profileId = state.profileId || state.profile_id || ((state.repository_mode === 'project-instance' || state.workflow_reference?.source === 'yss-strategic-design') ? STRATEGIC_PROFILE_ID : null);
 
   const routes = profileId === STRATEGIC_PROFILE_ID ? PROFILE_NEXT_ROUTES[profileId][currentWorkUnit] : NEXT_ROUTES[currentWorkUnit];
@@ -240,6 +244,13 @@ export function validateTicketFormalization(state, { exists = existsSync, read =
       signals.push(BLOCKING_SIGNALS.unreadableSlice);
       missing.push("readable vertical_slice_ticket.ref");
     }
+  }
+  if (trackerKind === "local-markdown" && ticket?.ref && isReadable(ticket.ref, exists)) {
+    try {
+      const header = read(ticket.ref).match(/^---\r?\n([\s\S]*?)\r?\n---/);
+      const kind = header ? parseDocument(header[1], { uniqueKeys: true }).toJS({ maxAliasCount: 0 })?.kind : null;
+      if (kind === "stage-work-item") return blockedResult(["stage-work-item-not-implementable"], ["vertical-slice-ticket required"]);
+    } catch { return blockedResult(["ticket-content-unreadable"], ["readable vertical slice content"]); }
   }
   if (!contract || !hasText(contract.ticket_ref) || contract.ticket_ref !== ticket?.ref) {
     signals.push(BLOCKING_SIGNALS.contractMismatch);

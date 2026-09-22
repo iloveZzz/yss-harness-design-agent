@@ -8,7 +8,7 @@ const exists = (ref) => [
   "docs/.scratch/demo/evidence/ticket-decomposition-result.yaml",
 ].includes(ref);
 const decompositionResult = `result_schema: workflow-execution-result-v1\nwork_unit: work-unit.ticket-decomposition\nresult: completed\nevidence_refs:\n  - docs/.scratch/demo/evidence/ticket-decomposition-result.yaml\n`;
-const read = (ref) => ref === "docs/.scratch/demo/evidence/ticket-decomposition-result.yaml" ? decompositionResult : "";
+const read = (ref) => ref === "docs/.scratch/demo/issues/01-valid-slice.md" ? "---\nkind: vertical-slice-ticket\n---\n# 合法切片测试\n" : ref === "docs/.scratch/demo/evidence/ticket-decomposition-result.yaml" ? decompositionResult : "";
 const options = { exists, read };
 
 const validTicketState = {

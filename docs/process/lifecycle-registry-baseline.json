@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "registry_id": "yss.lifecycle",
-  "semantic_sha256": "43541dff88d7deb8ea166df8bce8c40b7a761ffab0f35b35967202fe7ccefc73",
+  "semantic_sha256": "530c9388729a5ffa89e78f71e1f076217847827e7ddc53615846de7ff2e28edb",
   "published_ids": [
     "artifact.architecture-review",
     "artifact.business-ticket-set",

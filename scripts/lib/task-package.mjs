@@ -1,3 +1,4 @@
+import { assertTrackingEntry } from './stage-tracking.mjs';
 import { existsSync, readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
@@ -78,6 +79,7 @@ function validateSkillSource(value, registry) {
 }
 
 function validateCommon(value, registry, lifecycle) {
+  if (value.allowed_write_paths?.length && value.contract.kind === "lifecycle-work-unit") assertTrackingEntry(value.work_unit_id, value, { root: ROOT });
   if (value.work_unit_id === 'work-unit.spec-synthesis') assertPlanSpecEntry(value);
   const workUnit = lifecycle.work_units.find((item) => item.id === value.work_unit_id);
   if (!workUnit && value.contract.kind !== "slice-implementation") fail(`未知 work_unit_id: ${value.work_unit_id}`);

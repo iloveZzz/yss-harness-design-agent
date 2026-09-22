@@ -91,3 +91,7 @@ Plan → Spec（含正式草稿、恢复与显式 `to-spec`）写入前，按 `d
 ## 当前关键决定
 
 真实用户决定只覆盖 `gate.plan-approved`、`gate.spec-baseline-approved` 与命中 UI/体验影响的 `gate.product-design-approved`。领域战略、阶段决策、原型评审和浏览器验证写入 `check.*`；`gate.strategic-design-handoff-approved` 由需求经理独立复核产品经理起草的交接包，并结合 Fresh Verification 关闭，不产生新的用户询问。旧 gate 与旧批准只允许历史读取；活动资产命中时返回 `STRATEGIC_GATE_MIGRATION_REQUIRED`，按 `docs/process/strategic-gate-migration.md` 生成计划、应用迁移并重新确认聚合资产。
+
+## 阶段工作追踪
+
+首次进入允许的 Plan / Spec / Design 或恢复时，读取 `docs/process/stage-tracking.md`，核验 tracker 启用版本与持久 checkpoint。写阶段资产前登记当前工作项；小工作内联，跨负责人 / 独立验收 / 阻塞 / 延期时拆至 work-items。旧项目只读 check 后形成可审阅 plan，显式 apply 才启用；不补造历史完成或批准。完成时逐条关联验收证据，阶段退出回写；结果携带 checkpoint_ref。追踪不得扩大本 profile 的允许阶段，Design 不创建工程父票或实现切片。

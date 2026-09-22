@@ -440,6 +440,8 @@ skills:
       impacts: [ discovery, prototype, lifecycle ]
     }
 
+  - { id: yss-product-lifecycle, layer: core, maturity: supported, instance_default_discoverable: true, aliases: [], impacts: [ lifecycle ] }
+
 platform_skills:
   - id: product-design
     root: .codex/skills

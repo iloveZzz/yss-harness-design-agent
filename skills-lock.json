@@ -295,6 +295,18 @@
           ".pi/skills"
         ]
       },
+      "yss-product-lifecycle": {
+        "source": "project",
+        "sourceType": "local",
+        "skillPath": ".agents/skills/yss-product-lifecycle/SKILL.md",
+        "effectiveHash": "9f6f11633bd31401e35497b2460b0242952d7d1fce344ccaec170bcb92dfc11b",
+        "targets": [
+          ".agents/skills",
+          ".codex/skills",
+          ".cursor/skills",
+          ".pi/skills"
+        ]
+      },
       "yss-prototype-stage": {
         "source": "project",
         "sourceType": "local",
@@ -338,7 +350,7 @@
         "source": "project",
         "sourceType": "local",
         "skillPath": ".agents/skills/yss-strategic-design/SKILL.md",
-        "effectiveHash": "052f404f8acf75cc7714c257a306a110a9851ef17991b4732fe2b8581139a5c8",
+        "effectiveHash": "2a9c6664c262d092616100c2cd61c0a3842efd42e79a97e0d7500f977a513f4d",
         "targets": [
           ".agents/skills",
           ".codex/skills",

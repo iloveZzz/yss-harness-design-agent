@@ -2,7 +2,7 @@
   "schema_version": 1,
   "target_id": "yss-harness-design-agent",
   "source_repository": "yss-spec-project-template",
-  "source_revision": "0a909c1ec76b7eda5396877622b5a1e7b816afe2",
+  "source_revision": "2e27527d9ea5f1f72dace5e9d3dbd931217d6bea",
   "source_state": "committed",
   "transformation_set": [
     "identity"
@@ -138,7 +138,7 @@
     "scripts/verify-strategic-handoff-package-scenarios": "sha256:35f5ccf55f11e59848e53a865acba6a66ba9e8ab45d4c2ccc592e1d03660f892",
     "scripts/verify-strategic-handoff-tools-lock": "sha256:7b413ccc4ab4dc606113ec9e3f51ddac0d2045a761b18130483a70118c566d9b",
     ".agents/skills/yss-product-lifecycle/references/orchestration-contract.yaml": "sha256:cdee384ab5dafa68a31005dec941096d64dd60a64437a1c1d57d7cc6f92ced5a",
-    "docs/agents/yss-skill-registry.yaml": "sha256:7b552981ea5b3355307fbe298ac8edea1e689eae350cc8b1d8380a428872fe5e"
+    "docs/agents/yss-skill-registry.yaml": "sha256:dbbe04f208b1de39542c77a141469fe0e9ff40194b97f140bf3f6c25a4864ddd"
   },
   "effective_files": {
     "docs/agents/backend-architecture-profiles.md": "sha256:009172fe0d456ad40fc82637bfde800fc3b1ece0b9b5696e215cfc528dc96eea",

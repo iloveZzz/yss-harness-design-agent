@@ -116,6 +116,5 @@ scripts/verify-template
 |------|------|
 | [docs/templates/spec-template.md](./docs/templates/spec-template.md) | Spec，包含测试决策、AI / 人工审查点 |
 | [docs/templates/strategic-design-handoff-template.yaml](./docs/templates/strategic-design-handoff-template.yaml) | 战略设计交付包 |
-| [docs/templates/agent-brief-template.md](./docs/templates/agent-brief-template.md) | `triage` 产出的 Agent Brief |
 | [docs/architecture/templates/business-architecture-template.md](./docs/architecture/templates/business-architecture-template.md) | 业务架构 |
 | [docs/architecture/templates/functional-architecture-template.md](./docs/architecture/templates/functional-architecture-template.md) | 功能架构 |

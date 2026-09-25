@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { validateImplementationEntry, validateNextRoute, validateTicketFormalization } from "./lib/lifecycle-transition.mjs";
 
 const exists = (ref) => [
-  "docs/process/lifecycle-registry.yaml",
+  ".template-spec/process/lifecycle-registry.yaml",
   "docs/.scratch/demo/issues/01-valid-slice.md",
   "docs/.scratch/demo/evidence/ticket-decomposition-result.yaml",
 ].includes(ref);
@@ -92,8 +92,8 @@ assert.equal(validateNextRoute("work-unit.intensity-aware-verification", "work-u
 assert.equal(validateNextRoute("work-unit.release-and-rollback", null).result, "allowed");
 const arbitraryReadable = validateTicketFormalization({
   ...validTicketState,
-  ticket_decomposition_result_ref: "docs/process/lifecycle-registry.yaml",
-  ticket_decomposition_result: { result: "completed", evidence_refs: ["docs/process/lifecycle-registry.yaml"] },
+  ticket_decomposition_result_ref: ".template-spec/process/lifecycle-registry.yaml",
+  ticket_decomposition_result: { result: "completed", evidence_refs: [".template-spec/process/lifecycle-registry.yaml"] },
 }, options);
 assert.equal(arbitraryReadable.result, "blocked");
 assert.ok(arbitraryReadable.blocking_signals.includes("ticket-decomposition-incomplete"));

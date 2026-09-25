@@ -15,7 +15,7 @@ const mutations = [
   ["extra target role", (candidate) => candidate.audience.target_user_roles.push("role.unknown"), /target_user_roles/],
   ["wrong terminal", (candidate) => { candidate.lifecycle.terminal_work_unit = "work-unit.spec-synthesis"; }, /terminal_work_unit|strategic-design-handoff/],
   ["missing coordination route", (candidate) => { candidate.handoff.consumer_capabilities.pop(); }, /consumer_capabilities/],
-  ["missing template", (candidate) => { candidate.handoff.package_template = "docs/templates/missing.yaml"; }, /package_template/],
+  ["missing template", (candidate) => { candidate.handoff.package_template = ".template-spec/templates/missing.yaml"; }, /package_template/],
 ];
 for (const [name, mutate, pattern] of mutations) {
   const candidate = structuredClone(source);

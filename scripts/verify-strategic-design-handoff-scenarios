@@ -62,7 +62,7 @@ const snapshot = JSON.parse(snapshotResult.stdout).context_snapshot;
 const supplier = { term_ref: "Global/Supplier", term: "供应商", meaning: "提供产品或服务的主体", english_identifier: "Supplier", context_id: "Global", forbidden_aliases: [] };
 const decision = { term_ref: "ComplianceReview/AdmissionDecision", term: "准入结论", meaning: "合规审查的准入结果", english_identifier: "AdmissionDecision", context_id: "ComplianceReview", forbidden_aliases: [] };
 const sourceRef = (id, file) => ({ id, version: "v2", digest: `sha256:${id}`, status: "approved", persisted_ref: `docs/assets/${file}` });
-const route = (route_id, capability, entry_work_unit, expected_outputs, dependencies = []) => ({ route_id, capability, activation: "required", impact_refs: ["impact_assessment.ui"], entry_work_unit, expected_outputs, dependencies, context_reconciliation: { required: true, target_context_ref: "CONTEXT.md", schema_ref: "docs/process/schemas/context-reconciliation.schema.json" } });
+const route = (route_id, capability, entry_work_unit, expected_outputs, dependencies = []) => ({ route_id, capability, activation: "required", impact_refs: ["impact_assessment.ui"], entry_work_unit, expected_outputs, dependencies, context_reconciliation: { required: true, target_context_ref: "CONTEXT.md", schema_ref: ".template-spec/process/schemas/context-reconciliation.schema.json" } });
 const valid = {
   schema_version: 5, handoff_id: "strategic-design-handoff.supplier", handoff_version: "v1", status: "approved", ui_baseline_kind: "prototype",
   source: {

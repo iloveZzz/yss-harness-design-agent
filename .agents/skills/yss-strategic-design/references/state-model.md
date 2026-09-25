@@ -11,7 +11,7 @@
 | `tracker.kind` | `local-markdown`、`github`、`gitlab` |
 | `ticket.role` | `needs-triage`、`needs-info`、`ready-for-human`、`wontfix`；`ready-for-agent` 仅供下游研发 profile 使用 |
 
-Matt 五态不得扩义。资产的 `ready-for-human` 与 Ticket label 必须带命名空间表达。`paused-human-gate` 表示等待 `docs/agents/digital-human-roles.yaml` 指定的会签人（数字人或生物人），不是「必须是生物人」。
+Matt 五态不得扩义。资产的 `ready-for-human` 与 Ticket label 必须带命名空间表达。`paused-human-gate` 表示等待 `.template-spec/agents/digital-human-roles.yaml` 指定的会签人（数字人或生物人），不是「必须是生物人」。
 
 ## 上下文与外部输入证据
 
@@ -54,7 +54,7 @@ Git 动作分别保存 `commit_authorized`、`commit_scope`、`commit_authorizat
 
 ## 状态块
 
-checkpoint 是唯一机器状态事实源，使用 `docs/process/templates/lifecycle-checkpoint-template.yaml` 的 schema v1 形状。`docs/.scratch/<feature>/map.md` 仅展示状态并引用 `gates/lifecycle-checkpoint.yaml`；业务 Ticket 独立存放。远程 tracker 也保留本地 checkpoint，不建立第二份状态权威。
+checkpoint 是唯一机器状态事实源，使用 `.template-spec/process/templates/lifecycle-checkpoint-template.yaml` 的 schema v1 形状。`docs/.scratch/<feature>/map.md` 仅展示状态并引用 `gates/lifecycle-checkpoint.yaml`；业务 Ticket 独立存放。远程 tracker 也保留本地 checkpoint，不建立第二份状态权威。
 
 ```yaml
 lifecycle:

@@ -25,7 +25,7 @@ export function validateHarnessSkillScope(root) {
     if (document.errors.length) throw new Error(`${file}: ${document.errors[0].message}`);
     return document.toJS({maxAliasCount:0});
   };
-  const profile = yaml('docs/process/harness-profile.yaml');
+  const profile = yaml('.template-spec/process/harness-profile.yaml');
   const scope = profile.skill_scope;
   if (scope?.policy !== 'local-workflow-only' || !Array.isArray(scope.retired_local_skills) || !scope.retired_local_skills.length) {
     throw new Error('harness profile 缺少本地技能退役范围');
@@ -35,7 +35,7 @@ export function validateHarnessSkillScope(root) {
     if (retired.has(optional.id)) throw new Error(`可选技能不得同时永久禁止: ${optional.id}`);
   }
   const lock = JSON.parse(read('skills-lock.json'));
-  const registry = yaml('docs/agents/yss-skill-registry.yaml');
+  const registry = yaml('.template-spec/agents/yss-skill-registry.yaml');
   const roots = [lock.canonicalRoot, ...lock.projectionRoots];
   for (const directory of roots) {
     if (!existsSync(path.join(root, directory))) continue;

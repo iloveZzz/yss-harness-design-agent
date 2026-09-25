@@ -7,7 +7,7 @@ description: 编排 YSS 产品或模块从机会调研到业务边界与协作�
 
 这是生命周期主控 skill：负责识别阶段、判定影响面、检查产物与门禁、选择下一工作单元并验收结果。业务实现必须交给对应的 Matt/YSS 专项 skill；本 skill 不替代它们。
 
-文档输出时按 `lifecycle-document-output` 条件调用 `i-have-adhd`，读取 `docs/process/document-writing.md`；作用域仅限当前产物，派发时传递条件及引用。
+文档输出时按 `lifecycle-document-output` 条件调用 `i-have-adhd`，读取 `.template-spec/process/document-writing.md`；作用域仅限当前产物，派发时传递条件及引用。
 
 ## 条件读取
 
@@ -15,11 +15,11 @@ description: 编排 YSS 产品或模块从机会调研到业务边界与协作�
 
 ## 入口与边界
 
-Plan 入口读取 `docs/plan/README.md` 和 `docs/process/plan-migration.md`，按注册表退出条件核查战略输入。关键未决项阻断进入 Spec；非关键项须有责任人、解决时点和接收方。只使用 Plan 标识，Plan 后仍保留 Spec、原型、业务 Ticket 与交接阶段。
+Plan 入口读取 `.template-spec/plan/README.md` 和 `.template-spec/process/plan-migration.md`，按注册表退出条件核查战略输入。关键未决项阻断进入 Spec；非关键项须有责任人、解决时点和接收方。只使用 Plan 标识，Plan 后仍保留 Spec、原型、业务 Ticket 与交接阶段。
 
 1. 先读取 `yss-project.yaml`、`CONTEXT.md`、相关 ADR、map.md、checkpoint 和当前资产。
 2. `repository_mode=template-source` 只走模板维护流程；命中产品流程时返回 `blocked: template-source-product-artifact-forbidden`，不得生成产品 Spec、原型、OpenAPI 或切片 Ticket。
-3. `repository_mode=project-instance` 以 `docs/process/lifecycle-registry.yaml`、`harness-process-tailoring.md` 和本目录 references 为唯一阶段、门禁和裁剪事实源。数字人角色、阶段协作组、运行时绑定与会签级别以 `docs/agents/digital-human-roles.yaml` 为准；职称实例不另起编排器。
+3. `repository_mode=project-instance` 以 `.template-spec/process/lifecycle-registry.yaml`、`harness-process-tailoring.md` 和本目录 references 为唯一阶段、门禁和裁剪事实源。数字人角色、阶段协作组、运行时绑定与会签级别以 `.template-spec/agents/digital-human-roles.yaml` 为准；职称实例不另起编排器。
 4. 模式：`route` 只读规划；`orchestrate` 有界推进；`resume` 重建后推进；`audit` 严格只读。未明确时使用 `route`。
 
 ## 业务方案设计 Harness profile
@@ -30,7 +30,7 @@ Plan 入口读取 `docs/plan/README.md` 和 `docs/process/plan-migration.md`，�
 
 `入口分诊 → 机会与目标 → 业务故事 → 业务边界与协作 → 规则、例子与疑问 → 方案决策包 → Spec → 页面验证 → 业务级 Ticket → 业务方案交接`
 
-业务方案交接包必须同时引用已批准且版本当前的 `artifact.domain-strategy`、`artifact.stage-decision-package`、Spec、已批准 UI 依据和业务级 Ticket 集，并以 Handoff v5 交给下游研发团队。新设计保留原型与视觉包要求；确无 UI 改动的既有页面使用 `existing-ui-baseline` v1，按 `docs/process/existing-ui-baseline.md` 核验固定源码、真实动作/API/截图和当前产品确认，不能把截图自行升格为已批准原型。它必须携带当前根 `CONTEXT.md` 的 `source_context_snapshot`、结构化 `context_delta`，并声明目标仓在进入技术设计前完成本地 `context_reconciliation`。v3/v4 与既有裸 v5 包只读兼容 `verify/import`；修改或重新交付必须迁移到 v5 并重新批准，不得从自由文本猜测术语映射。下游团队的下一工作单元由内部技能 `yss-technical-design` 接管；本 profile 不生成 OpenAPI、技术设计合同、Slice Implementation Contract、代码或发布资产。需要继续推进时，必须新建或切换到下游研发团队的 project profile，不能在本 profile 中越过 `work-unit.strategic-design-handoff`。
+业务方案交接包必须同时引用已批准且版本当前的 `artifact.domain-strategy`、`artifact.stage-decision-package`、Spec、已批准 UI 依据和业务级 Ticket 集，并以 Handoff v5 交给下游研发团队。新设计保留原型与视觉包要求；确无 UI 改动的既有页面使用 `existing-ui-baseline` v1，按 `.template-spec/process/existing-ui-baseline.md` 核验固定源码、真实动作/API/截图和当前产品确认，不能把截图自行升格为已批准原型。它必须携带当前根 `CONTEXT.md` 的 `source_context_snapshot`、结构化 `context_delta`，并声明目标仓在进入技术设计前完成本地 `context_reconciliation`。v3/v4 与既有裸 v5 包只读兼容 `verify/import`；修改或重新交付必须迁移到 v5 并重新批准，不得从自由文本猜测术语映射。下游团队的下一工作单元由内部技能 `yss-technical-design` 接管；本 profile 不生成 OpenAPI、技术设计合同、Slice Implementation Contract、代码或发布资产。需要继续推进时，必须新建或切换到下游研发团队的 project profile，不能在本 profile 中越过 `work-unit.strategic-design-handoff`。
 
 Matt 的 `ask-matt`、`grill-with-docs`、`to-spec`、`to-tickets`、`triage` 和 `wayfinder` 保留为显式兼容入口；`implement` 已从本分支移除。默认路径是本 skill 持有的原生工作单元，由本编排器创建正式资产、维护状态并在会签门禁暂停。兼容入口不得自动调用它们或代替其创建正式资产；Matt 只导航，不得写生命周期资产或改变门禁/Ticket 状态；任何写入前回交本编排器。
 
@@ -74,11 +74,11 @@ Matt 的 `ask-matt`、`grill-with-docs`、`to-spec`、`to-tickets`、`triage` �
 
 页面验证默认采用根 `DESIGN.md` 中的 Data Quality 浅色主题；AntD v6 是设计参考，组件运行时由下游实现合同确定。暗色或紧凑模式仅在明确选择时启用，并使用对应派生快照。交接复用 `prototype-evidence.yaml` 的 `design_baseline`（规范与 Token 引用、摘要）和 `visual_baseline`，视觉基线的 `cases[].theme` 与截图保持一致；按既有 Handoff v5 合同核验当前证据，不另建主题合同。脚手架与生产前端实现由下游研发 profile 接管。
 
-Plan → Spec（含正式草稿、恢复与显式 `to-spec`）写入前，按 `docs/plan/entry-review.md` 持久化 `bundled-plan-review-v1` 审阅包、适用检查的组合审查、独立 Plan 批准记录与当前用户回复，并运行 `node scripts/verify-plan-spec-entry <state.yaml>`。检查默认 pending，缺项、分散审查、会话不一致、过期或无真实回复即阻断；旧审阅包保持兼容，独立调研可继续。
+Plan → Spec（含正式草稿、恢复与显式 `to-spec`）写入前，按 `.template-spec/plan/entry-review.md` 持久化 `bundled-plan-review-v1` 审阅包、适用检查的组合审查、独立 Plan 批准记录与当前用户回复，并运行 `node scripts/verify-plan-spec-entry <state.yaml>`。检查默认 pending，缺项、分散审查、会话不一致、过期或无真实回复即阻断；旧审阅包保持兼容，独立调研可继续。
 
 ## 结果与暂停
 
-凡主控向数字人角色或独立运行时正式派发生命周期工作单元，都必须通过结构化任务包派发，并返回 `Workflow Execution Result`（workflow reference、skill、changed files、`context_reconciliation`、evidence refs、actual verification、deferred seams、drift/new impacts）。任务包使用 `docs/process/schemas/digital-human-task-package.schema.json`，由 `scripts/verify-digital-human-task-package` 校验；其中 `role_id`、`runtime_id`、`execution_state`、`contract.kind/id/version`、允许写路径、预期证据和汇合引用必须完整。Plan、Spec、原型、业务 Ticket、业务方案交接和模板维护分别绑定各自的生命周期资产或维护 checkpoint。Slice Implementation Contract、代码和发布均属于下游 profile，不得在本地任务包中创建。缺少可读证据、`context_reconciliation` 未通过、`stale`、`violation`、`drift`、`new_impacts` 或阻塞信号时不得标记 completed。实现授权不包含 Git commit/push 授权；“做完提交”等自然语言意向不构成上述结构化 Git 授权。
+凡主控向数字人角色或独立运行时正式派发生命周期工作单元，都必须通过结构化任务包派发，并返回 `Workflow Execution Result`（workflow reference、skill、changed files、`context_reconciliation`、evidence refs、actual verification、deferred seams、drift/new impacts）。任务包使用 `.template-spec/process/schemas/digital-human-task-package.schema.json`，由 `scripts/verify-digital-human-task-package` 校验；其中 `role_id`、`runtime_id`、`execution_state`、`contract.kind/id/version`、允许写路径、预期证据和汇合引用必须完整。Plan、Spec、原型、业务 Ticket、业务方案交接和模板维护分别绑定各自的生命周期资产或维护 checkpoint。Slice Implementation Contract、代码和发布均属于下游 profile，不得在本地任务包中创建。缺少可读证据、`context_reconciliation` 未通过、`stale`、`violation`、`drift`、`new_impacts` 或阻塞信号时不得标记 completed。实现授权不包含 Git commit/push 授权；“做完提交”等自然语言意向不构成上述结构化 Git 授权。
 
 输出固定包含：模式、当前阶段、影响面、资产/门禁状态、`context_reconciliation`、证据、业务 Ticket 状态、阻塞项、本轮动作、下一工作单元、暂停/继续理由、Ticket 同步和 Git checkpoint 判断。启用本 profile 时，`work-unit.strategic-design-handoff` 完成后 `next_route` 必须为 `null`；不得生成垂直切片、`ready-for-agent`、OpenAPI、下游技术设计或实现资产。兼容入口的输入必须回交本编排器验收；`implement` 请求直接 `blocked` 并转交下游研发团队。暂停会签时必须输出门禁 ID、指定 `role_id`、`runtime_id` 和会签文件路径。任务包的 `core_skills` / `forbidden_skills` 必须从角色注册表复制。
 
@@ -86,12 +86,12 @@ Plan → Spec（含正式草稿、恢复与显式 `to-spec`）写入前，按 `d
 
 ## 便携交接工具
 
-批准交接后由生命周期自动执行 `scripts/strategic-handoff finalize --source-root <source> --handoff <v5-ref> [--previous <delivery-or-package>] [--zip]`，固定生成 `docs/deliveries/strategic/<handoff-id>/<version>/`。只有不可变 `package/` 成包成功、整包 verify 通过，且 `artifact.strategic-design-handoff.evidence_refs` 与 `verification.strategic_delivery` 已写入 checkpoint，才可完成 `work-unit.strategic-design-handoff`；接收方 Import Receipt 不是战略完成条件。规则身份、批准绑定、交付记录、包内索引和完整快照差异以 `docs/process/strategic-handoff-package.md` 为准。接收方先 `verify` 再 `import`，目标根术语对账和 `verify-strategic-handoff-consumption` 通过后进入战术设计/相关切片；工具不能代替生命周期批准。
+批准交接后由生命周期自动执行 `scripts/strategic-handoff finalize --source-root <source> --handoff <v5-ref> [--previous <delivery-or-package>] [--zip]`，固定生成 `docs/deliveries/strategic/<handoff-id>/<version>/`。只有不可变 `package/` 成包成功、整包 verify 通过，且 `artifact.strategic-design-handoff.evidence_refs` 与 `verification.strategic_delivery` 已写入 checkpoint，才可完成 `work-unit.strategic-design-handoff`；接收方 Import Receipt 不是战略完成条件。规则身份、批准绑定、交付记录、包内索引和完整快照差异以 `.template-spec/process/strategic-handoff-package.md` 为准。接收方先 `verify` 再 `import`，目标根术语对账和 `verify-strategic-handoff-consumption` 通过后进入战术设计/相关切片；工具不能代替生命周期批准。
 
 ## 当前关键决定
 
-真实用户决定只覆盖 `gate.plan-approved`、`gate.spec-baseline-approved` 与命中 UI/体验影响的 `gate.product-design-approved`。领域战略、阶段决策、原型评审和浏览器验证写入 `check.*`；`gate.strategic-design-handoff-approved` 由需求经理独立复核产品经理起草的交接包，并结合 Fresh Verification 关闭，不产生新的用户询问。旧 gate 与旧批准只允许历史读取；活动资产命中时返回 `STRATEGIC_GATE_MIGRATION_REQUIRED`，按 `docs/process/strategic-gate-migration.md` 生成计划、应用迁移并重新确认聚合资产。
+真实用户决定只覆盖 `gate.plan-approved`、`gate.spec-baseline-approved` 与命中 UI/体验影响的 `gate.product-design-approved`。领域战略、阶段决策、原型评审和浏览器验证写入 `check.*`；`gate.strategic-design-handoff-approved` 由需求经理独立复核产品经理起草的交接包，并结合 Fresh Verification 关闭，不产生新的用户询问。旧 gate 与旧批准只允许历史读取；活动资产命中时返回 `STRATEGIC_GATE_MIGRATION_REQUIRED`，按 `.template-spec/process/strategic-gate-migration.md` 生成计划、应用迁移并重新确认聚合资产。
 
 ## 阶段工作追踪
 
-首次进入允许的 Plan / Spec / Design 或恢复时，读取 `docs/process/stage-tracking.md`，核验 tracker 启用版本与持久 checkpoint。写阶段资产前登记当前工作项；小工作内联，跨负责人 / 独立验收 / 阻塞 / 延期时拆至 work-items。旧项目只读 check 后形成可审阅 plan，显式 apply 才启用；不补造历史完成或批准。完成时逐条关联验收证据，阶段退出回写；结果携带 checkpoint_ref。追踪不得扩大本 profile 的允许阶段，Design 不创建工程父票或实现切片。
+首次进入允许的 Plan / Spec / Design 或恢复时，读取 `.template-spec/process/stage-tracking.md`，核验 tracker 启用版本与持久 checkpoint。写阶段资产前登记当前工作项；小工作内联，跨负责人 / 独立验收 / 阻塞 / 延期时拆至 work-items。旧项目只读 check 后形成可审阅 plan，显式 apply 才启用；不补造历史完成或批准。完成时逐条关联验收证据，阶段退出回写；结果携带 checkpoint_ref。追踪不得扩大本 profile 的允许阶段，Design 不创建工程父票或实现切片。

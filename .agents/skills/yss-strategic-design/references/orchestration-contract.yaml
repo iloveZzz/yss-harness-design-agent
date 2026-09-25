@@ -4,8 +4,8 @@ document_writing:
   condition: lifecycle-document-output
   scope: current-document-work-only
   dispatch: pass-condition-and-reference-to-document-owner
-  reference: docs/process/document-writing.md
-  examples: docs/templates/examples/lifecycle-writing-examples.md
+  reference: .template-spec/process/document-writing.md
+  examples: .template-spec/templates/examples/lifecycle-writing-examples.md
   artifact_ownership: unchanged
   gate_and_status_semantics: unchanged
 supported_state_schema_versions: [ 1 ]
@@ -18,8 +18,8 @@ checkpoint_policy:
   ticket_references: ticket_sync.status/refs
   historical_parent_ticket: read-only
   user_decision_validator: scripts/verify-approval-record --require-approved
-  decision_policy_ref: docs/agents/digital-human-roles.yaml
-  reuse_contract_ref: docs/process/strategic-handoff-package.md
+  decision_policy_ref: .template-spec/agents/digital-human-roles.yaml
+  reuse_contract_ref: .template-spec/process/strategic-handoff-package.md
   flush_on: [ human_pause, handoff ]
   flush_immediately_on: [ blocked, responsibility_changed, asset_approval ]
   preserve_stage_causality: true
@@ -33,7 +33,7 @@ modes:
   resume: rebuild_then_bounded_write
 
 profile_registry:
-  ref: docs/process/harness-profile.yaml
+  ref: .template-spec/process/harness-profile.yaml
   default_profile: harness.business-ddd-strategy-handoff
   activation: profile-aware-route
   target_user_roles: [ role.product-manager, role.requirements-manager, role.business ]
@@ -42,8 +42,8 @@ profile_registry:
   terminal_next_route: null
   downstream_team: downstream-rd-team
   downstream_skill: yss-technical-design
-  handoff_template: docs/templates/strategic-design-handoff-template.yaml
-  handoff_schema: docs/process/schemas/strategic-design-handoff.schema.json
+  handoff_template: .template-spec/templates/strategic-design-handoff-template.yaml
+  handoff_schema: .template-spec/process/schemas/strategic-design-handoff.schema.json
   handoff_schema_version: 5
   handoff_context_contract:
     {
@@ -178,7 +178,7 @@ workflow_execution_result:
   evidence_ref_validation: readable-or-resolvable
   completed_requires_no_blocking_signals: true
   context_reconciliation:
-    schema_ref: docs/process/schemas/context-reconciliation.schema.json
+    schema_ref: .template-spec/process/schemas/context-reconciliation.schema.json
     validator: scripts/verify-context-reconciliation
     project-instance:
       {
@@ -211,8 +211,8 @@ workflow_execution_result:
 task_package:
   schema_version: 1
   applies_to: all-formal-digital-human-dispatches
-  schema_ref: docs/process/schemas/digital-human-task-package.schema.json
-  compatibility_schema_ref: docs/process/schemas/subagent-task-package.schema.json
+  schema_ref: .template-spec/process/schemas/digital-human-task-package.schema.json
+  compatibility_schema_ref: .template-spec/process/schemas/subagent-task-package.schema.json
   validator: scripts/verify-digital-human-task-package
   compatibility_validator: scripts/verify-subagent-task-package
   persistence_layout: docs/.scratch/<feature>/task-packages/<task-id>.yaml
@@ -243,7 +243,7 @@ task_package:
   execution_states: [ Explorer, Drafter, Worker, Reviewer, Verifier ]
   workflow_statuses: [ not-started, active, paused, resolved, failed ]
   skill_source:
-    registry_ref: docs/agents/digital-human-roles.yaml
+    registry_ref: .template-spec/agents/digital-human-roles.yaml
     defaults: taskPackageDefaults(role_id)
     copy_required: [ core_skills, forbidden_skills ]
   contract:
@@ -600,15 +600,15 @@ transition_graph:
 
 planning:
   entry_validator: scripts/verify-plan-spec-entry
-  review_contract: docs/plan/entry-review.md
-  check_policy: docs/process/lifecycle-registry.yaml
+  review_contract: .template-spec/plan/entry-review.md
+  check_policy: .template-spec/process/lifecycle-registry.yaml
   default_check_status: pending
   formal_spec_draft_requires_passed_entry: true
   stage: stage.plan
   record: artifact.plan-record
-  template: docs/plan/templates/plan-template.md
-  exit_policy: docs/process/lifecycle-registry.yaml
-  migration_policy: docs/process/plan-migration.md
+  template: .template-spec/plan/templates/plan-template.md
+  exit_policy: .template-spec/process/lifecycle-registry.yaml
+  migration_policy: .template-spec/process/plan-migration.md
   critical_open_questions: block-before-spec
   deferred_details_require: [ noncritical_reason, owner, resolution_point, downstream_recipient ]
   reuse_requires: [ source_ref, current_version, applicable_scope, reason ]
@@ -873,8 +873,8 @@ consumer_entry_routes:
       target_work_unit: work-unit.technical-design
 
 stage_tracking:
-  contract: docs/process/stage-tracking.md
-  schema: docs/process/schemas/stage-tracking.schema.json
+  contract: .template-spec/process/stage-tracking.md
+  schema: .template-spec/process/schemas/stage-tracking.schema.json
   verifier: scripts/stage-tracking
   configuration: tracker.lifecycle_tracking_version
   machine_state_owner: checkpoint.stage_tracking

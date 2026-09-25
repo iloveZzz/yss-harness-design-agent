@@ -167,12 +167,12 @@ function validateInvocationProse(skill, adapter, orchestration) {
 const profiles = {
   lifecycle: {
     message: "六类生命周期压力场景验证通过",
-    files: [".agents/skills/yss-strategic-design/SKILL.md", ".agents/skills/yss-strategic-design/references/orchestration-contract.yaml", "docs/process/lifecycle-registry.yaml"],
+    files: [".agents/skills/yss-strategic-design/SKILL.md", ".agents/skills/yss-strategic-design/references/orchestration-contract.yaml", ".template-spec/process/lifecycle-registry.yaml"],
     markers: [[".agents/skills/yss-strategic-design/SKILL.md", "template-source-product-artifact-forbidden"], [".agents/skills/yss-strategic-design/references/orchestration-contract.yaml", "strategic-design-handoff"]]
   },
   matt: {
     message: "Matt/YSS 集成压力场景验证通过",
-    files: [".agents/skills/yss-strategic-design/references/matt-yss-adapter.md", ".agents/skills/yss-strategic-design/references/orchestration-contract.yaml", "docs/process/templates/lifecycle-checkpoint-template.yaml"],
+    files: [".agents/skills/yss-strategic-design/references/matt-yss-adapter.md", ".agents/skills/yss-strategic-design/references/orchestration-contract.yaml", ".template-spec/process/templates/lifecycle-checkpoint-template.yaml"],
     markers: [[".agents/skills/yss-strategic-design/SKILL.md", "Workflow Execution Result"]]
   },
   prototype: {
@@ -187,12 +187,12 @@ const profiles = {
   },
   openapiYaml: {
     message: "OpenAPI YAML-first 场景验证通过",
-    files: ["docs/templates/openapi-spec-template.yaml", ".agents/skills/yss-openapi-governance/SKILL.md"],
-    markers: [["docs/templates/openapi-spec-template.yaml", "openapi: 3.1.0"], [".agents/skills/yss-openapi-governance/SKILL.md", "YAML-first"]]
+    files: [".template-spec/templates/openapi-spec-template.yaml", ".agents/skills/yss-openapi-governance/SKILL.md"],
+    markers: [[".template-spec/templates/openapi-spec-template.yaml", "openapi: 3.1.0"], [".agents/skills/yss-openapi-governance/SKILL.md", "YAML-first"]]
   },
   openapiJson: {
     message: "OpenAPI YAML-first JSON handoff scenarios passed",
-    files: ["docs/api/templates/openapi-json-export-record-template.md", ".agents/skills/yss-api-integration/SKILL.md"],
+    files: [".template-spec/api/templates/openapi-json-export-record-template.md", ".agents/skills/yss-api-integration/SKILL.md"],
     markers: [[".agents/skills/yss-api-integration/SKILL.md", "SHA-256"]]
   },
   yssDtoWire: {
@@ -202,14 +202,14 @@ const profiles = {
       ".agents/skills/yss-dto/SKILL.md",
       ".agents/skills/yss-openapi-governance/SKILL.md",
       ".agents/skills/yss-openapi-draft-review/SKILL.md",
-      "docs/api/templates/openapi-draft-review-checklist.md",
+      ".template-spec/api/templates/openapi-draft-review-checklist.md",
       "scripts/verify-yss-dto-openapi-profile"
     ],
     markers: [
       [".agents/skills/yss-dto/SKILL.md", "x-yss-response-wrapper"],
       [".agents/skills/yss-openapi-governance/SKILL.md", "verify-yss-dto-openapi-profile"],
       [".agents/skills/yss-openapi-draft-review/SKILL.md", "offset`, `needTotalCount`, and `tempTotalCount"],
-      ["docs/api/templates/openapi-draft-review-checklist.md", "DTO wire shape"]
+      [".template-spec/api/templates/openapi-draft-review-checklist.md", "DTO wire shape"]
     ]
   }
 };
@@ -222,7 +222,7 @@ export function runScenario(name) {
   if (name === "lifecycle") {
     const result = spawnSync("scripts/verify-lifecycle-registry", [], { cwd: root, encoding: "utf8" });
     ensure(result.status === 0, result.stderr || result.stdout);
-    const registry = parseDocument(read("docs/process/lifecycle-registry.yaml"), { uniqueKeys: true }).toJS({ maxAliasCount: 0 });
+    const registry = parseDocument(read(".template-spec/process/lifecycle-registry.yaml"), { uniqueKeys: true }).toJS({ maxAliasCount: 0 });
     ensure(JSON.stringify(registry.gates.map(gate => gate.id)) === JSON.stringify(["gate.plan-approved", "gate.spec-baseline-approved", "gate.product-design-approved", "gate.strategic-design-handoff-approved"]), "战略活动 gate 必须恰好收敛为四个聚合边界");
     ensure(JSON.stringify(registry.checks.map(check => check.id)) === JSON.stringify(["check.repository-identity-valid", "check.domain-strategy-approved", "check.stage-decision-package-approved", "check.prototype-reviewed", "check.prototype-verified"]), "战略内部检查集合不完整");
     const contract = parseDocument(read(".agents/skills/yss-strategic-design/references/orchestration-contract.yaml"), { uniqueKeys: true }).toJS({ maxAliasCount: 0 });
@@ -247,8 +247,8 @@ export function runScenario(name) {
       work_unit: "work-unit.spec-synthesis",
       workflow_reference: { source: "yss-strategic-design", skill: "yss-strategic-design", invocation_mode: "model-invoked" },
       result: "completed",
-      context_reconciliation: { status: "reconciled", ref: "docs/process/lifecycle-registry.yaml" },
-      evidence_refs: ["docs/process/lifecycle-registry.yaml"],
+      context_reconciliation: { status: "reconciled", ref: ".template-spec/process/lifecycle-registry.yaml" },
+      evidence_refs: [".template-spec/process/lifecycle-registry.yaml"],
       changed_artifacts: [],
       new_impacts: [],
       stale_candidates: [],
@@ -269,7 +269,7 @@ export function runScenario(name) {
       business_ticket_set_ref: "docs/.scratch/demo/issues",
     };
     validateWorkflowExecutionResult(validBusinessTicketResult, data.workflow_execution_result, data.work_unit_routes, { root: planFixture.root });
-    const validHandoffResult = { ...validBusinessTicketResult, result: "blocked", blocking_signals: ["missing_evidence"], work_unit: "work-unit.strategic-design-handoff", next_route: null, strategic_design_handoff_ref: "docs/templates/strategic-design-handoff-template.yaml", strategic_delivery_record_ref: "docs/process/schemas/strategic-handoff-delivery.schema.json", strategic_delivery_verification_ref: "docs/process/schemas/strategic-handoff-delivery-verification.schema.json" };
+    const validHandoffResult = { ...validBusinessTicketResult, result: "blocked", blocking_signals: ["missing_evidence"], work_unit: "work-unit.strategic-design-handoff", next_route: null, strategic_design_handoff_ref: ".template-spec/templates/strategic-design-handoff-template.yaml", strategic_delivery_record_ref: ".template-spec/process/schemas/strategic-handoff-delivery.schema.json", strategic_delivery_verification_ref: ".template-spec/process/schemas/strategic-handoff-delivery-verification.schema.json" };
     validateWorkflowExecutionResult(validHandoffResult, data.workflow_execution_result, data.work_unit_routes, { root: planFixture.root });
     const unavailableResult = structuredClone(validResult);
     unavailableResult.result = "blocked";
@@ -289,7 +289,7 @@ export function runScenario(name) {
       (item) => { delete item.context_reconciliation; },
       (item) => { item.context_reconciliation.status = "blocked"; },
       (item) => { item.evidence_refs = []; },
-      (item) => { item.evidence_refs = ["docs/process/not-found.md"]; },
+      (item) => { item.evidence_refs = [".template-spec/process/not-found.md"]; },
       (item) => { item.blocking_signals = ["drift"]; },
       (item) => { item.new_impacts = ["new-api"]; },
       (item) => { item.workflow_reference.source = "untrusted/source"; },

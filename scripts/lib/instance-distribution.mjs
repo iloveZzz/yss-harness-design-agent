@@ -4,14 +4,14 @@ import { parseDocument } from "../vendor/yaml.mjs";
 import { STRATEGIC_PROFILE_ID } from "./harness-profile.mjs";
 import { ROOT } from "./lifecycle-registry.mjs";
 
-export const DEFAULT_MANIFEST = path.join(ROOT, "docs/process/instance-distribution-manifest.yaml");
+export const DEFAULT_MANIFEST = path.join(ROOT, ".template-spec/process/instance-distribution-manifest.yaml");
 export const REQUIRED_FORBIDDEN_MARKERS = Object.freeze([
   ".template-source",
   ".github",
   "wiki",
-  "docs/templates/openapi-spec-template.yaml",
-  "docs/templates/vertical-slice-ticket-template.md",
-  "docs/process/implementation-repo-integration.md",
+  ".template-spec/templates/openapi-spec-template.yaml",
+  ".template-spec/templates/vertical-slice-ticket-template.md",
+  ".template-spec/process/implementation-repo-integration.md",
   "scripts/verify-yss-router-scenarios",
 ]);
 export const REQUIRED_RENDER_PATHS = Object.freeze([
@@ -146,8 +146,8 @@ export function validateInstanceDistribution(
   for (const required of REQUIRED_RENDER_PATHS) {
     if (!manifest.render_paths.includes(required)) fail(`render_paths 缺少 ${required}`);
   }
-  if (!manifest.allow_root_entries.includes("docs") || !manifest.allow_root_entries.includes("scripts")) {
-    fail("allow_root_entries 必须包含 docs 与 scripts");
+  if (!manifest.allow_root_entries.includes(".template-spec") || !manifest.allow_root_entries.includes("scripts")) {
+    fail("allow_root_entries 必须包含 .template-spec 与 scripts");
   }
   for (const marker of REQUIRED_FORBIDDEN_MARKERS) {
     const listed =
@@ -156,19 +156,19 @@ export function validateInstanceDistribution(
       manifest.exclude_paths.some((item) => matchesPrefix(marker, item) || matchesPrefix(item, marker));
     if (!listed) fail(`实例禁止路径未登记: ${marker}`);
   }
-  if (shouldDistribute("docs/templates/openapi-spec-template.yaml", manifest)) {
+  if (shouldDistribute(".template-spec/templates/openapi-spec-template.yaml", manifest)) {
     fail("OpenAPI 模板不得进入实例分发面");
   }
-  if (shouldDistribute("docs/templates/vertical-slice-ticket-template.md", manifest)) {
+  if (shouldDistribute(".template-spec/templates/vertical-slice-ticket-template.md", manifest)) {
     fail("垂直切片 Ticket 模板不得进入实例分发面");
   }
   if (shouldDistribute(".template-source/README.md", manifest)) {
     fail("模板源治理区不得进入实例分发面");
   }
-  if (!shouldDistribute("docs/process/harness-profile.yaml", manifest)) {
+  if (!shouldDistribute(".template-spec/process/harness-profile.yaml", manifest)) {
     fail("Harness profile 必须进入实例分发面");
   }
-  if (!shouldDistribute("docs/templates/strategic-design-handoff-template.yaml", manifest)) {
+  if (!shouldDistribute(".template-spec/templates/strategic-design-handoff-template.yaml", manifest)) {
     fail("Strategic Design Handoff 模板必须进入实例分发面");
   }
 

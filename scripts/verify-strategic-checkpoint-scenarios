@@ -11,7 +11,7 @@ import { fixture } from './fixtures/strategic-handoff/fixture.mjs';
 import { parseDocument } from './vendor/yaml.mjs';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const temp = mkdtempSync(path.join(tmpdir(), 'strategic-checkpoint-'));
-const template = parseDocument(readFileSync(path.join(root, 'docs/process/templates/lifecycle-checkpoint-template.yaml'), 'utf8')).toJS();
+const template = parseDocument(readFileSync(path.join(root, '.template-spec/process/templates/lifecycle-checkpoint-template.yaml'), 'utf8')).toJS();
 let count = 0;
 function check(name, mutate, error) {
   const value = structuredClone(template); mutate(value);

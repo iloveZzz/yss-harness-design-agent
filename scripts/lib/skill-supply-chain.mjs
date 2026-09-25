@@ -149,7 +149,7 @@ function metadata(name, skillPath, directory, previous, canonical = false, sourc
     if (!existsSync(upstreamDirectory)) throw new TypeError(`${name} 的上游路径不存在: ${recordedPath}`);
     result.upstreamHash = treeHash(upstreamDirectory);
   } else if (old.upstreamHash ?? old.computedHash) result.upstreamHash = old.upstreamHash ?? old.computedHash;
-  if (result.source === "mattpocock/skills" && result.upstreamHash && result.effectiveHash !== result.upstreamHash) result.adaptationRef = "docs/process/MATT-POCOCK-ENGINEERING-SKILLS.md";
+  if (result.source === "mattpocock/skills" && result.upstreamHash && result.effectiveHash !== result.upstreamHash) result.adaptationRef = ".template-source/process/MATT-POCOCK-ENGINEERING-SKILLS.md";
   return result;
 }
 export function updateSkillLock(arguments_ = process.argv.slice(2)) {

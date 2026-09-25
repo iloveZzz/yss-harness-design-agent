@@ -1,6 +1,6 @@
 # AGENTS.md — 战略设计 Harness 入口
 
-> 本文件只保存常驻路由、硬门禁和禁止事项。生命周期 ID 以 `docs/process/lifecycle-registry.yaml` 为准；本仓边界以 `docs/process/harness-profile.yaml` 为准；影响面裁剪见 `docs/process/harness-process-tailoring.md`。
+> 本文件只保存常驻路由、硬门禁和禁止事项。生命周期 ID 以 `.template-spec/process/lifecycle-registry.yaml` 为准；本仓边界以 `.template-spec/process/harness-profile.yaml` 为准；影响面裁剪见 `.template-spec/process/harness-process-tailoring.md`。
 
 **项目名称：** [填写]
 **业务领域：** [填写]
@@ -19,13 +19,13 @@
 | 事实 | 权威资产 |
 |---|---|
 | 业务词汇 | 根 `CONTEXT.md` |
-| 本仓职责与允许 / 禁止工作单元 | `docs/process/harness-profile.yaml` |
-| 生命周期 ID 与条件门禁 | `docs/process/lifecycle-registry.yaml`；`docs/process/lifecycle-artifact-map.md` 仅为派生视图 |
-| 影响面与维护强度 | `docs/process/harness-process-tailoring.md`、`docs/process/maintenance-intensity.yaml` |
-| 技能身份与路由 | `docs/agents/yss-skill-registry.yaml`（`status: active`；由生命周期消费，Router 不消费）；来源与投影见 `skills-lock.json` |
-| 数字人角色与会签 | `docs/agents/digital-human-roles.yaml` |
-| 视觉规范 | 根 `DESIGN.md`；治理见 `docs/design/design.md`，Token 快照为派生视图 |
-| 实例分发 | `docs/process/instance-distribution-manifest.yaml`；CLI `template.manifest.json` 是投影 |
+| 本仓职责与允许 / 禁止工作单元 | `.template-spec/process/harness-profile.yaml` |
+| 生命周期 ID 与条件门禁 | `.template-spec/process/lifecycle-registry.yaml`；`.template-spec/process/lifecycle-artifact-map.md` 仅为派生视图 |
+| 影响面与维护强度 | `.template-spec/process/harness-process-tailoring.md`、`.template-source/process/maintenance-intensity.yaml` |
+| 技能身份与路由 | `.template-spec/agents/yss-skill-registry.yaml`（`status: active`；由生命周期消费，Router 不消费）；来源与投影见 `skills-lock.json` |
+| 数字人角色与会签 | `.template-spec/agents/digital-human-roles.yaml` |
+| 视觉规范 | 根 `DESIGN.md`；治理见 `.template-spec/design/design.md`，Token 快照为派生视图 |
+| 实例分发 | `.template-spec/process/instance-distribution-manifest.yaml`；CLI `template.manifest.json` 是投影 |
 
 README、用户指南和 `CLAUDE.md` 只解释或指向上述事实，不定义第二套规则。
 
@@ -46,7 +46,7 @@ README、用户指南和 `CLAUDE.md` 只解释或指向上述事实，不定义�
 
 ## 5. `project-instance` 战略设计路由
 
-先读 `docs/process/harness-profile.yaml`，再按影响面和最近可信阶段裁剪；注册表可保留下游兼容 ID，本地只执行 profile 的 `allowed_work_units`。
+先读 `.template-spec/process/harness-profile.yaml`，再按影响面和最近可信阶段裁剪；注册表可保留下游兼容 ID，本地只执行 profile 的 `allowed_work_units`。
 
 - 主链：入口分诊 → 机会与目标 → 业务故事 → 业务边界与规则 → 阶段决策 → Spec → 页面验证 → 业务级 Ticket → Strategic Design Handoff。
 - 新功能或较大变更进入 `yss-strategic-design`；`ask-matt`、`grill-with-docs`、`to-spec`、`to-tickets`、`triage`、`wayfinder` 仅为显式兼容入口，完成后回交编排器验收。
@@ -56,11 +56,11 @@ README、用户指南和 `CLAUDE.md` 只解释或指向上述事实，不定义�
 
 ## 6. Ticket 与状态
 
-- Plan / Spec / Design 按 `docs/process/stage-tracking.md` 从阶段入口登记工作、按需拆分并在恢复 / 流转时验证；工作项进度不替代 Ticket 五态和阶段批准。
+- Plan / Spec / Design 按 `.template-spec/process/stage-tracking.md` 从阶段入口登记工作、按需拆分并在恢复 / 流转时验证；工作项进度不替代 Ticket 五态和阶段批准。
 
 - checkpoint 是唯一机器状态源，map.md 展示并引用，`ticket_sync.status/refs` 关联索引和业务任务；旧 parent_ticket 只读兼容。
 - 本地只产出 `artifact.business-ticket-set`：按范围、优先级、验收、依赖和业务风险组织，并保持 `ready-for-human`。
-- 本地不得创建功能父 Ticket、垂直切片 Ticket 或设置 `ready-for-agent`。Tracker 按 `docs/agents/issue-tracker.md` 选择，不得从 Git remote 推断；平台不可用时生成待发布草案。
+- 本地不得创建功能父 Ticket、垂直切片 Ticket 或设置 `ready-for-agent`。Tracker 按 `.template-spec/agents/issue-tracker.md` 选择，不得从 Git remote 推断；平台不可用时生成待发布草案。
 
 ## 7. 下游交接边界
 
@@ -71,8 +71,8 @@ README、用户指南和 `CLAUDE.md` 只解释或指向上述事实，不定义�
 
 - 技术事实或外部证据影响决策时使用 `yss-research`；竞品、市场或用户口碑事实使用 `competitive-intelligence`。
 - UI / 原型影响使用 `yss-design-system` → `yss-prototype-stage` → 独立 `prototype-review`；H1/H2 默认使用根 `DESIGN.md` 驱动的离线 HTML/CSS/JavaScript，采用其中的 Data Quality 默认浅色主题；暗色或紧凑模式仅在明确选择时启用。分别验证视觉与流程，证据绑定当前规范与所选 Token 摘要。生产前端转交下游，原型阶段不调用 `yss-ui`。
-- 数字人协同先读 `docs/agents/digital-human-roles.yaml`；角色实例不另起生命周期，不批准下游 Slice 合同、不设置 `ready-for-agent`、不宣布产品可发布。
-- 模板脚本或校验故障使用 `diagnosing-bugs`；其它技能按 `docs/agents/yss-skill-registry.yaml` 的触发条件按需加载。
+- 数字人协同先读 `.template-spec/agents/digital-human-roles.yaml`；角色实例不另起生命周期，不批准下游 Slice 合同、不设置 `ready-for-agent`、不宣布产品可发布。
+- 模板脚本或校验故障使用 `diagnosing-bugs`；其它技能按 `.template-spec/agents/yss-skill-registry.yaml` 的触发条件按需加载。
 
 ## 9. 工作区边界
 
@@ -81,10 +81,10 @@ README、用户指南和 `CLAUDE.md` 只解释或指向上述事实，不定义�
 ## 10. 审查、验证与 Git
 
 - 实施者不承担命中的独立审查。任何完成结论必须基于本轮 fresh verification；本仓不宣布实现可合并或产品可发布。
-- 会签按 `docs/agents/digital-human-roles.yaml` 关闭并由 `scripts/verify-approval-record --require-approved` 校验；关键决定按角色表绑定真实负责人回复，当前资产、依据和范围一致时复用，历史读取不放行；发布、商务承诺和运行时外部副作用仍须生物人。
+- 会签按 `.template-spec/agents/digital-human-roles.yaml` 关闭并由 `scripts/verify-approval-record --require-approved` 校验；关键决定按角色表绑定真实负责人回复，当前资产、依据和范围一致时复用，历史读取不放行；发布、商务承诺和运行时外部副作用仍须生物人。
 - 在暂停、handoff 和业务方案交接边界同步范围、证据、风险、会签点、Ticket 状态和下一步。
 - Git checkpoint 只含本轮范围；获得用户授权后才提交或推送。返工或 IMPORTANT / CRITICAL finding 触发简体中文复盘并修订权威资产。
 
 ## 11. Subagent 协同
 
-使用 subagent 前读取 `docs/process/subagent-collaboration.md`，定义任务包、数字人角色、运行时、执行态和不重叠写入范围；共享工作区不是沙箱。实施者不得兼任独立 Reviewer，仓库身份、Ticket 状态、Git checkpoint 和完成结论仍由主控裁决；主控也不得批准下游 Slice 合同或设置 `ready-for-agent`。
+使用 subagent 前读取 `.template-spec/process/subagent-collaboration.md`，定义任务包、数字人角色、运行时、执行态和不重叠写入范围；共享工作区不是沙箱。实施者不得兼任独立 Reviewer，仓库身份、Ticket 状态、Git checkpoint 和完成结论仍由主控裁决；主控也不得批准下游 Slice 合同或设置 `ready-for-agent`。

@@ -2,13 +2,13 @@
 
 ## 有界推进循环
 
-当任务使用 `harness.business-ddd-strategy-handoff` profile 时，先加载 `docs/process/harness-profile.yaml`。只向产品、需求和商务角色派发 Plan、需求分析、DDD 战略设计、Spec、页面原型、业务级 Ticket 和 Strategic Design Handoff 工作；`work-unit.strategic-design-handoff` 完成并批准后，`next_route` 必须为 `null`，并将 `downstream_consumers` 指向 `downstream-rd-team` / `yss-technical-design`。不得把 profile 的 `null` 终点改写成技术分析、Tactical DDD、实现或发布路由。
+当任务使用 `harness.business-ddd-strategy-handoff` profile 时，先加载 `.template-spec/process/harness-profile.yaml`。只向产品、需求和商务角色派发 Plan、需求分析、DDD 战略设计、Spec、页面原型、业务级 Ticket 和 Strategic Design Handoff 工作；`work-unit.strategic-design-handoff` 完成并批准后，`next_route` 必须为 `null`，并将 `downstream_consumers` 指向 `downstream-rd-team` / `yss-technical-design`。不得把 profile 的 `null` 终点改写成技术分析、Tactical DDD、实现或发布路由。
 
 1. 识别模式、仓库身份、任务规模和影响面。
 2. `setup readiness`：每个任务只执行一次，核对 tracker、五态标签和领域文档布局，并在本轮缓存结果；仅在 tracker、主远端、真实标签或配置变化时重查。
 3. 加载map.md、checkpoint 与真实资产，计算最近可信阶段。
 4. 评估资产、门禁和 `stale`，只在 `profile_registry.allowed_local_work_units` 中选择第一个未阻塞工作单元。命中下游工作单元时返回 `blocked`，并把问题写入 Strategic Design Handoff。
-5. 执行最小生命周期工作单元：主控先按 `docs/process/schemas/digital-human-task-package.schema.json` 编译并校验任务包，再只实际调用允许的 model-invoked skill；原生工作单元可直接持有正式资产，Matt 兼容 user-invoked skill 仅作为 workflow reference，仍由用户显式启动。将结果归一化为 `Workflow Execution Result`，验收输出并回写状态与证据。本 profile 的任务包只允许 `lifecycle-work-unit` 或 `template-maintenance` 合同。
+5. 执行最小生命周期工作单元：主控先按 `.template-spec/process/schemas/digital-human-task-package.schema.json` 编译并校验任务包，再只实际调用允许的 model-invoked skill；原生工作单元可直接持有正式资产，Matt 兼容 user-invoked skill 仅作为 workflow reference，仍由用户显式启动。将结果归一化为 `Workflow Execution Result`，验收输出并回写状态与证据。本 profile 的任务包只允许 `lifecycle-work-unit` 或 `template-maintenance` 合同。
 6. 若仍在授权和自动推进边界内，回到第 3 步；否则暂停。
 
 不要仅输出下一个提示词后结束 `orchestrate`/`resume`。到达已批准的 Strategic Design Handoff 后终止本地路由；不得在同一 profile 内继续技术分析或实现。
@@ -45,9 +45,9 @@ Readiness 结果在同一任务内复用。只有 tracker、主远端、真实�
 | `degraded` | 已选择的 GitHub/GitLab 不可用 | 建 `docs/.scratch/<feature>/` 待发布草案，不改投平台 |
 | `not-applicable` | `template-source` | 只验证模板契约 |
 
-远程 tracker 必须检查真实标签；Local Markdown 必须检查功能包目录和 Ticket 顶部的 `Status:`。仅有 `docs/agents/triage-labels.md` 不代表远程标签存在，也不能替代 Local 文件状态检查。
+远程 tracker 必须检查真实标签；Local Markdown 必须检查功能包目录和 Ticket 顶部的 `Status:`。仅有 `.template-spec/agents/triage-labels.md` 不代表远程标签存在，也不能替代 Local 文件状态检查。
 
-tracker 选择和冲突按 `docs/agents/issue-tracker.md` 裁决：已持久化 tracker 配置优先，本模板默认 `local-markdown`，Local root 为 `docs/.scratch/`；用户在初始化/迁移时明确选择 GitHub/GitLab 后才切换，Git remote 只代表代码托管。Local 主 tracker 不要求远程 Ticket；只有已选择远程平台但凭据不可用时，才降级为 `docs/.scratch/<feature>/` 待发布草案，不自动改投其他平台。发现根 `.scratch/` 或 `docs/requirements/tickets/` 旧资产时，保留 `migration_ref` 并暂停写入；新旧路径同时存在时返回 `conflict`。恢复前记录最终平台、真实五态标签或 Local `Status:` 检查结果和草案位置。
+tracker 选择和冲突按 `.template-spec/agents/issue-tracker.md` 裁决：已持久化 tracker 配置优先，本模板默认 `local-markdown`，Local root 为 `docs/.scratch/`；用户在初始化/迁移时明确选择 GitHub/GitLab 后才切换，Git remote 只代表代码托管。Local 主 tracker 不要求远程 Ticket；只有已选择远程平台但凭据不可用时，才降级为 `docs/.scratch/<feature>/` 待发布草案，不自动改投其他平台。发现根 `.scratch/` 或 `docs/requirements/tickets/` 旧资产时，保留 `migration_ref` 并暂停写入；新旧路径同时存在时返回 `conflict`。恢复前记录最终平台、真实五态标签或 Local `Status:` 检查结果和草案位置。
 
 ## Matt flow 进入条件
 
@@ -63,7 +63,7 @@ tracker 选择和冲突按 `docs/agents/issue-tracker.md` 裁决：已持久化 
 ## 战略资产审查与验证
 
 - 原型由独立 `prototype-review` 审查，评审者不承担原型起草；H1/H2 均以 Prototype Evidence schema v4、Visual Baseline schema v1、浏览器交付、Design QA 和用户确认关闭门禁。
-- 领域战略、阶段决策包、Spec 与 Strategic Design Handoff 按 `docs/agents/digital-human-roles.yaml` 会签，起草者不得自签。
+- 领域战略、阶段决策包、Spec 与 Strategic Design Handoff 按 `.template-spec/agents/digital-human-roles.yaml` 会签，起草者不得自签。
 - Tactical DDD、代码审查、实现验证和发布验证不属于本 profile；交付包只能提出下游验证目标。
 
 ## Git 授权
@@ -74,7 +74,7 @@ tracker 选择和冲突按 `docs/agents/issue-tracker.md` 裁决：已持久化 
 
 ## 必须暂停
 
-- Spec baseline、领域战略、阶段决策、原型确认或 Strategic Design Handoff 等本地门禁等待会签裁决（数字人或生物人，以 `docs/agents/digital-human-roles.yaml` 的 `gate_policy` 为准）。暂停输出必须包含：门禁 ID、指定 `role_id`、`runtime_id`、会签文件路径。恢复前执行 `scripts/verify-approval-record`；角色错误或起草者自签时返回 `blocked`，不得标 `approved`。
+- Spec baseline、领域战略、阶段决策、原型确认或 Strategic Design Handoff 等本地门禁等待会签裁决（数字人或生物人，以 `.template-spec/agents/digital-human-roles.yaml` 的 `gate_policy` 为准）。暂停输出必须包含：门禁 ID、指定 `role_id`、`runtime_id`、会签文件路径。恢复前执行 `scripts/verify-approval-record`；角色错误或起草者自签时返回 `blocked`，不得标 `approved`。
 - 需要目标仓库、外部凭据、发布窗口或其他新授权。
 - 状态与证据冲突且无法可靠重建。
 - 专项 skill 失败或返回不可验收结果。

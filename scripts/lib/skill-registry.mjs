@@ -3,7 +3,7 @@ import path from "node:path";
 import { parseDocument } from "../vendor/yaml.mjs";
 import { PROJECTION_ROOTS, ROOT } from "./skill-supply-chain.mjs";
 
-export const DEFAULT_REGISTRY = path.join(ROOT, "docs/agents/yss-skill-registry.yaml");
+export const DEFAULT_REGISTRY = path.join(ROOT, ".template-spec/agents/yss-skill-registry.yaml");
 const LOCK_PATH = path.join(ROOT, "skills-lock.json");
 const ROUTER_CONTRACT = null;
 const LIFECYCLE_CONTRACT = path.join(ROOT, ".agents/skills/yss-strategic-design/references/orchestration-contract.yaml");

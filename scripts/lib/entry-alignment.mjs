@@ -7,7 +7,7 @@ import { loadSkillRegistry } from "./skill-registry.mjs";
 export const ENTRY_RULES = path.join(ROOT, "AGENTS.md");
 export const REPO_INTRO = path.join(ROOT, "README.md");
 export const GLOSSARY = path.join(ROOT, "CONTEXT.md");
-export const HARNESS_PROFILE_PATH = "docs/process/harness-profile.yaml";
+export const HARNESS_PROFILE_PATH = ".template-spec/process/harness-profile.yaml";
 
 const LOCAL_GATE_TERMS = ["yss-router", "yss-ui", "./mvnw", "`pnpm`", "OpenAPI Freeze"];
 const GATE_QUALIFIER = /下游|不得|禁止|不在本|不属于本|不作为本|转交|不生成|不得生成|不得调用|不得使用|不得设置|不得进入|本地不|不是本地|不设|不批准/;

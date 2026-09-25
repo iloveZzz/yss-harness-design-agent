@@ -10,7 +10,7 @@
 - CLI 创建的产品仓库写入 `repository_mode: project-instance`。
 - 实例绑定 `profileId: harness.business-ddd-strategy-handoff`。
 - CLI 只管理实例分发清单声明的研发管理资产，不生成前后端运行时代码，不创建远端 Git、CI 或 Ticket Board。
-- 分发清单以 `docs/process/instance-distribution-manifest.yaml` 为单一事实来源；CLI 的 `template.manifest.json` 必须由此文件投影。
+- 分发清单以 `.template-spec/process/instance-distribution-manifest.yaml` 为单一事实来源；CLI 的 `template.manifest.json` 必须由此文件投影。
 - 通过模板快照和 40 位 `templateCommit` 使每次初始化可追踪；运行时不拉取模板仓库。
 - 新快照的实例门禁以 Node `>=22 <27` 运行；不得执行 `npm install`、`pnpm install` 或维护侧 vendor 构建。`scripts/vendor/` 必须随快照分发且可离线使用。
 
@@ -29,7 +29,7 @@ npx create-yss-harness-design@latest \
 1. 只使用当前 CLI 包内置快照。
 2. 把 `yss-project.yaml` 转为 `schema_version: 1`、`repository_mode: project-instance`。
 3. 写入 `.yss-harness-design.json`（不得写入 `.yss-template.json`）。
-4. 渲染 `AGENTS.md`、`README.md`、`yss-project.yaml`、`docs/agents/issue-tracker.md` 中的项目级字段。
+4. 渲染 `AGENTS.md`、`README.md`、`yss-project.yaml`、`.template-spec/agents/issue-tracker.md` 中的项目级字段。
 5. 目标非空默认拒绝；`--force` 才覆盖。`--dry-run` 只预览。
 6. 空 gitlink / detached HEAD / git-submodule 挂载点 fail closed；`--force` 也不能覆盖。
 7. apply 后在实例根执行 `scripts/verify-template`；失败则删除本轮写入。
@@ -56,8 +56,8 @@ v1 不实现 `attach` / `sync`。`managedFiles` 仍须写入，供后续版本�
 
 生成结果必须包含：
 
-- `docs/process/harness-profile.yaml`
-- `docs/templates/strategic-design-handoff-template.yaml`
+- `.template-spec/process/harness-profile.yaml`
+- `.template-spec/templates/strategic-design-handoff-template.yaml`
 - `.agents/skills/yss-strategic-design/SKILL.md`
 - `scripts/verify-template` 主路径实际调用的共享校验入口与 `scripts/vendor/`
 

@@ -7,7 +7,7 @@ import { loadRegistry, ROOT } from "./lifecycle-registry.mjs";
 import { loadSkillRegistry } from "./skill-registry.mjs";
 import { lifecycleTransitionContract } from "./lifecycle-transition.mjs";
 
-export const DEFAULT_PROFILE = path.join(ROOT, "docs/process/harness-profile.yaml");
+export const DEFAULT_PROFILE = path.join(ROOT, ".template-spec/process/harness-profile.yaml");
 export const STRATEGIC_PROFILE_ID = "harness.business-ddd-strategy-handoff";
 const TARGET_ROLES = ["role.product-manager", "role.requirements-manager", "role.business"];
 const CONTROL_ROLES = ["role.lifecycle-orchestrator"];

@@ -10,7 +10,7 @@ try {
       candidate.agentsText = candidate.agentsText.replaceAll(sources.profile.profile_id, "harness.unspecified");
     }, /profile/],
     ["missing harness profile path", (candidate) => {
-      candidate.agentsText = candidate.agentsText.replaceAll("docs/process/harness-profile.yaml", "docs/process/missing-profile.yaml");
+      candidate.agentsText = candidate.agentsText.replaceAll(".template-spec/process/harness-profile.yaml", ".template-spec/process/missing-profile.yaml");
     }, /harness-profile/],
     ["stale shadow claim", (candidate) => {
       candidate.agentsText = candidate.agentsText.replace("status: active", "status: shadow");

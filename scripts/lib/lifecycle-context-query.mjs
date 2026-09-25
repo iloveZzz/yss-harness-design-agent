@@ -5,9 +5,9 @@ import { parseDocument } from "../vendor/yaml.mjs";
 import { ROOT, loadRegistry, semanticDigest, validateRegistry } from "./lifecycle-registry.mjs";
 import { loadSkillRegistry } from "./skill-registry.mjs";
 
-const LIFECYCLE_REGISTRY_REF = "docs/process/lifecycle-registry.yaml";
+const LIFECYCLE_REGISTRY_REF = ".template-spec/process/lifecycle-registry.yaml";
 const ORCHESTRATION_CONTRACT_REF = ".agents/skills/yss-strategic-design/references/orchestration-contract.yaml";
-const SKILL_REGISTRY_REF = "docs/agents/yss-skill-registry.yaml";
+const SKILL_REGISTRY_REF = ".template-spec/agents/yss-skill-registry.yaml";
 
 function read(relativePath) {
   return readFileSync(path.join(ROOT, relativePath), "utf8");

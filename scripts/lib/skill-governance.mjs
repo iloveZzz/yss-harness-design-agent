@@ -36,7 +36,7 @@ export function validateSkillGovernance({ read = (relative) => readFileSync(path
     if (exists(stale)) fail(`不得保留绕过技能注册表的旧实现技能清单: ${stale}`);
   }
   const cursorRules = read(".cursorrules");
-  if (!cursorRules.includes("docs/agents/yss-skill-registry.yaml") || !cursorRules.includes("Strategic Design Handoff")) {
+  if (!cursorRules.includes(".template-spec/agents/yss-skill-registry.yaml") || !cursorRules.includes("Strategic Design Handoff")) {
     fail(".cursorrules 必须指向技能注册表并声明战略设计终止边界");
   }
   const prototypeSkill = read(".agents/skills/yss-prototype-stage/SKILL.md");

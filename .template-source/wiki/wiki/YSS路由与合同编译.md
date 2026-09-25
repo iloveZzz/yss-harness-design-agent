@@ -2,7 +2,7 @@
 
 `yss-router` 是阶段 7 的实现合同编译器：它把已批准的生命周期资产和 [[垂直切片Ticket]] 编译为 Slice Implementation Contract 草案，不批准合同、不写业务代码、不设置 `ready-for-agent`。
 
-进入实现时先读 `docs/process/implementation-repo-integration.md`，完成 [[实现仓库与跨仓库契约]] 登记，再编译最小 skill 集合与当前实现合同。输入包括 Spec、切片 Ticket、需求冻结、适用的原型确认、OpenAPI Freeze / no-impact、系统 / 数据架构、Design Review、Build Architecture Checklist、实现仓库和验证命令；输入缺失、未批准或 `stale` 时输出 `blocked`，交回 `yss-product-lifecycle`（见 [[产品研发生命周期]]）。
+进入实现时先读 `.template-spec/process/implementation-repo-integration.md`，完成 [[实现仓库与跨仓库契约]] 登记，再编译最小 skill 集合与当前实现合同。输入包括 Spec、切片 Ticket、需求冻结、适用的原型确认、OpenAPI Freeze / no-impact、系统 / 数据架构、Design Review、Build Architecture Checklist、实现仓库和验证命令；输入缺失、未批准或 `stale` 时输出 `blocked`，交回 `yss-product-lifecycle`（见 [[产品研发生命周期]]）。
 
 编译循环判断 frontend / backend / API / data / cross-repo 影响并填写 backend `component_impacts`，检查工程存在性与核心 / 长尾 skill 可用性，按 `router-contract.yaml` 计算强制依赖闭包，为切片生成基线合同、为当前行为生成工作单元增量路由，并选择 `behavior-tdd` 或 `controlled-generation`。业务行为使用 `behavior-tdd`；只有机械脚手架 / 生成物可用 `controlled-generation`，并记录例外和验证。输出只能是 `draft`、`blocked` 或 `ready-for-lifecycle-review`，交生命周期编排器核验和持久化。
 
@@ -17,4 +17,4 @@ Router 不得输出 `approved`、`ready-for-agent` 或 `completed`。正式垂�
 - `AGENTS.md`
 - `CONTEXT.md`
 - `.agents/skills/yss-router/SKILL.md`
-- `docs/process/implementation-repo-integration.md`
+- `.template-spec/process/implementation-repo-integration.md`

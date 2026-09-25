@@ -28,7 +28,7 @@ function run(command, args, options = {}) {
 try {
   const { values } = parseArgs({ options: { registry: { type: "string" } }, strict: true });
   const registryPath = values.registry ? path.resolve(values.registry) : DEFAULT_REGISTRY;
-  const schemaPath = path.join(ROOT, "docs/process/schemas/lifecycle-registry.schema.json");
+  const schemaPath = path.join(ROOT, ".template-spec/process/schemas/lifecycle-registry.schema.json");
   const schema = JSON.parse(readFileSync(schemaPath, "utf8"));
   if (schema.properties?.schema_version?.const !== 1) throw new TypeError("生命周期注册表 JSON Schema 缺少 schema_version 约束");
   const registry = loadRegistry(registryPath);
@@ -42,13 +42,13 @@ try {
   if (registryPath === DEFAULT_REGISTRY) {
     const generated = run("node", ["scripts/node-generate-lifecycle-artifacts.mjs", "--check"]);
     if (generated.status !== 0) throw new TypeError(`${generated.stdout}${generated.stderr}`.trim());
-    for (const relativePath of ["docs/process/lifecycle-registry.yaml", "docs/process/lifecycle-registry-baseline.json", "docs/process/schemas/lifecycle-registry.schema.json"]) {
+    for (const relativePath of [".template-spec/process/lifecycle-registry.yaml", ".template-spec/process/lifecycle-registry-baseline.json", ".template-spec/process/schemas/lifecycle-registry.schema.json"]) {
       const ignored = run("git", ["check-ignore", "-q", relativePath]);
       if (ignored.status === 0) throw new TypeError(`权威注册表资产不得被 Git 忽略: ${relativePath}`);
     }
-    const stalePaths = ["AGENTS.md", "README.md", ".agents/skills/yss-strategic-design/SKILL.md", "docs/process/lifecycle-artifact-map.md"];
+    const stalePaths = ["AGENTS.md", "README.md", ".agents/skills/yss-strategic-design/SKILL.md", ".template-spec/process/lifecycle-artifact-map.md"];
     if (isTemplateSource(ROOT)) {
-      stalePaths.push("docs/user-guide/产品生命周期工作流.md", ".template-source/derived/harness-work-unit-map.md");
+      stalePaths.push(".template-spec/user-guide/产品生命周期工作流.md", ".template-source/derived/harness-work-unit-map.md");
     }
     for (const relativePath of stalePaths) {
       const filePath = path.join(ROOT, relativePath);

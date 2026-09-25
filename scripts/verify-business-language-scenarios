@@ -8,15 +8,15 @@ const ROOT = path.resolve(import.meta.dirname, "..");
 const PUBLIC_FILES = [
   "README.md",
   "CONTEXT.md",
-  "docs/user-guide/战略设计子项目用户手册.md",
-  "docs/user-guide/用户手册索引.md",
-  "docs/process/harness-profile.yaml",
-  "docs/agents/digital-human-roles.md",
-  "docs/design/README.md",
-  "docs/design/design.md",
-  "docs/templates/spec-template.md",
-  "docs/design/templates/product-overview-design-template.md",
-  "docs/templates/strategic-design-handoff-template.yaml",
+  ".template-spec/user-guide/战略设计子项目用户手册.md",
+  ".template-spec/user-guide/用户手册索引.md",
+  ".template-spec/process/harness-profile.yaml",
+  ".template-spec/agents/digital-human-roles.md",
+  ".template-spec/design/README.md",
+  ".template-spec/design/design.md",
+  ".template-spec/templates/spec-template.md",
+  ".template-spec/design/templates/product-overview-design-template.md",
+  ".template-spec/templates/strategic-design-handoff-template.yaml",
   ".agents/skills/yss-stage-decision/SKILL.md",
 ];
 const JARGON = ["DDD", "子域", "限界上下文", "Context Map", "统一语言", "不变量", "Strategic Design", "Tactical Design"];
@@ -38,7 +38,7 @@ assert.ok(businessEntry, "README.md 应保留业务入口");
 assert.match(businessEntry, /生命周期注册表/);
 for (const term of JARGON) assert.equal(businessEntry.includes(term), false, `README.md 业务入口不应展示术语: ${term}`);
 
-const guide = read("docs/user-guide/战略设计子项目用户手册.md");
+const guide = read(".template-spec/user-guide/战略设计子项目用户手册.md");
 for (const role of ["产品经理", "需求分析师", "商务协作者"]) assert.match(guide, new RegExp(role));
 for (const question of [
   "谁遇到了什么问题",
@@ -54,11 +54,11 @@ for (const section of ["机会与目标", "业务故事", "业务责任区与协
 assert.match(guide, /只是导航视图/);
 assert.match(guide, /不成为新的事实来源/);
 
-const profile = read("docs/process/harness-profile.yaml");
+const profile = read(".template-spec/process/harness-profile.yaml");
 assert.match(profile, /profile_id: harness\.business-ddd-strategy-handoff/);
 assert.match(profile, /name: 产品需求商务业务方案交付模式/);
 
-const registry = read("docs/process/lifecycle-registry.yaml");
+const registry = read(".template-spec/process/lifecycle-registry.yaml");
 for (const stableId of ["work-unit.domain-strategy-design", "artifact.domain-strategy", "check.domain-strategy-approved"]) {
   assert.match(registry, new RegExp(`id: ${stableId.replaceAll(".", "\\.")}`));
 }

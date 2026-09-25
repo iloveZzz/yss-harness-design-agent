@@ -26,7 +26,7 @@ lint 脚本改为失败跨路径 wikilink、校验 manifest sha256，并要求 H
 
 ## [2026-08-23] REFRESH | 登记前端 pnpm / 后端 mvnw 验证命令
 
-`AGENTS.md` 与根目录 `CLAUDE.md` 写入 frontend `pnpm`、backend `./mvnw` 优先序；细则落在 `docs/process/implementation-repo-integration.md`。刷新 [[Agent入口规则]] 与 [[实现仓库与跨仓库契约]]。
+`AGENTS.md` 与根目录 `CLAUDE.md` 写入 frontend `pnpm`、backend `./mvnw` 优先序；细则落在 `.template-spec/process/implementation-repo-integration.md`。刷新 [[Agent入口规则]] 与 [[实现仓库与跨仓库契约]]。
 
 ## [2026-08-23] REFRESH | llm-wiki 去掉外部技能关联
 

@@ -2,15 +2,27 @@
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-
-export const EXTRACT_KINDS = Object.freeze(["skill-names", "heading-list", "prose-note"]);
-
+import { safePath, cliError } from "./core.mjs";
+const EXTRACT_KINDS = Object.freeze(["skill-names", "heading-list", "prose-note"]);
+function extractHeadings(text, input = "") {
+  const lines = [`# heading-list${input ? `: ${input}` : ""}`, ""];
+  let fence = null;
+  for (const [index, line] of text.split(/\r?\n/).entries()) {
+    const marker = line.match(/^\s*(`{3,}|~{3,})/);
+    if (marker) {
+      if (!fence) fence = marker[1][0];
+      else if (fence === marker[1][0]) fence = null;
+      continue;
+    }
+    if (!fence && /^#{1,6}\s+\S/.test(line)) lines.push(`- L${index + 1}: ${line.trim()}`);
+  }
+  return lines.join("\n") + "\n";
+}
 function namesOf(value) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return [];
   return Object.keys(value).sort((a, b) => a.localeCompare(b));
 }
-
-export function extractSkillNames(lock) {
+function extractSkillNames(lock) {
   if (!lock || typeof lock !== "object" || Array.isArray(lock)) {
     throw new TypeError("skill-names input must be a lock object");
   }
@@ -27,9 +39,9 @@ export function extractSkillNames(lock) {
       lines.push("");
     }
   }
-  return `${lines.join("\n").replace(/\n+$/, "")}\n`;
+  return `${lines.join("\n").replace(/\n+$/, "")}
+`;
 }
-
 async function main(argv = process.argv.slice(2)) {
   const kind = argv[0];
   let input;
@@ -38,18 +50,23 @@ async function main(argv = process.argv.slice(2)) {
     if (argv[i] === "--in") input = argv[++i];
     else if (argv[i] === "--out") output = argv[++i];
   }
-  if (kind !== "skill-names" || !input || !output) {
-    throw new Error("usage: extract.mjs skill-names --in <lock.json> --out <raw.md>");
+  if (!["skill-names", "heading-list"].includes(kind) || !input || !output) {
+    throw new Error("usage: extract.mjs skill-names|heading-list --in <lock.json> --out <raw.md>");
   }
-  const text = extractSkillNames(JSON.parse(await readFile(input, "utf8")));
-  await mkdir(path.dirname(output), { recursive: true });
-  await writeFile(output, text, "utf8");
-  process.stdout.write(`${output}\n`);
+  const inputFile = await safePath(process.cwd(), input);
+  const outputFile = await safePath(process.cwd(), output, { write: true });
+  const content = await readFile(inputFile, "utf8");
+  const text = kind === "skill-names" ? extractSkillNames(JSON.parse(content)) : extractHeadings(content, input);
+  await mkdir(path.dirname(outputFile), { recursive: true });
+  await writeFile(outputFile, text, "utf8");
+  process.stdout.write(`${output}
+`);
 }
-
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  main().catch((error) => {
-    process.stderr.write(`${error.message}\n`);
-    process.exitCode = 2;
-  });
+  main().catch(cliError);
 }
+export {
+  EXTRACT_KINDS,
+  extractHeadings,
+  extractSkillNames
+};

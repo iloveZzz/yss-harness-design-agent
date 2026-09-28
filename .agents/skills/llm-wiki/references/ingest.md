@@ -1,36 +1,11 @@
-# Ingest
+# 摄取外源
 
-Ingest is a compile mode. It adds a user-named external source or an already-written research note to the wiki. It does not replace `refresh`.
+只处理用户点名 URL、粘贴、文件或已经落盘的 research 笔记。映射的 live 来源变更使用 refresh；单次搜索不是自动 ingest。禁止把 docs/reviews、scratch、Agent 投影或完整 lock 文件当普通文档摄取。
 
-Query must not ingest. Mapped live sources that changed go to `refresh`.
+1. 检测现有 wiki；v1 写入前需显式迁移。
+2. **先只读**准备来源、候选页及 New/Update/Disputed/No material 影响。已确认的一组输入复用同一范围；缺少真实确认时展示候选，不写 raw、manifest、日志或文章。用户拒绝时零写入。
+3. 按 [schema](schema.md) 标记 location、快照来源、抽取器及全部输入。外部快照不得虚构 repo livePath；未在线核验保持 unverified。
+4. 对已确认候选准备 raw、页面及索引；Disputed 保留双方证据和 stale，人工正文保持不动。
+5. 使用 [transactions](transactions.md) 的计划/应用流程，仅写准确清单；结构 lint、status、advise 后报告摄取结果及剩余可信度限制。未完成证据的文章不能冒充 current。
 
-## Allowed inputs
-
-- A URL, paste, or file outside the repo that the user named in this turn.
-- An already-written research note on disk (for example under the host's research archive). One-off fact gathering still belongs to the host's research skill; ingest only compiles a note that already exists.
-
-Forbidden inputs: `docs/reviews/`, `docs/.scratch/`, agent projection directories, lock files as documents, and any live authoritative file that is already a manifest `livePath`.
-
-Do not treat a web search as this skill's `refresh`. Confirm new web material as a named input first.
-
-## Done when
-
-`raw/` has the copy or labelled extract, the manifest lists the source, triage is recorded, confirmed pages are written (or none if the user declined), structural lint exits 0, advise has been run, and `log.md` has `INGEST`.
-
-## Steps
-
-1. Detect the wiki. No `wiki/index.md` → suggest `init`. Stop.
-2. If the path is already a manifest `livePath` → stop and use `refresh`.
-3. Write `raw/` as a copy or a labelled extract. Do not invent `extract.kind` values. Do not edit live authoritative files.
-4. Add a manifest source (`kind: document` or `derived`) with `livePath` (repo-relative when the file is in-repo; otherwise leave a labelled extract and record the origin in the extract header). Do not create a second config file (`inbox.md`, YAML sidecars). The pending queue is the new source plus the log.
-5. Run `inventory.mjs status --wiki <wiki-root> --candidate <livePath>` if the input is in-repo. Assign each unmapped path or new source one triage: `New` / `Update` / `Disputed` / `No material`.
-6. Show the candidate article list. **Stop until the user confirms.** Unconfirmed ingest changes zero article bytes. `No material` writes log only.
-7. After confirmation: write or update only the confirmed pages. Use `## Status` when triage is `Disputed`. Follow [writing.md](writing.md).
-8. `inventory.mjs hash`. Structural lint. Advise (report counts). Sample live/raw facts on changed pages. Append:
-
-```
-## [YYYY-MM-DD] INGEST | <summary>
-- source: <sourceId>
-- disposition: New|Update|Disputed|No material
-- articles: <articleId>, ...
-```
+候选审批不写单独 inbox 配置，不向外发布，不因查询自动收集更多资料。

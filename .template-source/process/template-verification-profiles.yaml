@@ -60,7 +60,7 @@ required_files:
   - scripts/verify-business-language-scenarios
   - scripts/verify-context-reconciliation
   - scripts/verify-context-reconciliation-scenarios
-  - scripts/verify-grill-with-docs-context-scenarios
+  - scripts/verify-plan-requirements-context-scenarios
   - scripts/verify-strategic-design-handoff
   - scripts/verify-strategic-design-handoff-scenarios
   - scripts/verify-harness-profile
@@ -195,7 +195,7 @@ groups:
       - { run: "scripts/verify-context-contract-scenarios" }
       - { run: "node scripts/verify-business-language-scenarios" }
       - { run: "scripts/verify-context-reconciliation-scenarios" }
-      - { run: "scripts/verify-grill-with-docs-context-scenarios" }
+      - { run: "scripts/verify-plan-requirements-context-scenarios" }
       - { run: "scripts/verify-lifecycle-registry" }
       - { run: "scripts/verify-lifecycle-checkpoint .template-spec/process/templates/lifecycle-checkpoint-template.yaml" }
       - { run: "scripts/verify-lifecycle-transition-scenarios" }

@@ -12,9 +12,12 @@
 | Plan | `docs/.scratch/<feature>/plan/<feature>-discovery.md` | 可选 |
 | 原型阶段合同 / 视觉来源 | `yss-prototype-stage`；`source_visual.kind=design-system` 或 `visual-reference` | 默认 DESIGN.md 规范直出；独立视觉稿才条件使用 Product Design focused skill |
 | 原型 / 线框图 | `<链接或导出图片路径>` | Excalidraw / Figma / Penpot / tldraw / Axure / Markdown |
-| H1/H2 原型交付物 | `docs/.scratch/<feature>/design/prototypes/index.html` 与本地资源 | 低保真评审后按档位补齐；默认原生 HTML，复杂控件影响评审结论时选择 AntD 预构建；产出后须用户确认 |
-| 原型验证清单 | `docs/.scratch/<feature>/verification/prototype-evidence.yaml` | 记录实际 CLI / AntD 版本、CLI JSON 输出、浏览器验证和阻塞项 |
+| H1/H2 原型交付物 | `docs/.scratch/<feature>/design/prototypes/index.html` 与本地资源 | 低保真评审后按档位补齐；高保真主要使用 shadcn/ui 预构建，轻量局部修改可用原生 HTML；产出后须用户确认 |
+| 原型验证清单 | `docs/.scratch/<feature>/verification/prototype-evidence.yaml` | 记录固定组件源码 revision、依赖锁、构建来源、浏览器验证和阻塞项 |
 | 现有 API 草案 | `docs/.scratch/<feature>/api/<feature>.yaml` | 可选；通常应先完成产品设计和 Spec 校准 |
+
+- 本次用户任务 / 保持项 / 可调整项：<引用当前需求与已有页面模式>。
+- 适用 Token / 状态引用：<引用当前设计规范和状态矩阵>。
 
 ## 2. 页面地图
 
@@ -78,6 +81,28 @@
 | defaultValue | string | 否 | 按 dataType 校验 |
 | businessMeaning | string | 否 | 长文本 |
 
+### 内容规划与动作结果
+
+先列内容，再分配页面区域；同一字段的来源、权限和校验引用上表，不重复维护。
+
+| 内容 / 上表字段引用 | 优先级及用户任务依据 | 长度 / 空值变化 | 所在区域 | actionKey / 可见结果 / 状态引用 |
+|---|---|---|---|---|
+| <实际内容引用> | <主要 / 辅助及依据> | <代表值、长中文或空值> | <区域> | <动作与结果；纯展示说明不适用> |
+
+### 条件方案比较
+
+已有规范与页面模式足够时，记录不适用原因，不填空候选。信息架构/交互比较先于低保真评审；高保真比较只解决尚未确定的视觉方向。
+
+- 要回答的问题、共同输入、保持项及保真度：<当前引用>。
+- 事前比较标准：<Spec 硬约束，以及可权衡项；不得新增业务规则或事后改标准>。
+
+| 候选及入口 | 差异轴 / 待验证假设 | 硬约束结果与观察 | 适用条件与代价 |
+|---|---|---|---|
+| <候选引用> | <步骤 / 粒度 / 分工 / 入口，或视觉层级> | <可定位证据> | <取舍> |
+
+- 选择记录：<用户决定引用；未取得则待确认>。
+- 选择代价、落选理由与重新考虑条件：<依据>。
+
 ## 5. 状态矩阵
 
 引用或复制 `.template-spec/design/templates/state-matrix-template.md`。
@@ -105,7 +130,7 @@
 - loading、empty、error、no-permission、readonly、conflict、dirty-form 状态已展示，或明确不适用。
 - 每个表格列、筛选条件、表单字段、抽屉、弹窗和按钮都有数据来源或契约反推说明。
 - 设计可以拆成独立可演示的垂直切片。
-- 低保真评审通过后，H1 验证视觉与少量交互，H2 验证主流程和关键异常；默认离线 HTML，按实际评审风险选择条件 AntD 预构建。
+- 低保真评审通过后，H1 验证视觉与少量交互，H2 验证主流程和关键异常；高保真主要使用 shadcn/ui 离线预构建，原生 HTML 保留为轻量路线。
 - 原型产出前已使用 `antd` CLI 查询设计语言、组件 API、demo、token 和 semantic 信息；原型产出后已在 `prototype-evidence.yaml` 记录实际版本、CLI 与浏览器验证证据。
 
 ## 9. 决策与未决问题

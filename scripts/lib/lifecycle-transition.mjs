@@ -1,3 +1,5 @@
+import {assertBusinessTicketTransition,assertImplementationTicket} from './business-tickets.mjs';
+import {assertBusinessApprovalBasis} from './business-ticket-lifecycle.mjs';
 import {assertReadingTransition} from './reading-view-bundle.mjs';
 import { ROOT } from './lifecycle-registry.mjs';
 import { assertTrackingTransition } from './stage-tracking.mjs';
@@ -49,7 +51,7 @@ const PROFILE_NEXT_ROUTES = deepFreeze({
     "work-unit.plan-requirements": ["work-unit.domain-strategy-design", "work-unit.stage-decision"],
     "work-unit.domain-strategy-design": ["work-unit.stage-decision"],
     "work-unit.stage-decision": ["work-unit.spec-synthesis"],
-    "work-unit.spec-synthesis": ["work-unit.prototype-design"],
+    "work-unit.spec-synthesis": ["work-unit.prototype-design", "work-unit.business-ticket-formalization"],
     "work-unit.prototype-design": ["work-unit.business-ticket-formalization"],
     "work-unit.business-ticket-formalization": ["work-unit.strategic-design-handoff"],
     "work-unit.strategic-design-handoff": [],
@@ -133,6 +135,8 @@ function validateTicketReference(ref, trackerKind) {
  * by `validateWorkflowExecutionResult` before this function is called.
  */
 export function validateNextRoute(currentWorkUnit, nextRoute, state = {}, options = {}) {
+  try { assertBusinessTicketTransition(options.root || ROOT,currentWorkUnit,nextRoute,state);assertBusinessApprovalBasis(options.root || ROOT,state,{required:currentWorkUnit==='work-unit.business-ticket-formalization'}); }
+  catch(error) { return blockedResult(['business-ticket-blocked'],[error.message]); }
   try { assertReadingTransition(options.root || ROOT, state, currentWorkUnit); }
   catch (error) { return blockedResult(['reading-views-stale'], [error.message]); }
   try { assertTrackingTransition(currentWorkUnit, nextRoute, state, { root: options.root || ROOT }); }
@@ -165,6 +169,7 @@ export function validateNextRoute(currentWorkUnit, nextRoute, state = {}, option
  * `exists` is injectable so external adapters can resolve their own tracker refs.
  */
 export function validateTicketFormalization(state, { exists = existsSync, read = (ref) => readFileSync(ref, "utf8") } = {}) {
+  try {if(state?.vertical_slice_ticket?.ref)assertImplementationTicket(read(state.vertical_slice_ticket.ref),state.vertical_slice_ticket.ref);}catch(error){return blockedResult(['ticket-content-invalid'],[error.message]);}
   const decomposition = state?.ticket_decomposition_result;
   const ticket = state?.vertical_slice_ticket;
   const contract = state?.slice_contract;

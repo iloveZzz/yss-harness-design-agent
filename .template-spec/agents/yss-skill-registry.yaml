@@ -197,6 +197,7 @@ skill_dependencies:
     - { skill: writing-for-agents, type: coordination-only }
 invocation_contract:
   schema_version: 2
+  runtime_metadata_version: 1
   scope: discovery-only
   required_fields: [ invocation_mode, trigger_conditions, exclusion_conditions, primary_output ]
   allowed_invocation_modes: [ user, model, both ]
@@ -241,6 +242,26 @@ invocation_contract:
       trigger_conditions: [ impact:discovery, impact:prototype, impact:lifecycle ]
       exclusion_conditions: [ task:downstream-implementation ]
       primary_output: artifact.strategic-design-handoff
+    writing-for-agents:
+      invocation_mode: both
+      trigger_conditions: [agent-document-writing]
+      exclusion_conditions: [unrelated-document]
+      primary_output: agent-document
+    handoff:
+      invocation_mode: user
+      trigger_conditions: [explicit-handoff-request]
+      exclusion_conditions: [no-handoff-request]
+      primary_output: session-handoff
+    code-review:
+      invocation_mode: both
+      trigger_conditions: [review-request]
+      exclusion_conditions: [outside-authorized-scope]
+      primary_output: review-findings
+    maintaining-skills:
+      invocation_mode: both
+      trigger_conditions: [skill-maintenance-request]
+      exclusion_conditions: [outside-authorized-scope]
+      primary_output: skill-maintenance-evidence
 agent_runtime_roots:
   codex: .codex/skills
   cursor: .cursor/skills

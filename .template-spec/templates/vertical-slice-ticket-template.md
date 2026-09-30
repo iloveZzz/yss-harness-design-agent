@@ -4,6 +4,8 @@ status: ready-for-human
 
 # 垂直切片 Ticket：<标题>
 
+> Design profile 中本模板仅供历史读取；新业务拆分使用 business-ticket-template.md 和 business-ticket-set-template.yaml，不在战略侧创作实现票。
+
 Status: ready-for-human
 
 ## 父级

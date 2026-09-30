@@ -7,10 +7,11 @@
   const save = document.querySelector('#save');
   const retry = document.querySelector('#retry');
   const reload = document.querySelector('#reload');
-  let state;
+  let state, ticket;
   for (const scenario of scenarios) selector.add(new Option(scenario.label, scenario.id));
   function reset(id) {
-    const scenario = scenarios.find(item => item.id === id) || scenarios[0];
+    let initial;try{initial=window.prototypeRuntime.initialize(id);ticket=initial.ticket;}catch(e){window.prototypeRuntime.showError(e);return;}
+    const scenario = {...initial.data,id:initial.id};
     state = { ...scenario, retried: false };
     selector.value = scenario.id;
     content.value = scenario.content;
@@ -21,6 +22,7 @@
     status.textContent = content.readOnly ? '当前没有编辑权限，可查看内容或切换场景。' : '可以编辑并保存。';
     document.body.dataset.scenario = scenario.id;
     document.body.dataset.state = content.readOnly ? 'no-permission' : 'editing';
+    window.prototypeRuntime.ready(ticket);
   }
   form.addEventListener('submit', event => {
     event.preventDefault();
@@ -41,10 +43,10 @@
     }
   });
   retry.addEventListener('click', () => { state.retried = true; form.requestSubmit(); });
-  reload.addEventListener('click', () => { state.outcome = 'success'; content.value = '重新加载的最新内容'; reload.hidden = true; status.textContent = '已重新加载，可以继续编辑。'; document.body.dataset.state = 'editing'; content.focus(); });
+  reload.addEventListener('click', () => { if(!confirm('放弃本地修改并重新加载？'))return; state.outcome = 'success'; content.value = state.server_content; reload.hidden = true; status.textContent = '已重新加载，可以继续编辑。'; document.body.dataset.state = 'editing'; content.focus(); });
   selector.addEventListener('change', () => { location.hash = `scenario=${selector.value}`; reset(selector.value); });
   document.querySelector('#reset').addEventListener('click', () => reset(selector.value));
   const selectedFromHash = () => new URLSearchParams(location.hash.slice(1)).get('scenario');
-  window.addEventListener('hashchange', () => reset(selectedFromHash()));
-  reset(selectedFromHash());
+  window.addEventListener('hashchange', () => reset());
+  reset();
 })();

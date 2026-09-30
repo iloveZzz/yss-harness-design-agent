@@ -42,7 +42,7 @@ source:
     version: v1
     digest: <business-ticket-set-digest>
     status: approved
-    persisted_ref: docs/.scratch/<feature>/tickets/business-ticket-set.yaml
+    persisted_ref: docs/.scratch/<feature>/business-ticket-set.yaml
 
 source_context_snapshot:
   context_ref: CONTEXT.md
@@ -142,7 +142,7 @@ package_export:
     spec_ref: {record_ref: <approval-record>, gate_id: <gate-id>, digest_kind: sha256-bytes}
     prototype_ref: {record_ref: <approval-record>, gate_id: <gate-id>, digest_kind: sha256-bytes}
     visual_baseline_ref: {record_ref: <approval-record>, gate_id: <gate-id>, digest_kind: visual-baseline}
-    business_ticket_set_ref: {record_ref: <approval-record>, gate_id: <gate-id>, digest_kind: canonical-json}
+    business_ticket_set_ref: {record_ref: <approval-record>, gate_id: gate.strategic-design-handoff-approved, digest_kind: sha256-bytes}
     handoff: {record_ref: <handoff-approval-record>, gate_id: gate.strategic-design-handoff-approved, digest_kind: sha256-bytes}
   additional_files: []
   reference_map: {}

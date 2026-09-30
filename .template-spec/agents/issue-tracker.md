@@ -1,6 +1,7 @@
 ---
 tracker:
   lifecycle_tracking_version: 1
+  business_ticket_version: 1
   platform: local-markdown
   root: docs/.scratch
   legacy_roots:
@@ -138,3 +139,7 @@ Ticket 是默认 triage surface。MR / PR 是否纳入 triage 取决于当前平
 新初始化默认启用 `tracker.lifecycle_tracking_version: 1`。已有项目的 attach / sync 保留原配置；缺省保持旧模式，按 [阶段工作追踪](../process/stage-tracking.md) 执行 check → plan → apply。
 
 Plan / Spec / Design 的小工作记录在 checkpoint.stage_tracking；独立工作项使用 `work-items/<id>.md`，不占用业务票 / 实现切片的 `issues/`。执行进度只由 checkpoint 保存，父票和 map 引用；阶段工作项不得设置 `ready-for-agent`。
+
+## 业务拆分版本
+
+新项目 business_ticket_version: 1，按 `../process/business-tickets.md` 执行。每票位于功能包 business-tickets/，business-ticket-set.yaml 汇总引用与覆盖；issues/ 保留实现 Slice。缺少版本的旧实例进入兼容诊断，显式迁移前不自动启用；同步保留用户配置。

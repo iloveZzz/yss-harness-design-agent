@@ -1,3 +1,4 @@
+import { compileReviewCapabilities, compileWorkUnitReviewCapabilities, validateReviewTaskBinding } from './review-capabilities.mjs';
 import { enforceHarnessTaskScope } from './harness-execution-scope.mjs';
 import { validateReadOnlyIntake } from './read-only-intake.mjs';
 import { assertTrackingEntry } from './stage-tracking.mjs';
@@ -75,12 +76,26 @@ sys.exit(1 if errors else 0)
   if (result.status !== 0) fail(`${result.stdout}${result.stderr}`.trim());
 }
 
+function compileTaskReviewSkills(value, registry) {
+  if (value.review_context?.capability_ids) {
+    return compileReviewCapabilities({ checkIds: value.review_context.check_ids, roleId: value.role_id, executionState: value.execution_state, rolesDoc: registry });
+  }
+  const workUnitPolicy = registry.gate_policy?.digital_human_review_work_units?.some(rule => rule.work_unit === value.work_unit_id);
+  if (["Reviewer", "Verifier"].includes(value.execution_state) && workUnitPolicy) {
+    return compileWorkUnitReviewCapabilities({ workUnitId: value.work_unit_id, roleId: value.role_id, executionState: value.execution_state, rolesDoc: registry });
+  }
+  if (value.skill_source?.review_skills !== undefined) fail("REVIEW_CAPABILITY_STATE: 审查补充技能只允许有当前专业政策的 Reviewer / Verifier");
+  return null;
+}
+
 function validateSkillSource(value, registry) {
   const defaults = taskPackageDefaults(value.role_id, registry);
   if (value.skill_source.registry_ref !== TASK_PACKAGE_REGISTRY_REF) fail(`skill_source.registry_ref 必须为 ${TASK_PACKAGE_REGISTRY_REF}`);
   if (value.skill_source.defaults_ref !== `taskPackageDefaults(${value.role_id})`) fail(`skill_source.defaults_ref 必须为 taskPackageDefaults(${value.role_id})`);
   if (!equalArrays(value.skill_source.core_skills, defaults.core_skills)) fail("skill_source.core_skills 必须与角色注册表完全一致");
   if (!equalArrays(value.skill_source.forbidden_skills, defaults.forbidden_skills)) fail("skill_source.forbidden_skills 必须与角色注册表完全一致");
+  const compiled = compileTaskReviewSkills(value, registry);
+  if (compiled && !equalArrays(value.skill_source.review_skills, compiled.review_skills)) fail("skill_source.review_skills 必须由权威能力政策编译");
 }
 
 function validateCommon(value, registry, lifecycle) {
@@ -96,11 +111,15 @@ function validateCommon(value, registry, lifecycle) {
   if (!WORKFLOW_STATUSES.has(value.workflow_status)) fail(`workflow_status 无效: ${value.workflow_status}`);
   if (value.stage_id) {
     if (!lifecycle.stages.some((stage) => stage.id === value.stage_id)) fail(`未知 stage_id: ${value.stage_id}`);
-    if (!roleDefaults.stages.includes(value.stage_id)) fail(`role_id 未覆盖 stage_id: ${value.role_id} -> ${value.stage_id}`);
+    const reviewStages = value.review_context?.capability_ids
+      ? compileReviewCapabilities({ checkIds: value.review_context.check_ids, roleId: value.role_id, executionState: value.execution_state, rolesDoc: registry, registry: lifecycle }).review_stages
+      : roleDefaults.stages;
+    if (!reviewStages.includes(value.stage_id)) fail(`role_id 未覆盖 stage_id: ${value.role_id} -> ${value.stage_id}`);
   }
-  validateSkillSource(value, registry);
-  for (const allowed of value.allowed_write_paths) assertSafeRelativePath(allowed, "allowed_write_paths 条目");
   if (value.execution_state === "Reviewer" && value.review_context.implementation_actor_id === value.actor_id) fail("Reviewer 必须与实现者使用不同 actor_id");
+  validateSkillSource(value, registry);
+  if (value.review_context?.capability_ids) validateReviewTaskBinding(value, { rolesDoc: registry, registry: lifecycle, root: ROOT });
+  for (const allowed of value.allowed_write_paths) assertSafeRelativePath(allowed, "allowed_write_paths 条目");
   const commands = new Set(value.verification_commands);
   for (const result of value.verification_results) {
     if (!commands.has(result.command)) fail(`verification_results 命令未声明: ${result.command}`);
@@ -217,7 +236,9 @@ export function validateTaskPackage(value, { rolesDoc, lifecycleDoc, root = ROOT
 }
 
 export function generateTaskPackageDefaults(roleId, overrides = {}, { rolesDoc } = {}) {
-  const defaults = taskPackageDefaults(roleId, rolesDoc || loadDigitalHumanRoles());
+  const registry = rolesDoc || loadDigitalHumanRoles();
+  const defaults = taskPackageDefaults(roleId, registry);
+  const review = compileTaskReviewSkills({ ...overrides, role_id: roleId }, registry);
   return {
     schema_version: 1,
     role_id: defaults.role_id,
@@ -225,7 +246,8 @@ export function generateTaskPackageDefaults(roleId, overrides = {}, { rolesDoc }
       registry_ref: TASK_PACKAGE_REGISTRY_REF,
       defaults_ref: `taskPackageDefaults(${roleId})`,
       core_skills: defaults.core_skills,
-      forbidden_skills: defaults.forbidden_skills
+      forbidden_skills: defaults.forbidden_skills,
+      ...(review ? { review_skills: review.review_skills } : {})
     },
     ...overrides
   };

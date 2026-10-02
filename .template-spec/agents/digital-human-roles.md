@@ -90,3 +90,5 @@ Grok 专用操作见 `.template-spec/templates/grok-bot-profile-template.md`。�
 ## 任务包最低字段
 
 `task_id`、`work_unit_id`、`actor_id`、数字人角色 ID、`runtime_id`、执行态、从角色表复制的 `core_skills` / `forbidden_skills`、`contract.kind/id/version`、输入资产、允许写路径、禁止事项、验收、验证命令、证据、下游消费者和汇合方式。
+
+专业审查能力与当前绑定以本 profile 的 `digital-human-roles.yaml` 为准；角色核心 / 禁止技能保持原权限，`review_skills` 仅供正式 Reviewer / Verifier 任务补充只读审查。组合记录逐项保留结论，草案不得自动 approved。

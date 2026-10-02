@@ -74,13 +74,13 @@ tracker 选择和冲突按 `.template-spec/agents/issue-tracker.md` 裁决：已
 
 ## 必须暂停
 
-- Spec baseline、领域战略、阶段决策、原型确认或 Strategic Design Handoff 等本地门禁等待会签裁决（数字人或生物人，以 `.template-spec/agents/digital-human-roles.yaml` 的 `gate_policy` 为准）。暂停输出必须包含：门禁 ID、指定 `role_id`、`runtime_id`、会签文件路径。恢复前执行 `scripts/verify-approval-record`；角色错误或起草者自签时返回 `blocked`，不得标 `approved`。
+- Spec baseline、领域战略、阶段决策、原型确认或 Strategic Design Handoff 等本地门禁等待会签裁决（数字人或生物人，以 `.template-spec/agents/digital-human-roles.yaml` 的 `gate_policy` 为准）。暂停输出必须包含：门禁 ID、指定 `role_id`、`runtime_id`、会签文件路径。专业等待先自主派发独立审查；真实用户决定缺失时才询问。恢复前执行 `scripts/verify-approval-record --checkpoint <当前检查点> --require-approved <批准文件>`；角色错误或起草者自签时返回 `blocked`，不得标 `approved`。
 - 需要目标仓库、外部凭据、发布窗口或其他新授权。
 - 状态与证据冲突且无法可靠重建。
 - 专项 skill 失败或返回不可验收结果。
-- 即将作出可合并、可发布或完成结论。
+- 发布等实际外部动作缺少新的动作授权。
 
-暂停输出：门禁、指定会签 `role_id`、`runtime_id`、会签文件路径、证据、推荐答案、一个问题、恢复动作。
+暂停输出：门禁、指定会签 `role_id`、`runtime_id`、会签文件路径、证据、推荐动作、实际缺失信息及恢复动作；专业等待由主控派发，不把它默认变成用户问题。
 
 ## Wayfinder 完成判定
 
@@ -106,3 +106,9 @@ Matt `prototype` 的回流还必须注明 `prototype_branch`，并保留单文�
 Release 与 Retrospective 属于下游研发 profile。本 profile 只在 Strategic Design Handoff 中记录商务窗口、已知风险与下游责任人，不作可发布结论。
 
 Spec、原型和交接的完成结果携带 `user_decisions`（boundary、subject_ref、scope 与 user_decision_ref，交接可引用 decision_reuse_ref）。`validateNextRoute` 对战略 profile 不回退完整研发路由，并核验当前关键决定。尚待真实回复时返回 needs-human，不把可审阅草稿标成可流转的 completed；任务包 schema 只增加可选决定引用，不改变原始回复协议。
+
+## 当前专业审查与继续推进
+
+专业审查资格按 `.template-spec/agents/digital-human-roles.yaml` 的能力覆盖和独立实例校验，角色名仅用于导航和历史兼容。正式 v1 审查任务按权威表编译 `review_context` / `review_skills`；核心与禁止技能、端范围及主控批准权不变。相邻检查可由一个能力完整的审查者组合完成，逐项记录主体、范围、依据和结论；缺少能力才增加专家。`scripts/prepare-review-package` 只生成任务、差异、覆盖和 pending 批准草案。恢复时以 `scripts/verify-approval-record --checkpoint <当前检查点> --require-approved <批准文件>` 校验；完整 v2 正式任务绑定可独立消费，历史只读不授予当前资格。
+
+首轮覆盖全部适用项。修复后比较差异，只复审受影响的结论、行为和依赖，再绑定当前候选；未受影响项须有比较依据才能复用。摘要变化、UI 或 `new_impacts` 不触发全轴默认或兜底，未知影响先调查并阻断依赖事项。专业等待由主控自主派发和等待，继续独立工作；实际验证失败先修复。只有缺少真实用户决定、必要外部输入或动作授权时才展示具体资产并询问；待结论自身不要求暂停，问题数量按缺失信息确定。mandatory、外部强制审批、Fresh Verification 和旧两轮协议的显式 needs-human 保留。

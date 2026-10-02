@@ -58,7 +58,7 @@ next_route: <next-work-unit-or-null>
 blocking_signals: []
 ```
 
-存在 `drift`、`new_impacts`、`violation`、`missing_evidence` 或 `stale_candidates`，以及证据缺失时，不得返回 `completed`；必须暂停并由编排器决定增量重路由、完整重路由或回到更早阶段。
+存在 `drift`、`new_impacts`、`violation`、`missing_evidence` 或 `stale_candidates`，以及证据缺失时，不得返回 `completed`；由编排器调查实际变化和依赖，修复、补证据或更新受影响合同后定向复审并重新绑定当前候选；未知影响先调查，禁止默认或兜底全轴复审。
 
 Router 状态映射为：`draft → completed`、`blocked → blocked`、`ready-for-lifecycle-review → needs-human`。这里的 `completed` 只表示 Matt 工作单元已产出可验收结果，不表示生命周期完成或可发布。
 

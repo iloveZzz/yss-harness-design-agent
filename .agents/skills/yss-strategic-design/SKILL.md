@@ -104,3 +104,9 @@ Plan → Spec（含正式草稿、恢复与显式 `to-spec`）写入前，按 `.
 ## Spec 后业务拆分
 
 按 `.template-spec/process/business-tickets.md` 执行 Spec 业务草案、Design 校准与业务正式化。业务票放在 `business-tickets/`，集合引用进入 Spec / map / checkpoint；业务票不授予实现资格。实现票仍在 `issues/`，受工程准备、当前 Slice 合同批准和完整就绪检查约束。 Spec 综合即生成业务草案；Design 只校准同一组稳定 ID。无 UI/产品设计影响时直接业务正式化，不创建空原型。使用共享 business-ticket-template.md 和 business-ticket-set-template.yaml；历史实现模板只读兼容。最终集合绑定当前战略交接 gate.strategic-design-handoff-approved，不借用更早 Plan 回复；声明 business-ticket-approval-v1 能力。
+
+<!-- SKILL_PREFLIGHT_ROUTE -->
+专项技能调用前，运行 `scripts/query-lifecycle-context --work-unit <当前工作单元> --check-skills`；多运行时指定 `--agent-runtime`，条件用 `--when`。按合同 `skill_preflight` 处理缺失、漂移与冲突，在既有授权内核对补装计划、应用后重验。预检不授予执行或批准。Matt 上游为 https://github.com/mattpocock/skills，生效版本以根 `skills-lock.json` 为准。
+
+<!-- USER_PROGRESS_REPORT -->
+每轮返回或暂停按合同 `user_progress_report` 给出中文状态：当前阶段与本轮结果、下一阶段/单元与进入条件、问题/阻塞、已登记责任方、解除动作及复验、主控下一动作与用户待决定项。未知写“待核验”，负责人缺失写“未登记”；目标不代表批准，已授权工作继续执行。发送前核对证据、状态及结构化结果一致；写法见 `.template-spec/process/document-writing.md`。

@@ -120,7 +120,7 @@
         "source": "ayghri/i-have-adhd",
         "sourceType": "git",
         "skillPath": "skills/i-have-adhd/SKILL.md",
-        "effectiveHash": "5b5112de349f6deb16fb9279846d85344106bdd253da93d85cec7aa30fe7b705",
+        "effectiveHash": "8395074dd323ce1f60324b838f436f3fad8f415c430ab191cd7e7e0ae2b6d540",
         "sourceRevision": "7b9069b39972e269e61bd95c2f66ebb90cac6a02",
         "upstreamHash": "4c88635cbcb4765b63528d608d27589596840708e89607fda9c9fa5726c11f7e",
         "targets": [
@@ -332,7 +332,7 @@
         "source": "project",
         "sourceType": "local",
         "skillPath": ".agents/skills/yss-strategic-design/SKILL.md",
-        "effectiveHash": "78b59baccc9ed0f422b0067dc5b0d4e1bdd4f45d7a72b06db2ed4aa7b91797a0",
+        "effectiveHash": "a9b869bfe2fd946b1150b2b0862f93b7903f51862b44fab3824db00ab6119b5d",
         "targets": [
           ".agents/skills",
           ".codex/skills",

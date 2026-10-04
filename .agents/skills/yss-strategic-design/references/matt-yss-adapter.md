@@ -17,7 +17,7 @@ Matt skills 决定如何工作；YSS Strategic Design 决定是否允许推进�
 |---|---|---|
 | 首次启用或配置缺失 | `setup-matt-pocock-skills`（用户显式） | `needs-human`，说明缺失项；用户完成 setup 后重新计算 readiness |
 | 通用入口 | `ask-matt` | 检测到 YSS 后由本编排器最终裁决 |
-| 需求澄清 | 原生需求澄清，按需使用 `grilling`、`domain-modeling`（生命周期原语） | 按退出判定检查未决项和回流 |
+| 需求澄清 | 原生需求澄清按 `planning.clarification_policy` 主动调用 `grilling`；术语整理按需使用 `domain-modeling`（生命周期原语） | 分流事实、实验和专业问题；按退出判定检查未决项、真实回复和回流 |
 | 信息在其他人手中 | 生命周期外部输入问卷 | 使用 `external-input-required` 暂停；答案回流后记录 response、重新分类影响面，再进入 原生需求澄清 或 `to-spec` |
 | 大型模糊工作 | `wayfinder` | map 真正完成后 `handoff → to-spec` |
 | 技术或战略事实 | `yss-research`（`research` 为 deprecated alias） | `technical-evidence` 核验一手技术资料；`strategy-evidence` 为领域战略和阶段决策提供可审计证据；研究包不得自行修改或批准下游资产 |
@@ -72,7 +72,9 @@ Router 状态映射为：`draft → completed`、`blocked → blocked`、`ready-
 | `to-tickets`（用户显式） | 必要门禁、业务范围、验收标准、依赖和风险均已明确 | 生命周期只准备/验收；只能生成业务级 Ticket，初始统一为 `ready-for-human` |
 | `implement`（已移除） | 不适用 | 直接返回 `blocked`，转交下游研发 profile |
 
-`grill_exit` 不是“已经聊过”的自然语言声明。它必须同时证明 frontier 为空、事实已解决或分别路由到 `yss-research` / prototype / external input、用户决策已确认、双方共同理解已确认，并且没有未回流的 runnable blocker。
+`grill_exit` 不是“已经聊过”的自然语言声明。主动调用、问题分流、依赖分轮和纠正重开以 `planning.clarification_policy` 为唯一执行策略；完整退出仍须证明 frontier 为空、事实已解决或分别路由到 `yss-research` / prototype / external input、用户决策已确认、双方共同理解已确认，并且没有未回流的 runnable blocker。路由尚未回流的事实不能冒充已解决的关键项。
+
+审阅包内 `checks.grill_exit=passed` 仅表示澄清材料与前置条件就绪。主控固定完整包后，展示共同理解、解决证据、延期项、范围、风险和进入 Spec 的动作，合并取得最终共同理解与 `gate.plan-approved` 的一次真实回复。外部 `plan_user_decision_ref` 绑定当前包，不写回包内 `basis`；完整退出由入口结合当前决定判断。没有最终回复时仍等待，澄清结束不能自行批准 Plan 或绕过入口验证。
 
 ## 战略资产审查与 Git 授权
 

@@ -1,22 +1,63 @@
 #!/usr/bin/env node
 import { parseArgs } from "node:util";
-import { loadTaskPackage, validateTaskPackage } from "../../scripts/lib/task-package.mjs";
+import { createHash } from "node:crypto";
+import { lstatSync, readFileSync, realpathSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { spawnSync } from "node:child_process";
+import { parseDocument } from "../../scripts/vendor/yaml.mjs";
 
-try {
-  const { positionals } = parseArgs({ allowPositionals: true, strict: true });
-  if (positionals.length !== 1 || !positionals[0].startsWith(".template-source/evidence/maintenance/")) {
-    throw new TypeError("仅校验模板维护目录中的历史任务包");
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+const ARCHIVE_PREFIX = ".template-source/evidence/maintenance/";
+const OLD_REGISTRY = "docs/agents/digital-human-roles.yaml";
+const ORIGINAL_REQUIRED = ["schema_version", "task_id", "work_unit_id", "actor_id", "role_id", "runtime_id", "execution_state", "workflow_status", "skill_source", "contract", "inputs", "objective", "allowed_write_paths", "forbidden_actions", "expected_outputs", "expected_evidence_files", "verification_commands", "verification_results", "downstream_consumers", "convergence"];
+
+// 只借用原 v1 字段类型；不迁移历史数据，也不调用当前执行或批准内核。
+function validateArchiveStructure(value) {
+  const current = JSON.parse(readFileSync(path.join(ROOT, ".template-spec/process/schemas/digital-human-task-package.schema.json"), "utf8"));
+  const fields = [...ORIGINAL_REQUIRED, "stage_id", "feature_id", "review_context", "result"];
+  const schema = { $schema: current.$schema, type: "object", additionalProperties: false, required: ORIGINAL_REQUIRED,
+    properties: Object.fromEntries(fields.map((field) => [field, structuredClone(current.properties[field])])) };
+  schema.properties.schema_version = { const: 1 };
+  schema.properties.skill_source.properties.registry_ref = { const: OLD_REGISTRY };
+  delete schema.properties.skill_source.properties.review_skills;
+  schema.properties.contract.properties.kind = { const: "template-maintenance" };
+  schema.properties.contract.required.push("maintenance_ref");
+  for (const field of Object.keys(schema.properties.contract.properties)) {
+    if (!["kind", "contract_id", "contract_version", "status", "contract_ref", "maintenance_ref"].includes(field)) delete schema.properties.contract.properties[field];
   }
-  const { value } = loadTaskPackage(positionals[0]);
-  if (value.skill_source?.registry_ref !== "docs/agents/digital-human-roles.yaml") {
-    throw new TypeError("历史任务包缺少旧注册表引用");
+  for (const field of ["allowed_write_paths", "expected_evidence_files", "verification_commands"]) schema.properties[field].minItems = 1;
+  schema.properties.review_context = { type: "object", additionalProperties: false, required: ["implementation_actor_id"],
+    properties: { implementation_actor_id: { type: "string", minLength: 1 }, implementation_task_id: { type: "string", minLength: 1 } } };
+  schema.allOf = [{ if: { properties: { execution_state: { const: "Reviewer" } } }, then: { required: ["review_context"] } }];
+  const validator = "import json,sys\nfrom jsonschema import Draft202012Validator\npayload=json.load(sys.stdin)\nschema=payload['schema']\nDraft202012Validator.check_schema(schema)\nerrors=list(Draft202012Validator(schema).iter_errors(payload['value']))\nfor error in errors: print('.'.join(map(str,error.absolute_path)) + ': ' + error.message, file=sys.stderr)\nsys.exit(1 if errors else 0)\n";
+  const checked = spawnSync("python3", ["-c", validator], { input: JSON.stringify({ schema, value }), encoding: "utf8", timeout: 30000, maxBuffer: 4 * 1024 * 1024 });
+  if (checked.error || checked.status !== 0) throw new TypeError(`历史 v1 结构无效: ${checked.error?.message || checked.stderr.trim()}`);
+}
+
+export function validateHistoricalTaskPackage(ref, { root = ROOT } = {}) {
+  if (typeof ref !== "string" || !ref.startsWith(ARCHIVE_PREFIX) || path.isAbsolute(ref) || ref.includes("\\") || ref.split("/").some((part) => ["", ".", ".."].includes(part))) {
+    throw new TypeError("仅校验模板维护目录中的历史任务包；路径不得越界");
   }
-  validateTaskPackage({
-    ...value,
-    skill_source: { ...value.skill_source, registry_ref: ".template-spec/agents/digital-human-roles.yaml" },
-  });
-  process.stdout.write("历史任务包结构校验通过；不构成当前放行\n");
-} catch (error) {
-  process.stderr.write(`历史任务包验证失败: ${error.message}\n`);
-  process.exitCode = 1;
+  const realRoot = realpathSync(root), archive = path.resolve(realRoot, ARCHIVE_PREFIX), file = path.resolve(realRoot, ref);
+  if (realpathSync(archive) !== archive || !lstatSync(file).isFile() || !realpathSync(file).startsWith(`${archive}${path.sep}`)) throw new TypeError("历史任务包必须是真实维护归档目录内的文件，路径不得越界");
+  const bytes = readFileSync(file);
+  const parsed = parseDocument(bytes.toString("utf8"), { uniqueKeys: true, maxAliasCount: 0 });
+  if (parsed.errors.length) throw new TypeError(`历史任务包无法解析: ${parsed.errors[0].message}`);
+  const value = parsed.toJS({ maxAliasCount: 0 });
+  if (value?.schema_version !== 1 || value?.contract?.kind !== "template-maintenance" || value?.skill_source?.registry_ref !== OLD_REGISTRY) throw new TypeError("仅接受 schema_version=1、template-maintenance 且引用旧注册表的历史任务包");
+  validateArchiveStructure(value);
+  return { status: "historical-only", execution_authorization: "not-evaluated", schema_version: 1, task_id: value.task_id, archive_ref: ref,
+    archive_digest: `sha256:${createHash("sha256").update(bytes).digest("hex")}`, registry_ref: OLD_REGISTRY };
+}
+
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  try {
+    const { positionals } = parseArgs({ allowPositionals: true, strict: true });
+    if (positionals.length !== 1) throw new TypeError("需要一个历史任务包路径");
+    process.stdout.write(`${JSON.stringify(validateHistoricalTaskPackage(positionals[0]))}\n`);
+  } catch (error) {
+    process.stderr.write(`历史任务包验证失败: ${error.message}\n`);
+    process.exitCode = 1;
+  }
 }

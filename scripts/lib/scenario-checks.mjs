@@ -17,7 +17,25 @@ function hasText(value) { return typeof value === "string" && value.trim().lengt
 const virtualTicketDecompositionRef = "docs/.scratch/demo/evidence/ticket-decomposition-result.yaml";
 const virtualTicketDecomposition = "result_schema: workflow-execution-result-v1\nwork_unit: work-unit.ticket-decomposition\nresult: completed\nevidence_refs:\n  - docs/.scratch/demo/evidence/ticket-decomposition-result.yaml\n";
 
+function validatePlanClarificationPolicy(data) {
+  const policy = data.planning?.clarification_policy;
+  ensure(policy?.trigger === 'required-plan-user-decision-unresolved' && policy?.skill === 'grilling' && policy?.invocation_mode === 'model-invoked' && policy?.explicit_user_invocation_required === false, 'Plan 必须决定未解决时未主动调用 grilling');
+  ensure(includesAll(policy?.inputs, ['current_scope', 'discovered_facts', 'confirmed_decisions', 'open_items', 'decision_dependencies']), 'Plan 澄清未传入当前事实、已确认决定和问题依赖');
+  const routes = policy?.dispositions;
+  ensure(routes?.required_user_decision === 'grilling-with-real-user-response' && routes?.discoverable_fact === 'investigate-or-yss-research' && routes?.runnable_blocker === 'prototype-or-actual-verification-with-evidence', 'Plan 用户决定、事实或实验阻塞分流不完整');
+  ensure(routes?.professional_wait === 'autonomously-dispatch-or-inspect-existing-task-then-wait' && routes?.verification_failure === 'repair-supply-evidence-or-reroute' && routes?.noncritical_detail === 'existing-deferral-policy-with-user-confirmation', 'Plan 专业等待、验证失败或非关键延期被错误交给问答关闭');
+  const rounds = policy?.rounds;
+  ensure(rounds?.frontier === 'decisions-with-settled-prerequisites' && rounds?.questions === 'all-independent-actionable-frontier-questions-with-recommendations' && rounds?.advance === 'after-real-user-response', 'Plan 澄清未按依赖前沿分轮并等待真实回复');
+  ensure(rounds?.unsettled_facts === 'wait-only-for-dependent-questions' && rounds?.reuse === 'unchanged-confirmed-decisions' && rounds?.correction === 'reopen-only-affected-decisions-and-dependencies' && rounds?.independent_authorized_work === 'continue', 'Plan 澄清缺少确认复用、受影响重开或独立工作继续策略');
+  const exit = policy?.convergence;
+  ensure(includesAll(exit?.summary, ['user_problem', 'goals', 'mvp', 'non_goals', 'key_rules', 'acceptance_examples', 'open_item_resolutions', 'remaining_uncertainty']) && exit?.required_open_items === 'resolved-with-current-evidence' && exit?.facts_and_verification === 'readable-evidence-required', 'Plan 共同理解摘要或未决项当前证据要求不完整');
+  ensure(exit?.preparation_check === 'grill_exit' && exit?.preparation_passed_means === 'clarification-materials-and-prerequisites-ready' && exit?.final_confirmation_boundary === 'gate.plan-approved' && exit?.final_confirmation === 'shared-understanding-and-current-plan-in-one-real-response', 'Plan 澄清准备与最终合并确认边界不完整');
+  ensure(exit?.final_confirmation_proof === 'plan_user_decision_ref-or-valid-plan_continuation_ref' && exit?.confirmation_writeback === 'external-proof-without-review-or-basis-rewrite' && exit?.completion === 'passed-preparation-and-valid-current-user-decision', 'Plan 最终回复未独立绑定固定审阅包，或准备完成被当作批准');
+  ensure(data.grill_exit?.preparation_check === 'grill_exit' && data.grill_exit?.final_confirmation_boundary === 'gate.plan-approved' && data.grill_exit?.completion === exit.completion, 'grill_exit 与 Plan 两层澄清退出要求冲突');
+}
+
 function validateMattContract(data) {
+  validatePlanClarificationPolicy(data);
   const direct = data.entry_routing?.direct_matt_entry;
   ensure(direct?.skill === "ask-matt" && direct?.delegate_to === "yss-strategic-design" && direct?.requires_valid_manifest === true && direct?.action === "navigate-only" && direct?.lifecycle_state_mutation === "forbidden" && direct?.lifecycle_artifact_write === "forbidden" && direct?.return_to_orchestrator === "required", "ask-matt 导航入口尚未形成验明身份、只导航、禁止生命周期写入并强制回交主控的完整契约");
   const formal = data.entry_routing?.formal_user_entry;
@@ -154,7 +172,7 @@ function validateMattProse(skill, adapter) {
   ensure(skill.includes("不得写生命周期资产或改变门禁/Ticket 状态") && skill.includes("任何写入前回交本编排器"), "主技能缺少 direct Matt 只导航并回交的说明");
   ensure(adapter.includes("仅发现旧路径资产") && adapter.includes("不得调用 `setup-matt-pocock-skills`"), "适配器缺少 setup 旧资产迁移或显式用户入口条件");
   ensure(adapter.includes("frontier 为空") && adapter.includes("双方共同理解已确认"), "适配器缺少 grill_exit 的 frontier 或共同理解条件");
-  ensure(skill.includes("自然语言意向不构成上述结构化 Git 授权") && adapter.includes("本身不是结构化授权"), "主技能或适配器缺少自然语言 Git 意向不是授权的说明");
+  ensure(skill.includes("实现授权不包含 Git commit/push") && skill.includes("具体动作及仓库/改动范围明确的可读原始用户回复") && adapter.includes("泛泛的“继续”") && adapter.includes("不能补足动作和范围"), "主技能或适配器缺少具体 Git 动作、范围与原始回复的授权边界");
   ensure(adapter.includes("禁止 detached HEAD 提交") && adapter.includes("先推子仓再更新父仓 gitlink"), "适配器缺少 git-submodule 嵌套 Git 授权说明");
 }
 
@@ -313,6 +331,18 @@ export function runScenario(name) {
       (item) => { item.matt_invocation_boundary.user_invoked_skills.push("unexpected-user-entry"); },
       (item) => { item.setup_readiness.lifecycle_may_invoke_setup = true; },
       (item) => { item.grill_exit.user_confirmation_required = false; },
+      (item) => { delete item.planning.clarification_policy; },
+      (item) => { item.planning.clarification_policy.explicit_user_invocation_required = true; },
+      (item) => { item.planning.clarification_policy.dispositions.discoverable_fact = 'ask-user'; },
+      (item) => { item.planning.clarification_policy.dispositions.runnable_blocker = 'grilling'; },
+      (item) => { item.planning.clarification_policy.dispositions.professional_wait = 'ask-user-to-approve'; },
+      (item) => { item.planning.clarification_policy.rounds.frontier = 'all-open-questions'; },
+      (item) => { item.planning.clarification_policy.rounds.advance = 'after-timeout'; },
+      (item) => { item.planning.clarification_policy.rounds.reuse = 'reask-all'; },
+      (item) => { item.planning.clarification_policy.rounds.correction = 'reopen-all'; },
+      (item) => { item.planning.clarification_policy.rounds.independent_authorized_work = 'stop'; },
+      (item) => { item.planning.clarification_policy.convergence.preparation_passed_means = 'plan-approved'; },
+      (item) => { item.planning.clarification_policy.convergence.confirmation_writeback = 'rewrite-review-with-reply'; },
       (item) => { delete item.git_authorization.push; },
       (item) => { delete item.git_authorization.git_submodule; },
       (item) => { item.git_authorization.git_submodule.forbid_commit_on_detached_head = false; },

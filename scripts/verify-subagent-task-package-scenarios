@@ -26,18 +26,19 @@ const contract = {
     { id: "work-unit.slice-backend", role_id: "role.backend-engineer", runtime_id: "runtime.skill-projection", task_package_ref: "work-unit.slice-backend", contract_id: "slice-todo", contract_version: 2, allowed_write_paths: ["apps/backend/todo/"] }
   ]
 };
-const maintenance = {
+// 仅用于验证任务包合同的合成自检夹具，不是正式维护或独立审查证据。
+const maintenanceCheckpoint = {
   schema_version: 1,
   intensity: "L2",
   classification_reason: "场景测试维护合同",
   triggers: [],
   changed_assets: ["scenario-fixture"],
   verification_evidence: [
-    { kind: "counterexample", command: "scenario", result: "pass" },
-    { kind: "fresh-verification", command: "scenario", result: "pass" },
-    { kind: "focused-independent-review", command: "scenario", result: "pass" }
+    { kind: "counterexample", command: "scripts/verify-subagent-task-package-scenarios", result: "pass" },
+    { kind: "fresh-verification", command: "scripts/verify-subagent-task-package-scenarios", result: "pass" },
+    { kind: "self-check", command: "scripts/verify-subagent-task-package-scenarios", result: "pass" }
   ],
-  review_mode: "focused-independent",
+  review_mode: "self-check",
   escalation: "none"
 };
 
@@ -45,7 +46,7 @@ function writeFixtures() {
   mkdirSync(path.dirname(contractFile), { recursive: true });
   writeFileSync(contractFile, JSON.stringify(contract));
   writeFileSync(evidenceFile, JSON.stringify({ ok: true }));
-  writeFileSync(path.join(ROOT, maintenanceRef), JSON.stringify(maintenance));
+  writeFileSync(path.join(ROOT, maintenanceRef), JSON.stringify(maintenanceCheckpoint));
 }
 
 function packageBase(roleId, taskId, workUnitId, kind, contractFields, stageId) {
@@ -145,6 +146,17 @@ try {
   [discovery, prototype, tickets, handoff].forEach((pkg) => validateTaskPackage(pkg));
   assert.throws(() => validateTaskPackage(spec), /plan-spec-entry-blocked/, "直接派发 Spec 缺 Plan 审阅须阻断");
   validateTaskPackage(maintenance);
+
+  const unboundReview = templatePackage();
+  writeFileSync(path.join(ROOT, maintenanceRef), JSON.stringify({
+    ...maintenanceCheckpoint,
+    review_mode: "focused-independent",
+    verification_evidence: maintenanceCheckpoint.verification_evidence.map((evidence) => evidence.kind === "self-check"
+      ? { kind: "focused-independent-review", command: "scenario", result: "pass" }
+      : evidence)
+  }));
+  assert.throws(() => validateTaskPackage(unboundReview), /不可读.*scenario/, "未绑定实际审查记录的 focused-independent 不得凭 result=pass 放行");
+  writeFixtures();
 
   const completedPlan = lifecyclePackage();
   completedPlan.workflow_status = "resolved";

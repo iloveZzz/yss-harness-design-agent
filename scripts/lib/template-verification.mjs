@@ -77,13 +77,15 @@ export function planTemplateVerification({ profile = "fast", changedFiles = [], 
   const commands = [];
   for (const group of orderedGroups) {
     for (const entry of config.groups[group].commands) {
-      const command = typeof entry === "string" ? entry : entry.run;
+      let command = typeof entry === "string" ? entry : entry.run;
       const when = typeof entry === "string" ? null : entry.when ?? null;
       ensure(typeof command === "string" && command, `检查组 ${group} 包含无效命令`);
+      // Escalating fast changes verification breadth, not source authorization.
+      if (profile === "fast" && command === "scripts/verify-strategic-handoff-tools-lock --require-committed") command = "scripts/verify-strategic-handoff-tools-lock";
       commands.push({ group, command, when });
     }
   }
-  return { requested_profile: profile, effective_profile: effectiveProfile, escalation_reason: escalationReason, changed_files: normalized, unknown_files: routed.unknown, groups: orderedGroups, commands, required_files: config.required_files || [], syntax_files: config.syntax_files || [], max_concurrency: config.max_concurrency || 4 };
+  return { source_requirement: profile === "fast" ? "current" : "committed", requested_profile: profile, effective_profile: effectiveProfile, escalation_reason: escalationReason, changed_files: normalized, unknown_files: routed.unknown, groups: orderedGroups, commands, required_files: config.required_files || [], syntax_files: config.syntax_files || [], max_concurrency: config.max_concurrency || 4 };
 }
 
 export function assertRequiredFiles(plan, root = ROOT) {

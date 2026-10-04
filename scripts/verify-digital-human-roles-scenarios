@@ -2,7 +2,9 @@
 import { validateDefaultDigitalHumanRoles, validateDigitalHumanRoles, loadDigitalHumanRoles, skillIdsFromRegistry } from "./lib/digital-human-roles.mjs";
 import { loadRegistry } from "./lib/lifecycle-registry.mjs";
 import { loadSkillRegistry } from "./lib/skill-registry.mjs";
-import { validateApprovalRecord, validateApprovalRecordFile } from "./lib/approval-record.mjs";
+import { readFileSync } from "node:fs";
+import { validateApprovalRecord, selectApprovalRecord } from "./lib/approval-record.mjs";
+import { parseAsset } from "./lib/structured-assets.mjs";
 
 function clone() {
   return structuredClone(loadDigitalHumanRoles());
@@ -40,7 +42,7 @@ validateDefaultDigitalHumanRoles();
 
 const legacyFallback = clone();
 legacyFallback.gate_policy.default_if_unlisted = "biological-human";
-validateDigitalHumanRoles(legacyFallback, deps());
+mustFail(legacyFallback, /GATE_POLICY_REQUIRED: default_if_unlisted 必须为 reject-unlisted/, "未登记门禁不得自动转为生物人批准");
 
 const missingExplicitGate = clone();
 missingExplicitGate.gate_policy.dual_digital_human = missingExplicitGate.gate_policy.dual_digital_human.filter(rule => rule.gate !== "gate.spec-baseline-approved");
@@ -109,8 +111,23 @@ const missingGeneric = clone();
 missingGeneric.runtimes = missingGeneric.runtimes.filter((runtime) => runtime.id !== "runtime.generic");
 mustFail(missingGeneric, /缺少运行时绑定: runtime.generic/, "缺少通用运行时");
 
-validateApprovalRecordFile(".template-spec/templates/approval-record-template.yaml");
-validateApprovalRecordFile(".template-spec/templates/review-bundle-template.yaml");
+// Materialize digest placeholders only in a synthetic draft; pending never closes a gate.
+for (const template of [".template-spec/templates/approval-record-template.yaml", ".template-spec/templates/review-bundle-template.yaml"]) {
+  const source = readFileSync(template, "utf8")
+    .replaceAll("replace-with-current-task-64-char-sha256", "a".repeat(64))
+    .replaceAll("replace-with-current-evidence-64-char-sha256", "a".repeat(64))
+    .replaceAll("replace-with-current-subject-64-char-sha256", "a".repeat(64));
+  const draft = parseAsset(source, template);
+  validateApprovalRecord(draft, { requireApproved: false });
+  const record = draft.kind === "review-bundle" ? selectApprovalRecord(draft, draft.reviews[0].gate_id) : draft;
+  let blocked = false;
+  try { validateApprovalRecord(record, { expected: { boundary: record.gate_id } }); }
+  catch (error) {
+    if (!/decision 必须为 approved/.test(error.message)) throw error;
+    blocked = true;
+  }
+  if (!blocked) throw new TypeError(`pending 模板不得关闭当前门禁: ${template}`);
+}
 
 const rolesDoc = loadDigitalHumanRoles();
 try {

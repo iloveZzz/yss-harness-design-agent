@@ -18,7 +18,7 @@ description: 编排 YSS 产品或模块从机会调研到业务边界与协作�
 
 ## 入口与边界
 
-Plan 入口读取 `.template-spec/plan/README.md` 和 `.template-spec/process/plan-migration.md`，按注册表退出条件核查战略输入。关键未决项阻断进入 Spec；非关键项须有责任人、解决时点和接收方。只使用 Plan 标识，Plan 后仍保留 Spec、原型、业务 Ticket 与交接阶段。
+Plan 入口读取 `.template-spec/plan/README.md` 和 `.template-spec/process/plan-migration.md`，按注册表退出条件核查战略输入。遇到必须解决的需求、业务规则、范围或取舍决策未决项，按 `planning.clarification_policy` 主动调用 `grilling`，无需用户再次点名；事实、实验与专业审查问题先分流，无依赖工作继续。关键未决项和未回流 runnable blocker 阻断进入 Spec；非关键项按既有延期合同交接。只使用 Plan 标识，Plan 后仍保留 Spec、原型、业务 Ticket 与交接阶段。
 
 1. 先读取 `yss-project.yaml`、`CONTEXT.md`、相关 ADR、map.md、checkpoint 和当前资产。
 2. `repository_mode=template-source` 只走模板维护流程；命中产品流程时返回 `blocked: template-source-product-artifact-forbidden`，不得生成产品 Spec、原型、OpenAPI 或切片 Ticket。
@@ -67,7 +67,7 @@ Matt 的 `ask-matt`、`to-spec`、`to-tickets`、`triage` 和 `wayfinder` 保留
 | 阶段 | 必需产物/门禁 | 工作单元与技能 | 通过条件 |
 |---|---|---|---|
 | 入口分诊 | 身份、影响面、最近可信阶段 | `yss-strategic-design` + `triage` / `wayfinder`（兼容入口） | `yss-project.yaml` 合法且影响面可解释 |
-| 机会、目标与业务故事 | 用户/MVP/非目标/成功标准、业务故事、规则示例、测试 seam；需要时补充业务边界与规则设计和方案决策包 | `work-unit.plan-opportunity` + `work-unit.plan-requirements` + `work-unit.domain-strategy-design` + `work-unit.stage-decision`；市场/竞品事实用 `competitive-intelligence`，技术/标准事实用 `yss-research:technical-evidence`，业务边界与方案决策证据用 `yss-research:strategy-evidence`；业务词汇和责任区梳理用 `domain-modeling`；原生需求澄清 为兼容入口 | 产品经理用一个 `review-bundle.plan` 任务逐项关闭命中的 `check.domain-strategy-approved` 与 `check.stage-decision-package-approved`，再以同一 `review_session_id` 汇总到 `gate.plan-approved`；只针对当前 Plan 审阅包请求一次真实用户确认 |
+| 机会、目标与业务故事 | 用户/MVP/非目标/成功标准、业务故事、规则示例、测试 seam；需要时补充业务边界与规则设计和方案决策包 | `work-unit.plan-opportunity` + `work-unit.plan-requirements` + `work-unit.domain-strategy-design` + `work-unit.stage-decision`；市场/竞品事实用 `competitive-intelligence`，技术/标准事实用 `yss-research:technical-evidence`，业务边界与方案决策证据用 `yss-research:strategy-evidence`；业务词汇和责任区梳理用 `domain-modeling`；原生需求澄清按 `planning.clarification_policy` 主动调用 `grilling` | 产品经理用一个 `review-bundle.plan` 任务逐项关闭命中的 `check.domain-strategy-approved` 与 `check.stage-decision-package-approved`，再以同一 `review_session_id` 汇总到 `gate.plan-approved`；最终共同理解与完整 Plan 审阅包合并一次真实用户确认，中间各轮仍保留真实决策回复 |
 | Spec/功能架构 | Spec、产品总体设计、功能架构；必要时 Spec Delta | 原生 `work-unit.spec-synthesis`；`to-spec` 为兼容入口 | 初稿先为 `ready-for-human`；只有 Spec baseline 会签批准后资产才为 `approved` 并进入下游 |
 | 产品设计与页面验证 | 交互说明、低保真评审、状态矩阵、H1/H2 原型、视觉基线与用户确认 | `yss-prototype-stage` 持有合同，配合 `yss-design-system` 和独立 `prototype-review`；默认 `html-css-js` 适配器，条件使用独立视觉稿 | `check.prototype-reviewed`、`check.prototype-verified` 通过后关闭 `gate.product-design-approved`；无 UI/体验取舍时带依据标记 `not-applicable`，不暂停询问 |
 | 业务方案交接 | 业务方案交接包、研发待决问题和证据索引 | `yss-stage-decision` + `yss-strategic-design`；下游研发团队接管技术设计 | Plan、Spec 和适用产品设计批准均当前；需求经理独立复核产品经理起草的完整包并关闭 `gate.strategic-design-handoff-approved`，整包 Fresh Verification 通过；不再请求新的用户回复 |
@@ -77,7 +77,7 @@ Matt 的 `ask-matt`、`to-spec`、`to-tickets`、`triage` 和 `wayfinder` 保留
 
 页面验证默认采用根 `DESIGN.md` 中的 Data Quality 浅色主题；AntD v6 是设计参考，组件运行时由下游实现合同确定。暗色或紧凑模式仅在明确选择时启用，并使用对应派生快照。交接复用 `prototype-evidence.yaml` 的 `design_baseline`（规范与 Token 引用、摘要）和 `visual_baseline`，视觉基线的 `cases[].theme` 与截图保持一致；按既有 Handoff v5 合同核验当前证据，不另建主题合同。脚手架与生产前端实现由下游研发 profile 接管。
 
-Plan → Spec（含正式草稿、恢复与显式 `to-spec`）写入前，按 `.template-spec/plan/entry-review.md` 持久化 `bundled-plan-review-v1` 审阅包、适用检查的组合审查、独立 Plan 批准记录与当前用户回复，并运行 `node scripts/verify-plan-spec-entry <state.yaml>`。检查默认 pending，缺项、分散审查、会话不一致、过期或无真实回复即阻断；旧审阅包保持兼容，独立调研可继续。
+Plan → Spec（含正式草稿、恢复与显式 `to-spec`）写入前，按 `.template-spec/plan/entry-review.md` 持久化 `bundled-plan-review-v1` 审阅包、适用检查的组合审查、独立 Plan 批准记录与当前用户回复，并运行 `node scripts/verify-plan-spec-entry <state.yaml>`。包内 `checks.grill_exit=passed` 只表示澄清材料与前置条件就绪；固定完整审阅包后合并确认共同理解和 Plan，外部 `plan_user_decision_ref` 绑定当前包，不回写包内依据。最终回复前不能宣布共同理解已确认或 Plan 已批准。缺项、分散审查、会话不一致、过期或无真实回复即阻断；旧审阅包保持兼容，独立调研可继续。
 
 ## 结果与暂停
 

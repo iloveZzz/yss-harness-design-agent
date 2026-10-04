@@ -3,6 +3,7 @@ import { verifyContextReconciliation } from './context-reconciliation.mjs';
 import { decisionIO, decisionDigest, assertUserDecisionRequirement } from './user-decision.mjs';
 import { validateApprovalRecord, selectApprovalRecord } from './approval-record.mjs';
 import { loadDigitalHumanRoles } from './digital-human-roles.mjs';
+import { approvalExpectationForCheckpoint } from './approval-consumption.mjs';
 
 const fail = message => { throw new TypeError(`plan-spec-entry-blocked: ${message}`); };
 const text = value => typeof value === 'string' && value.trim().length > 0;
@@ -70,7 +71,11 @@ export function assertPlanSpecEntry(state, options = {}) {
         applicableChecks.push(gateId);
         approvalRefs.add(gate.approval_ref);
       }
-      validateApprovalRecord(record, { ...options, requireApproved: true });
+      const expected = approvalExpectationForCheckpoint(gateId, {
+        ...gate,
+        basis: [...basis.values()].filter(asset => gate.evidence_refs?.includes(asset.ref)),
+      }, options);
+      validateApprovalRecord(record, { ...options, requireApproved: true, expected });
     } else if (gate.status !== 'not-applicable' || !text(gate.reason)) fail(`未命中门禁须有原因和依据: ${gateId}`);
   }
   let reviewBundle = null;
@@ -107,7 +112,13 @@ export function assertPlanSpecEntry(state, options = {}) {
       const bundleRef = [...approvalRefs][0];
       if (approval.review_bundle_ref !== bundleRef || approval.review_session_id !== reviewBundle.review_session_id || approval.role_id !== reviewBundle.role_id || approval.runtime_id !== reviewBundle.runtime_id || approval.principal_ref !== reviewBundle.principal_ref) fail('Plan 门禁未复用内部检查的同一审查会话');
     } else if (approval.review_bundle_ref != null) fail('内部检查均不适用时不得绑定空 review-bundle');
-    validateApprovalRecord(approval, { ...options, requireApproved: true });
+    const expected = approvalExpectationForCheckpoint('gate.plan-approved', {
+      subject_ref: state.plan_review_ref,
+      approval_scope: [state.feature_id],
+      basis: review.basis,
+      drafter_principal_ref: review.drafter_principal_ref,
+    }, options);
+    validateApprovalRecord(approval, { ...options, requireApproved: true, expected });
   }
   return { result: 'allowed', blocking_signals: [], missing_requirements: [], evidence_refs: [state.plan_review_ref, ...basis.keys()], next_work_unit: null };
 }

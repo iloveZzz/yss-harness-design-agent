@@ -11,6 +11,91 @@ import { readFileSync } from 'node:fs';
 import { decisionDigest } from './lib/user-decision.mjs';
 import { loadDigitalHumanRoles, countersignRuleForGate } from './lib/digital-human-roles.mjs';
 
+// These replies are synthetic fixtures, never evidence for a real Plan approval.
+const currentInternalBasis = f => f.review.basis.filter(asset => asset.ref === 'CONTEXT.md').map(asset => ({ ...asset, digest: asset.digest.replace(/^sha256:/, '') }));
+
+function verifyPlanConsumerApprovalBoundaries(temp) {
+  for (const [name, mutate, expected, consumerMutation = false] of [
+    ['批准扩张范围', f => f.planApproval.approval_scope.push('feature.other'), /APPROVAL_CURRENT_INVALID/],
+    ['批准篡改起草者', f => f.planApproval.drafter_principal_ref = 'test-only.other-drafter', /APPROVAL_CURRENT_INVALID/],
+    ['批准缺独立起草者', f => delete f.planApproval.drafter_principal_ref, /APPROVAL_CURRENT_INVALID/],
+    ['批准删除当前依据', f => f.planApproval.basis = f.planApproval.basis.filter(asset => asset.ref !== 'CONTEXT.md'), /APPROVAL_CURRENT_INVALID/],
+    ['批准篡改依据摘要', f => f.planApproval.basis[0].digest = '0'.repeat(64), /APPROVAL_CURRENT_INVALID/],
+    ['消费者篡改起草者', f => f.review.drafter_principal_ref = 'test-only.other-drafter', /APPROVAL_CURRENT_INVALID/, true],
+    ['消费者缺独立起草者', f => delete f.review.drafter_principal_ref, /APPROVAL_CONTEXT_REQUIRED/, true],
+  ]) {
+    const f = buildPlanFixture(path.join(temp, `aggregate-current-${name}`));
+    if (consumerMutation) { mutate(f); f.reapprove(); }
+    else { f.reapprove(); mutate(f); f.write(f.planApprovalRef, f.planApproval); }
+    assert.throws(() => assertPlanSpecEntry(f.state, { root: f.root }), expected, name);
+    process.stdout.write(`PASS Plan 聚合批准拒绝: ${name}\n`);
+  }
+}
+
+function verifyClarificationEntryBoundaries(temp) {
+  const deferred = () => ({ id: 'q-detail', critical: false, runnable_blocker: false, status: 'deferred', noncritical_reason: '不影响目标、MVP 或关键规则', owner: 'test-only.requirements-owner', resolution_point: 'Spec 评审前', downstream_recipient: 'test-only.spec-owner', evidence_refs: ['plan.md'] });
+  const cases = [
+    ['非关键 open 仍阻断', f => f.review.open_items.push({ id: 'q-open', critical: false, runnable_blocker: false, status: 'open', evidence_refs: ['plan.md'] }), /未解决/],
+    ['grill_exit 仍 pending', f => f.review.checks.grill_exit.status = 'pending', /检查未通过: grill_exit/],
+    ['resolved 缺证据', f => f.review.open_items.push({ id: 'q-resolved', critical: true, runnable_blocker: false, status: 'resolved', evidence_refs: [] }), /缺少当前依据/],
+    ['resolved 引用未绑定证据', f => { f.write('unbound-evidence.md', '模拟澄清证据'); f.review.open_items.push({ id: 'q-resolved', critical: true, runnable_blocker: false, status: 'resolved', evidence_refs: ['unbound-evidence.md'] }); }, /缺少当前依据/],
+    ['resolved 依据摘要漂移', f => { f.write('resolution.md', '已确认旧结论'); f.review.basis.push({ ref: 'resolution.md', digest: decisionDigest(readFileSync(path.join(f.root, 'resolution.md'))) }); f.review.open_items.push({ id: 'q-resolved', critical: true, runnable_blocker: false, status: 'resolved', evidence_refs: ['resolution.md'] }); f.write('resolution.md', '用户纠正后的新结论'); }, /依据缺失、重复或已变更/],
+    ['延期缺当前证据', f => f.review.open_items.push({ ...deferred(), evidence_refs: [] }), /缺少当前依据/],
+    ['纠正后重新打开关键问题', f => { f.review.open_items.push({ id: 'q-corrected', critical: true, runnable_blocker: false, status: 'resolved', evidence_refs: ['plan.md'] }); f.review.open_items[0].status = 'open'; }, /未解决/],
+    ['完整关键延期仍阻断', f => f.review.open_items.push({ ...deferred(), critical: true }), /未解决/],
+    ['完整执行阻塞延期仍阻断', f => f.review.open_items.push({ ...deferred(), runnable_blocker: true }), /未解决/],
+  ];
+  for (const field of ['noncritical_reason', 'owner', 'resolution_point', 'downstream_recipient']) {
+    for (const absent of [true, false]) cases.push([`延期 ${field} ${absent ? '缺失' : '空白'}`, f => { const item = deferred(); if (absent) delete item[field]; else item[field] = '  '; f.review.open_items.push(item); }, new RegExp(`延期项缺少 ${field}`)]);
+  }
+  for (const [name, mutate, expected] of cases) {
+    const f = buildPlanFixture(path.join(temp, `clarification-${name}`));
+    mutate(f); f.reapprove();
+    assert.throws(() => assertPlanSpecEntry(f.state, { root: f.root }), expected, name);
+    process.stdout.write(`PASS 澄清入口拒绝: ${name}\n`);
+  }
+
+  const f = buildPlanFixture(path.join(temp, 'combined-final-confirmation'));
+  const summary = '共同理解：目标为小范围修订；MVP 为当前功能；非目标为新增业务边界；关键规则保持现状；验收例子为既有流程可执行；关键未决项已解决；非关键细节按责任人与解决时点延期；剩余不确定性明确。';
+  f.write('clarification.md', `${summary}\n解决证据：原始决策回复和当前 Plan。\n`);
+  const summaryAsset = { ref: 'clarification.md', digest: decisionDigest(readFileSync(path.join(f.root, 'clarification.md'))) };
+  f.review.basis.push(summaryAsset);
+  f.review.checks.grill_exit.evidence_refs = ['clarification.md'];
+  f.review.open_items = [{ id: 'q-rule', critical: true, runnable_blocker: false, status: 'resolved', evidence_refs: ['clarification.md'] }, deferred()];
+  const item = f.approval.record.request.items[0];
+  item.title = '确认共同理解与完整 Plan 审阅包';
+  item.changes = summary;
+  item.basis = [{ ...summaryAsset, ref: path.join(f.root, summaryAsset.ref), version: 'v1' }];
+  item.risks = ['非关键细节须在 Spec 评审前解决'];
+  item.recommendation = '确认上述共同理解并批准当前完整 Plan 审阅包';
+  item.next_actions = ['入口检查通过后进入 Spec'];
+  f.reapprove();
+  const reviewBytes = readFileSync(f.state.plan_review_ref);
+  const digestBeforeReply = decisionDigest(reviewBytes);
+  f.approval.record.responses = [];
+  f.approval.save();
+  assert.equal(f.review.checks.grill_exit.status, 'passed');
+  assert.throws(() => assertPlanSpecEntry(f.state, { root: f.root }), /user-decision-response-required/, '材料就绪不能替代最终回复');
+  f.approval.respond({ text: '确认上述共同理解，并批准本次完整 Plan 审阅包及已列明延期项，入口检查通过后进入 Spec。' });
+  f.approval.save();
+  assert.equal(f.approval.record.responses.length, 1, '共同理解和 Plan 批准合并一条原始回复');
+  assert.equal(assertPlanSpecEntry(f.state, { root: f.root }).result, 'allowed');
+  assert.deepEqual(readFileSync(f.state.plan_review_ref), reviewBytes, '回复单独保存，完整审阅包不回写');
+  assert.equal(f.approval.record.request.items[0].subject.digest, digestBeforeReply, '回复绑定当前固定审阅包');
+  assert.equal(assertPlanSpecEntry(f.state, { root: f.root }).result, 'allowed', '同一批准可复验，不要求重问');
+  process.stdout.write('PASS 合并最终确认、非关键延期、固定摘要和批准复用\n');
+
+  const completePresentation = JSON.parse(readFileSync(f.approval.record.request.presented_source.ref, 'utf8')).messages[0].text;
+  f.approval.record.request.presented_source = f.approval.capture('presentation', 'agent.orchestrator', 'digital-human', '2026-09-05T01:02:00Z', completePresentation.replace(summary, '共同理解未展示'));
+  f.approval.save();
+  assert.throws(() => assertPlanSpecEntry(f.state, { root: f.root }), /user-decision-presentation-mismatch/, '未完整展示共同理解不能合并批准');
+  f.approval.present(); f.approval.save();
+  assert.equal(assertPlanSpecEntry(f.state, { root: f.root }).result, 'allowed');
+  f.review.internal_checks['check.domain-strategy-approved'].reason += ' 用户纠正了当前理解';
+  f.save();
+  assert.throws(() => assertPlanSpecEntry(f.state, { root: f.root }), /user-decision-stale/, '旧包批准不能绑定纠正后的包');
+}
+
 for (const unit of ['plan-opportunity', 'plan-requirements', 'domain-strategy-design', 'stage-decision']) {
   for (const state of [undefined, {}, { gates: {}, user_decisions: [] }]) {
     assert.equal(validateNextRoute(`work-unit.${unit}`, 'work-unit.spec-synthesis', state).result, 'blocked', `${unit}: missing Plan review must block`);
@@ -19,6 +104,27 @@ for (const unit of ['plan-opportunity', 'plan-requirements', 'domain-strategy-de
 const query = queryLifecycleContext({ workUnitId: 'work-unit.plan-requirements' });
 assert.ok(query.execution.selected.planning);
 assert.ok(query.execution.selected.grill_exit);
+const clarification = query.execution.selected.planning.clarification_policy;
+assert.equal(clarification.trigger, 'required-plan-user-decision-unresolved');
+assert.equal(clarification.skill, 'grilling');
+assert.equal(clarification.explicit_user_invocation_required, false);
+assert.equal(clarification.dispositions.discoverable_fact, 'investigate-or-yss-research');
+assert.equal(clarification.dispositions.runnable_blocker, 'prototype-or-actual-verification-with-evidence');
+assert.equal(clarification.dispositions.professional_wait, 'autonomously-dispatch-or-inspect-existing-task-then-wait');
+assert.equal(clarification.rounds.frontier, 'decisions-with-settled-prerequisites');
+assert.equal(clarification.rounds.advance, 'after-real-user-response');
+assert.equal(clarification.rounds.reuse, 'unchanged-confirmed-decisions');
+assert.equal(clarification.rounds.correction, 'reopen-only-affected-decisions-and-dependencies');
+assert.equal(clarification.rounds.independent_authorized_work, 'continue');
+assert.equal(clarification.convergence.preparation_passed_means, 'clarification-materials-and-prerequisites-ready');
+assert.equal(clarification.convergence.final_confirmation_boundary, 'gate.plan-approved');
+assert.equal(clarification.convergence.confirmation_writeback, 'external-proof-without-review-or-basis-rewrite');
+assert.equal(clarification.convergence.completion, query.execution.selected.grill_exit.completion);
+const policyOnly = queryLifecycleContext({ workUnitId: 'work-unit.plan-requirements', include: ['planning', 'grill_exit'] });
+assert.deepEqual(policyOnly.lifecycle, query.lifecycle, 'Plan 澄清策略不得改变阶段门禁');
+assert.deepEqual(policyOnly.skills, query.skills);
+assert.deepEqual(policyOnly.execution.transition, query.execution.transition);
+assert.throws(() => queryLifecycleContext({ workUnitId: 'work-unit.plan-requirements', include: ['clarification_policy'] }), /未知/, 'include 仍仅接收顶层合同键');
 assert.ok(query.lifecycle.gates.length);
 assert.ok(query.execution.plan_checks.every(check => check.status === 'pending'));
 const specQuery = queryLifecycleContext({ stageId: 'stage.spec-architecture' });
@@ -27,6 +133,8 @@ assert.ok(specQuery.execution.plan_checks.every(check => check.status === 'pendi
 assert.ok(specQuery.lifecycle.gates.some(gate => gate.stage === 'stage.plan'));
 const temp = mkdtempSync(path.join(tmpdir(), 'yss-plan-entry-'));
 try {
+  verifyClarificationEntryBoundaries(temp);
+  verifyPlanConsumerApprovalBoundaries(temp);
   const mutations = [
     ['缺检查项', f => delete f.review.checks.goals],
     ['默认 pending', f => f.review.checks.goals.status = 'pending'],
@@ -56,9 +164,9 @@ try {
   const rows = [];
   for (const [gateId, impact] of Object.entries({ 'check.domain-strategy-approved': 'domain_strategy', 'check.stage-decision-package-approved': 'stage_decision' })) {
     const rule = countersignRuleForGate(loadDigitalHumanRoles().gate_policy, gateId);
-    rows.push({ schema_version: 1, gate_id: gateId, decision: 'approved', actor_kind: 'digital-human', role_id: rule.countersigners[0], runtime_id: 'runtime.skill-projection', principal_ref: 'test-only.product-reviewer', drafter_role_id: rule.drafter, drafter_principal_ref: 'test-only.requirements-drafter', subject_ref: subjectRef, subject_digest: decisionDigest(readFileSync(subjectRef)).slice(7), approval_scope: ['feature.demo'], evidence_refs: [subjectRef] });
+    rows.push({ schema_version: 1, gate_id: gateId, decision: 'approved', actor_kind: 'digital-human', role_id: rule.countersigners[0], runtime_id: 'runtime.skill-projection', principal_ref: 'test-only.product-reviewer', drafter_role_id: rule.drafter, drafter_principal_ref: 'test-only.requirements-drafter', subject_ref: subjectRef, subject_digest: decisionDigest(readFileSync(subjectRef)).slice(7), approval_scope: ['feature.demo'], basis: currentInternalBasis(valid), evidence_refs: [subjectRef, 'CONTEXT.md'] });
     valid.review.impacts[impact] = true;
-    valid.review.internal_checks[gateId] = { status: 'approved', approval_ref: approvalRef, subject_ref: subjectRef, approval_scope: ['feature.demo'], evidence_refs: [approvalRef, subjectRef] };
+    valid.review.internal_checks[gateId] = { status: 'approved', approval_ref: approvalRef, subject_ref: subjectRef, approval_scope: ['feature.demo'], drafter_principal_ref: valid.review.drafter_principal_ref, evidence_refs: [approvalRef, subjectRef, 'CONTEXT.md'] };
   }
   valid.write(approvalRef, { schema_version: 1, kind: 'review-bundle', bundle_id: 'review-bundle.plan', task_id: 'task.plan-review.demo', work_unit_id: 'work-unit.plan-requirements', review_session_id: session, role_id: 'role.product-manager', runtime_id: 'runtime.skill-projection', principal_ref: 'test-only.product-reviewer', reviews: rows });
   for (const ref of [approvalRef, subjectRef]) if (!valid.review.basis.some(asset => asset.ref === ref)) valid.review.basis.push({ ref, digest: decisionDigest(readFileSync(ref)) });
@@ -66,6 +174,29 @@ try {
   valid.planApproval.review_session_id = session;
   valid.reapprove();
   assert.equal(assertPlanSpecEntry(valid.state, { root: valid.root }).result, 'allowed', 'Plan 一次专业审查覆盖两个内部检查并复用聚合门禁会话');
+  const currentBundle = JSON.parse(readFileSync(approvalRef, 'utf8'));
+  const currentReview = structuredClone(valid.review);
+  for (const gateId of currentBundle.reviews.map(row => row.gate_id)) {
+    for (const [name, mutate, expected] of [
+      ['消费者缺独立当前依据', gate => gate.evidence_refs = gate.evidence_refs.filter(ref => ref !== 'CONTEXT.md'), /APPROVAL_CONTEXT_REQUIRED/],
+      ['消费者篡改起草者', gate => gate.drafter_principal_ref = 'test-only.other-drafter', /APPROVAL_CURRENT_INVALID/],
+      ['批准依据篡改', (_gate, row) => row.basis[0].digest = '0'.repeat(64), /APPROVAL_CURRENT_INVALID/],
+      ['批准起草者篡改', (_gate, row) => row.drafter_principal_ref = 'test-only.other-drafter', /APPROVAL_CURRENT_INVALID/],
+      ['起草者自签', (_gate, row, bundle) => { bundle.principal_ref = row.drafter_principal_ref; for (const item of bundle.reviews) item.principal_ref = row.drafter_principal_ref; }, /APPROVAL_CURRENT_INVALID/],
+    ]) {
+      const invalid = structuredClone(currentBundle);
+      mutate(valid.review.internal_checks[gateId], invalid.reviews.find(row => row.gate_id === gateId), invalid);
+      valid.write(approvalRef, invalid);
+      valid.review.basis.find(asset => asset.ref === approvalRef).digest = decisionDigest(readFileSync(approvalRef));
+      valid.reapprove();
+      assert.throws(() => assertPlanSpecEntry(valid.state, { root: valid.root }), expected, `${gateId}: ${name}`);
+      process.stdout.write(`PASS 内部批准拒绝: ${gateId}: ${name}\n`);
+      valid.write(approvalRef, currentBundle);
+      Object.assign(valid.review, structuredClone(currentReview));
+      valid.reapprove();
+    }
+  }
+  assert.equal(assertPlanSpecEntry(valid.state, { root: valid.root }).result, 'allowed', '内部批准反例恢复后合法 Plan 仍可进入 Spec');
   valid.review.internal_checks['check.domain-strategy-approved'].approval_scope = ['feature.other']; valid.reapprove();
   assert.throws(() => assertPlanSpecEntry(valid.state, { root: valid.root }), /会签资产或范围不匹配/);
 
@@ -74,9 +205,9 @@ try {
   split.review.impacts.stage_decision = true;
   for (const [gateId, impact] of Object.entries({ 'check.domain-strategy-approved': 'domain_strategy', 'check.stage-decision-package-approved': 'stage_decision' })) {
     const ref = path.join(split.root, `${impact}-bundle.json`);
-    const row = { schema_version: 1, gate_id: gateId, decision: 'approved', actor_kind: 'digital-human', role_id: 'role.product-manager', runtime_id: 'runtime.skill-projection', principal_ref: 'test-only.product-reviewer', drafter_role_id: 'role.requirements-manager', drafter_principal_ref: 'test-only.requirements-drafter', subject_ref: path.join(split.root, 'plan.md'), subject_digest: decisionDigest(readFileSync(path.join(split.root, 'plan.md'))).slice(7), approval_scope: ['feature.demo'], evidence_refs: [path.join(split.root, 'plan.md')] };
+    const row = { schema_version: 1, gate_id: gateId, decision: 'approved', actor_kind: 'digital-human', role_id: 'role.product-manager', runtime_id: 'runtime.skill-projection', principal_ref: 'test-only.product-reviewer', drafter_role_id: 'role.requirements-manager', drafter_principal_ref: 'test-only.requirements-drafter', subject_ref: path.join(split.root, 'plan.md'), subject_digest: decisionDigest(readFileSync(path.join(split.root, 'plan.md'))).slice(7), approval_scope: ['feature.demo'], basis: currentInternalBasis(split), evidence_refs: [path.join(split.root, 'plan.md'), 'CONTEXT.md'] };
     split.write(ref, { schema_version: 1, kind: 'review-bundle', bundle_id: 'review-bundle.plan', task_id: `task.${impact}`, work_unit_id: 'work-unit.plan-requirements', review_session_id: 'review-session.plan.demo', role_id: 'role.product-manager', runtime_id: 'runtime.skill-projection', principal_ref: 'test-only.product-reviewer', reviews: [row] });
-    split.review.internal_checks[gateId] = { status: 'approved', approval_ref: ref, subject_ref: row.subject_ref, approval_scope: ['feature.demo'], evidence_refs: [ref, row.subject_ref] };
+    split.review.internal_checks[gateId] = { status: 'approved', approval_ref: ref, subject_ref: row.subject_ref, approval_scope: ['feature.demo'], drafter_principal_ref: split.review.drafter_principal_ref, evidence_refs: [ref, row.subject_ref, 'CONTEXT.md'] };
     split.review.basis.push({ ref, digest: decisionDigest(readFileSync(ref)) });
     if (!split.review.basis.some(asset => asset.ref === row.subject_ref)) split.review.basis.push({ ref: row.subject_ref, digest: decisionDigest(readFileSync(row.subject_ref)) });
   }
@@ -87,11 +218,11 @@ try {
   const oneApplicable = buildPlanFixture(path.join(temp, 'one-applicable'));
   const oneRef = path.join(oneApplicable.root, 'plan-review-bundle.json');
   const oneSubject = path.join(oneApplicable.root, 'plan.md');
-  const oneRow = { schema_version: 1, gate_id: 'check.domain-strategy-approved', decision: 'approved', actor_kind: 'digital-human', role_id: 'role.product-manager', runtime_id: 'runtime.skill-projection', principal_ref: 'test-only.product-reviewer', drafter_role_id: 'role.requirements-manager', drafter_principal_ref: 'test-only.requirements-drafter', subject_ref: oneSubject, subject_digest: decisionDigest(readFileSync(oneSubject)).slice(7), approval_scope: ['feature.demo'], evidence_refs: [oneSubject] };
+  const oneRow = { schema_version: 1, gate_id: 'check.domain-strategy-approved', decision: 'approved', actor_kind: 'digital-human', role_id: 'role.product-manager', runtime_id: 'runtime.skill-projection', principal_ref: 'test-only.product-reviewer', drafter_role_id: 'role.requirements-manager', drafter_principal_ref: 'test-only.requirements-drafter', subject_ref: oneSubject, subject_digest: decisionDigest(readFileSync(oneSubject)).slice(7), approval_scope: ['feature.demo'], basis: currentInternalBasis(oneApplicable), evidence_refs: [oneSubject, 'CONTEXT.md'] };
   const oneBundle = { schema_version: 1, kind: 'review-bundle', bundle_id: 'review-bundle.plan', task_id: 'task.plan-review.one-applicable', work_unit_id: 'work-unit.plan-requirements', review_session_id: 'review-session.plan.one-applicable', role_id: 'role.product-manager', runtime_id: 'runtime.skill-projection', principal_ref: 'test-only.product-reviewer', reviews: [oneRow] };
   oneApplicable.write(oneRef, oneBundle);
   oneApplicable.review.impacts.domain_strategy = true;
-  oneApplicable.review.internal_checks['check.domain-strategy-approved'] = { status: 'approved', approval_ref: oneRef, subject_ref: oneSubject, approval_scope: ['feature.demo'], evidence_refs: [oneRef, oneSubject] };
+  oneApplicable.review.internal_checks['check.domain-strategy-approved'] = { status: 'approved', approval_ref: oneRef, subject_ref: oneSubject, approval_scope: ['feature.demo'], drafter_principal_ref: oneApplicable.review.drafter_principal_ref, evidence_refs: [oneRef, oneSubject, 'CONTEXT.md'] };
   oneApplicable.review.basis.push({ ref: oneRef, digest: decisionDigest(readFileSync(oneRef)) }, { ref: oneSubject, digest: decisionDigest(readFileSync(oneSubject)) });
   oneApplicable.planApproval.review_bundle_ref = oneRef;
   oneApplicable.planApproval.review_session_id = oneBundle.review_session_id;
@@ -104,7 +235,7 @@ try {
   const wrongSessionRow = { ...oneRow, subject_ref: wrongSessionSubject, subject_digest: decisionDigest(readFileSync(wrongSessionSubject)).slice(7) };
   wrongSession.write(wrongSessionRef, { ...oneBundle, task_id: 'task.plan-review.wrong-session', review_session_id: 'review-session.plan.bundle', reviews: [wrongSessionRow] });
   wrongSession.review.impacts.domain_strategy = true;
-  wrongSession.review.internal_checks['check.domain-strategy-approved'] = { status: 'approved', approval_ref: wrongSessionRef, subject_ref: wrongSessionSubject, approval_scope: ['feature.demo'], evidence_refs: [wrongSessionRef, wrongSessionSubject] };
+  wrongSession.review.internal_checks['check.domain-strategy-approved'] = { status: 'approved', approval_ref: wrongSessionRef, subject_ref: wrongSessionSubject, approval_scope: ['feature.demo'], drafter_principal_ref: wrongSession.review.drafter_principal_ref, evidence_refs: [wrongSessionRef, wrongSessionSubject, 'CONTEXT.md'] };
   wrongSession.review.basis.push({ ref: wrongSessionRef, digest: decisionDigest(readFileSync(wrongSessionRef)) }, { ref: wrongSessionSubject, digest: decisionDigest(readFileSync(wrongSessionSubject)) });
   wrongSession.planApproval.review_bundle_ref = wrongSessionRef;
   wrongSession.planApproval.review_session_id = 'review-session.plan.aggregate';
@@ -117,7 +248,7 @@ try {
   const mixedRow = { ...oneRow, subject_ref: mixedSubject, subject_digest: decisionDigest(readFileSync(mixedSubject)).slice(7), principal_ref: 'test-only.other-reviewer' };
   mixedReviewer.write(mixedRef, { ...oneBundle, task_id: 'task.plan-review.mixed-reviewer', review_session_id: 'review-session.plan.mixed-reviewer', reviews: [mixedRow] });
   mixedReviewer.review.impacts.domain_strategy = true;
-  mixedReviewer.review.internal_checks['check.domain-strategy-approved'] = { status: 'approved', approval_ref: mixedRef, subject_ref: mixedSubject, approval_scope: ['feature.demo'], evidence_refs: [mixedRef, mixedSubject] };
+  mixedReviewer.review.internal_checks['check.domain-strategy-approved'] = { status: 'approved', approval_ref: mixedRef, subject_ref: mixedSubject, approval_scope: ['feature.demo'], drafter_principal_ref: mixedReviewer.review.drafter_principal_ref, evidence_refs: [mixedRef, mixedSubject, 'CONTEXT.md'] };
   mixedReviewer.review.basis.push({ ref: mixedRef, digest: decisionDigest(readFileSync(mixedRef)) }, { ref: mixedSubject, digest: decisionDigest(readFileSync(mixedSubject)) });
   mixedReviewer.planApproval.review_bundle_ref = mixedRef;
   mixedReviewer.planApproval.review_session_id = 'review-session.plan.mixed-reviewer';
@@ -130,7 +261,7 @@ try {
   const duplicateRow = { ...oneRow, subject_ref: duplicateSubject, subject_digest: decisionDigest(readFileSync(duplicateSubject)).slice(7) };
   duplicate.write(duplicateRef, { ...oneBundle, task_id: 'task.plan-review.duplicate', review_session_id: 'review-session.plan.duplicate', reviews: [duplicateRow, { ...duplicateRow }] });
   duplicate.review.impacts.domain_strategy = true;
-  duplicate.review.internal_checks['check.domain-strategy-approved'] = { status: 'approved', approval_ref: duplicateRef, subject_ref: duplicateSubject, approval_scope: ['feature.demo'], evidence_refs: [duplicateRef, duplicateSubject] };
+  duplicate.review.internal_checks['check.domain-strategy-approved'] = { status: 'approved', approval_ref: duplicateRef, subject_ref: duplicateSubject, approval_scope: ['feature.demo'], drafter_principal_ref: duplicate.review.drafter_principal_ref, evidence_refs: [duplicateRef, duplicateSubject, 'CONTEXT.md'] };
   duplicate.review.basis.push({ ref: duplicateRef, digest: decisionDigest(readFileSync(duplicateRef)) }, { ref: duplicateSubject, digest: decisionDigest(readFileSync(duplicateSubject)) });
   duplicate.planApproval.review_bundle_ref = duplicateRef;
   duplicate.planApproval.review_session_id = 'review-session.plan.duplicate';
@@ -141,9 +272,9 @@ try {
   delete legacy.review.review_protocol;
   delete legacy.state.plan_approval_ref;
   const legacyRef = path.join(legacy.root, 'domain-review.json');
-  legacy.write(legacyRef, { schema_version: 1, gate_id: 'check.domain-strategy-approved', decision: 'approved', actor_kind: 'digital-human', role_id: 'role.product-manager', runtime_id: 'runtime.skill-projection', principal_ref: 'test-only.product-reviewer', subject_ref: path.join(legacy.root, 'plan.md'), approval_scope: ['feature.demo'] });
+  legacy.write(legacyRef, { schema_version: 1, gate_id: 'check.domain-strategy-approved', decision: 'approved', actor_kind: 'digital-human', role_id: 'role.product-manager', runtime_id: 'runtime.skill-projection', principal_ref: 'test-only.product-reviewer', subject_ref: path.join(legacy.root, 'plan.md'), subject_digest: decisionDigest(readFileSync(path.join(legacy.root, 'plan.md'))).slice(7), approval_scope: ['feature.demo'], drafter_role_id: 'role.requirements-manager', drafter_principal_ref: legacy.review.drafter_principal_ref, basis: currentInternalBasis(legacy) });
   legacy.review.impacts.domain_strategy = true;
-  legacy.review.internal_checks['check.domain-strategy-approved'] = { status: 'approved', approval_ref: legacyRef, subject_ref: path.join(legacy.root, 'plan.md'), approval_scope: ['feature.demo'], evidence_refs: [legacyRef, path.join(legacy.root, 'plan.md')] };
+  legacy.review.internal_checks['check.domain-strategy-approved'] = { status: 'approved', approval_ref: legacyRef, subject_ref: path.join(legacy.root, 'plan.md'), approval_scope: ['feature.demo'], drafter_principal_ref: legacy.review.drafter_principal_ref, evidence_refs: [legacyRef, path.join(legacy.root, 'plan.md'), 'CONTEXT.md'] };
   legacy.review.basis.push({ ref: legacyRef, digest: decisionDigest(readFileSync(legacyRef)) });
   legacy.review.basis.push({ ref: path.join(legacy.root, 'plan.md'), digest: decisionDigest(readFileSync(path.join(legacy.root, 'plan.md'))) });
   legacy.reapprove();

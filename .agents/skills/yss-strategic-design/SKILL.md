@@ -110,3 +110,6 @@ Plan → Spec（含正式草稿、恢复与显式 `to-spec`）写入前，按 `.
 
 <!-- USER_PROGRESS_REPORT -->
 每轮返回或暂停按合同 `user_progress_report` 给出中文状态：当前阶段与本轮结果、下一阶段/单元与进入条件、问题/阻塞、已登记责任方、解除动作及复验、主控下一动作与用户待决定项。未知写“待核验”，负责人缺失写“未登记”；目标不代表批准，已授权工作继续执行。发送前核对证据、状态及结构化结果一致；写法见 `.template-spec/process/document-writing.md`。
+
+<!-- PLAN_REVIEW_CONTROL -->
+Plan 专业审查按当前主控合同 `planning.review_control` 和 checkpoint `plan_review_control` 执行；准备、派发、消费和恢复均核验原周期及本轮检查范围。聚合复用内部结论，诊断不默认请求用户；关键决定与最终 Plan 批准展示当前资产后取得同一次真实回复。工具与受控历史接入见 `.template-spec/plan/entry-review.md`。

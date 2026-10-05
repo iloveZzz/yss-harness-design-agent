@@ -313,6 +313,10 @@ gate_policy:
         checks:
           - check.domain-strategy-approved
           - check.stage-decision-package-approved
+        check_order: domain-strategy-before-stage-decision
+        aggregate_professional_result: reuse-internal-check-conclusions
+        aggregate_additional_review_task: forbidden
+        review_control_ref: .agents/skills/yss-strategic-design/references/orchestration-contract.yaml#planning.review_control
   continuation_reviews:
     gate.plan-approved:
       - role.product-manager

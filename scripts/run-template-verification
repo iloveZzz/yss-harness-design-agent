@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import {decodeContext} from "./lib/native-context.mjs";
 import { spawn, spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { parseArgs } from "node:util";
@@ -36,11 +37,12 @@ function runCommand(command) {
     child.stdout.on("data", (chunk) => { stdout += chunk; });
     child.stderr.on("data", (chunk) => { stderr += chunk; });
     child.on("error", error => { stderr += `${error.message}\n`; });
-    child.on("close", (code) => {
+    child.on("close", (code, signal) => {
+      const actual_exit_code=code;
       const duration_ms = Date.now() - started;
       process.stderr.write(`[${code === 0 ? "完成" : "失败"}] ${command} (${duration_ms}ms, exit=${code ?? 1})\n`);
-      try {if(execution)assertScenarioExecution(execution);} catch(error) {stderr+=`${error.message}\n`;code=1;}
-      resolve({ command, code: code ?? 1, duration_ms, stdout, stderr, ...(execution?{execution}:{}) });
+      try {if(execution)assertScenarioExecution(execution);if(execution?.protocol==="context-envelope-v1")decodeContext({status:code,signal,stdout});} catch(error) {stderr+=`${error.message}\n`;code=1;}
+      resolve({ command, actual_exit_code, actual_exit_signal:signal||null, code: code ?? 1, duration_ms, stdout, stderr, ...(execution?{execution}:{}) });
     });
   });
 }

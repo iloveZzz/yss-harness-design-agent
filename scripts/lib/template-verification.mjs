@@ -1,3 +1,4 @@
+import {contextExecution, contextBinary} from './native-context.mjs';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync, realpathSync, statSync, lstatSync, readlinkSync } from "node:fs";
@@ -143,6 +144,13 @@ function scenarioWords(command) {
   if(quote)throw Error('SCENARIO_COMMAND_INVALID');if(started)words.push(word);return words;
 }
 export function compileScenarioExecution(command,{root=ROOT,inputDigest}={}) {
+  if(/^(?:node\s+)?scripts\/verify-context-contract(?:\s|$)/.test(command)||/^yss\s+context\s+check(?:\s|$)/.test(command)) {
+    const words=scenarioWords(command);let execution;
+    if(words[0]==='yss') { const binary=contextBinary();words.shift();execution={file:binary.binary,args:words,cwd:realpathSync(root),binary_sha256:binary.digest,protocol:"context-envelope-v1"}; }
+    else {if(words[0]==='node')words.shift();words.shift();execution=contextExecution(root,words);}
+    const target='scripts/lib/native-context.mjs';
+    return {binding_version:1,requested_command:command,...execution,source_bindings:{mapping_sha256:scenarioHash(readFileSync(path.join(root,'scripts/lib/template-verification.mjs'))),target,target_sha256:scenarioHash(readFileSync(path.join(root,target)))},input_digest:inputDigest??scenarioInputDigest(root)};
+  }
   // eval source is data, never a script operand.
   if(/^node\s/.test(command)&&/(?:^|\s)(?:-e|--eval|--input-type=module)(?:\s|=|$)/.test(command))return null;
   if(!/(?:scripts\/verify-[\w-]+-scenarios|tests\/scenarios\/verify-[\w-]+-scenarios\.(?:mjs|py))(?:\s|['";|&<>]|$)/.test(command))return null;

@@ -1,13 +1,15 @@
 #!/usr/bin/env node
-import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
+import {contextExecution, decodeContext} from '../../scripts/lib/native-context.mjs';
+import { realpathSync, mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { sealVisualBaseline } from "../../.agents/skills/yss-prototype-stage/scripts/visual-baseline-contract.mjs";
 
 const repoRoot = path.resolve(import.meta.dirname, "../..");
-const root = mkdtempSync(path.join(tmpdir(), "yss-strategic-handoff-"));
+const root = realpathSync(mkdtempSync(path.join(tmpdir(), "yss-strategic-handoff-")));
 mkdirSync(path.join(root, "docs", "assets"), { recursive: true });
+writeFileSync(path.join(root, "yss-project.yaml"), "schema_version: 1\nrepository_mode: project-instance\n");
 writeFileSync(path.join(root, "CONTEXT.md"), `---
 context_schema_version: 1
 ---
@@ -56,8 +58,8 @@ writeFileSync(baselineFile, JSON.stringify(baseline, null, 2));
 const sealedBaseline = await sealVisualBaseline(baselineFile, bundleRoot);
 
 const run = (command, args) => spawnSync(command, args, { cwd: repoRoot, encoding: "utf8" });
-const snapshotResult = run("scripts/verify-context-contract", ["--root", root, "--allowed-context", "ComplianceReview", "--term-ref", "Global/Supplier", "--term-ref", "ComplianceReview/AdmissionDecision", "--json"]);
-if (snapshotResult.status !== 0) throw new Error(snapshotResult.stderr);
+const snapshotResult = nativeContext(["--root", root, "--allowed-context", "ComplianceReview", "--term-ref", "Global/Supplier", "--term-ref", "ComplianceReview/AdmissionDecision", "--json"]);
+if (snapshotResult.status !== 0) throw new Error(snapshotResult.stdout + snapshotResult.stderr);
 const snapshot = JSON.parse(snapshotResult.stdout).context_snapshot;
 const supplier = { term_ref: "Global/Supplier", term: "供应商", meaning: "提供产品或服务的主体", english_identifier: "Supplier", context_id: "Global", forbidden_aliases: [] };
 const decision = { term_ref: "ComplianceReview/AdmissionDecision", term: "准入结论", meaning: "合规审查的准入结果", english_identifier: "AdmissionDecision", context_id: "ComplianceReview", forbidden_aliases: [] };
@@ -95,3 +97,10 @@ verify("unknown-delta", { ...valid, context_delta: { added: [{ ...decision, term
 verify("changed-meaning", { ...valid, context_delta: { added: [{ ...supplier, meaning: "错误含义" }], updated: [], deprecated: [] } }, 1, /不一致/);
 verify("target-bypass", { ...valid, consumer_routes: valid.consumer_routes.map((item,index)=>index===0?{...item,context_reconciliation:{...item.context_reconciliation,required:false}}:item) }, 1, /True|true/);
 process.stdout.write("Strategic Design Handoff v5 scenarios passed\n");
+
+function nativeContext(args) {
+ const ex=contextExecution(repoRoot,[...args,'--profile','spec']);
+ const res=spawnSync(ex.file,ex.args,{cwd:ex.cwd,encoding:'utf8'});
+ if(res.status===0)res.stdout=JSON.stringify(decodeContext(res));
+ return res;
+}

@@ -55,7 +55,7 @@ required_files:
   - scripts/verify-lifecycle-registry
   - scripts/verify-lifecycle-checkpoint
   - scripts/lib/context-contract.mjs
-  - scripts/verify-context-contract
+  - scripts/lib/native-context.mjs
   - scripts/verify-context-contract-scenarios
   - scripts/verify-business-language-scenarios
   - scripts/verify-context-reconciliation
@@ -191,7 +191,7 @@ groups:
       - { run: "scripts/verify-approval-record --history .template-spec/templates/approval-record-template.yaml" }
   lifecycle:
     commands:
-      - { run: "scripts/verify-context-contract --root . --json" }
+      - { run: "yss context check --root . --json" }
       - { run: "scripts/verify-context-contract-scenarios" }
       - { run: "node scripts/verify-business-language-scenarios" }
       - { run: "scripts/verify-context-reconciliation-scenarios" }

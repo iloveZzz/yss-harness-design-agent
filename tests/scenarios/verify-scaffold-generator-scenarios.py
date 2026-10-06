@@ -9,13 +9,19 @@ import tempfile
 import json
 import os
 import hashlib
+import shutil
+import atexit
 from pathlib import Path
 
 
 PROFILE_ROOT = Path(__file__).resolve().parents[2]
 # Validate the fixed inventory using real Node before executing any fixture.
 subprocess.run(["node", "--input-type=module", "-e", "import {verifyFixtureSource} from './tests/fixtures/canonical-source.mjs';verifyFixtureSource()"], cwd=PROFILE_ROOT, check=True)
-REPOSITORY_ROOT = PROFILE_ROOT / "tests/fixtures/upstream-source"
+FIXTURE_SOURCE = PROFILE_ROOT / "tests/fixtures/upstream-source"
+REPOSITORY_ROOT = Path(tempfile.mkdtemp(prefix="phase8-scaffold-source-")).resolve()
+atexit.register(shutil.rmtree, REPOSITORY_ROOT)
+shutil.copytree(FIXTURE_SOURCE, REPOSITORY_ROOT, dirs_exist_ok=True)
+(REPOSITORY_ROOT / "context-source.fixture.md").rename(REPOSITORY_ROOT / "CONTEXT.md")
 GENERATOR = (
     REPOSITORY_ROOT
     / ".agents"

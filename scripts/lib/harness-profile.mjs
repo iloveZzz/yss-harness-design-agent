@@ -9,6 +9,18 @@ import { lifecycleTransitionContract } from "./lifecycle-transition.mjs";
 
 export const DEFAULT_PROFILE = path.join(ROOT, ".template-spec/process/harness-profile.yaml");
 export const STRATEGIC_PROFILE_ID = "harness.business-ddd-strategy-handoff";
+export const INSTANTIATION = Object.freeze({
+  cli_package: "yss",
+  native_profile: "design",
+  metadata_file: ".yss.json",
+  template_source: "github:iloveZzz/yss-harness-design-agent",
+  command: "yss init --profile design --root <directory>",
+});
+const LEGACY_INSTANTIATION = Object.freeze({
+  legacy_cli_package: "create-yss-harness-design",
+  legacy_metadata_file: ".yss-harness-design.json",
+});
+
 const TARGET_ROLES = ["role.product-manager", "role.requirements-manager", "role.business"];
 const CONTROL_ROLES = ["role.lifecycle-orchestrator"];
 const ALLOWED_WORK_UNITS = [
@@ -96,6 +108,15 @@ export function validateHarnessProfile(profile = loadHarnessProfile(), {
   if (profile.status !== "active") fail("Harness profile status 必须为 active");
   requireString(profile.name, "profile.name");
   requireString(profile.purpose, "profile.purpose");
+  const instantiation = profile.instantiation || {};
+  for (const [field, expected] of Object.entries(INSTANTIATION)) {
+    if (instantiation[field] !== expected) fail(`instantiation.${field} 必须为 ${expected}`);
+  }
+  for (const [field, expected] of Object.entries(LEGACY_INSTANTIATION)) {
+    if (instantiation[field] !== undefined && instantiation[field] !== expected) fail(`instantiation.${field} 历史来源不匹配`);
+  }
+  for (const field of ["npm_create", "pin_env"]) if (field in instantiation) fail(`instantiation.${field} 是历史 CLI 默认入口，不属于原生合同`);
+
 
   const roleIds = new Set([roles.orchestrator?.id, ...(roles.roles || []).map((role) => role.id)]);
   for (const [field, values] of [["target_user_roles", TARGET_ROLES], ["control_plane_roles", CONTROL_ROLES]]) {
@@ -137,6 +158,9 @@ export function validateHarnessProfile(profile = loadHarnessProfile(), {
   for (const condition of ["source-context-snapshot-and-context-delta-are-current", "active-consumer-routes-require-target-context-reconciliation", "immutable-delivery-directory-is-packaged-and-verified"]) if (!profile.handoff.acceptance.includes(condition)) fail(`handoff.acceptance 缺少 ${condition}`);
   return {
     profile_id: profile.profile_id,
+    cli_package: instantiation.cli_package,
+    native_profile: instantiation.native_profile,
+    metadata_file: instantiation.metadata_file,
     target_user_roles: [...profile.audience.target_user_roles],
     terminal_work_unit: profile.lifecycle.terminal_work_unit,
     consumer_capabilities: [...profile.handoff.consumer_capabilities],
@@ -145,6 +169,7 @@ export function validateHarnessProfile(profile = loadHarnessProfile(), {
 
 export const harnessProfileContract = Object.freeze({
   profile_id: STRATEGIC_PROFILE_ID,
+  instantiation: INSTANTIATION,
   target_user_roles: TARGET_ROLES,
   control_plane_roles: CONTROL_ROLES,
   allowed_work_units: ALLOWED_WORK_UNITS,

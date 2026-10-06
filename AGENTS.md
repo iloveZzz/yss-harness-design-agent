@@ -15,6 +15,7 @@
 - 文件缺失、schema 不支持或模式非法时停止路由并执行迁移检查；不得根据目录、Git 远程或占位符猜测身份。
 - 只读问答、状态查询和问题定位：读取根 `CONTEXT.md` 与相关来源后回答或调查；只有写正式资产、申请批准或流转时才进入工作单元。只读诊断不创建 Ticket / checkpoint，不改批准与状态，也不启动回归套件。
 - 行动请求先复用当前资产和登记，再补本轮缺项；按当前任务和实际影响加载下文引用，不逐节执行整份入口。
+- 新实例使用 `yss init --profile design --root <新目录>`，元数据为 `.yss.json`；来源合同为 Harness Profile 的 `cli_package: yss`、`native_profile: design` 和 `metadata_file: .yss.json`。历史 `create-yss-harness-design` / `.yss-harness-design.json` 只作旧身份识别；旧实例必须通过显式 `yss migrate plan`，未完成旧事务先用匹配的固定旧执行器恢复。
 
 ## 2. 单一事实来源
 
@@ -47,7 +48,7 @@ README、用户指南和 `CLAUDE.md` 只解释或指向上述事实，不定义�
 - `.agents/skills` 是共享技能权威内容；`.codex/skills`、`.cursor/skills`、`.pi/skills` 是生成投影，不得分别手改。
 - 日常维护交付默认执行本轮改动及其直接 / 传递依赖的定向检查，补齐 L1/L2/L3 适用证据后交付 `implementation-ready`。不因交付措辞、L3、当前分支为 main 或缺少发布 baseline 自动运行全量检查，也不把 fast → candidate → release 当作固定顺序。
 - 使用 `scripts/verify-template-fast` 前先看 `--plan`；计划若扩大到全量，日常交付改为执行上述定向检查，记录范围、实际命令、退出码及未覆盖风险。发现本轮缺陷或新增影响时，只补受影响检查；影响无法确定时先调查，不用全量检查代替影响分析。日常维护不强制独立审查或候选冻结。
-- PR 候选使用 `scripts/verify-template-candidate`；main 集成验证及正式发布任务使用 `scripts/verify-template`，适用检查与回退由验证 profile 和发布合同定义，不能用日常定向检查冒充通过。未完成 `create-yss-harness-design` 快照同步及生成实例验证，不得宣称可发布；不得绑定 `create-yss-spec`。
+- PR 候选使用 `scripts/verify-template-candidate`；main 集成验证及正式发布任务使用 `scripts/verify-template`，适用检查与回退由验证 profile 和发布合同定义，不能用日常定向检查冒充通过。未完成 `yss` 的 `design` 固定 Bundle 及生成实例验证，不得宣称可发布；不得把 `spec` Profile 作为本仓业务方案入口。
 
 ## 5. `project-instance` 战略设计路由
 

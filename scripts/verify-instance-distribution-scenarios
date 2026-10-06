@@ -11,7 +11,7 @@ import {
 const source = loadInstanceDistributionManifest();
 const valid = validateInstanceDistribution({ mode: "template-source", manifest: source });
 assert.equal(valid.profile_id, "harness.business-ddd-strategy-handoff");
-assert.equal(valid.cli_package, "create-yss-harness-design");
+assert.equal(valid.cli_package, "yss");
 
 assert.equal(shouldDistribute(".template-spec/process/harness-profile.yaml", source), true);
 assert.equal(shouldDistribute(".template-spec/templates/strategic-design-handoff-template.yaml", source), true);

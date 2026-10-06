@@ -1,40 +1,60 @@
 # YSS 模板实例升级协议
 
-本协议定义 `yss-harness-upgrade` 与四类 YSS CLI 的同家族实例升级。技能负责判断、冲突方案和授权范围；CLI 负责计划校验、候选验证、持久归档、事务和恢复。历史批准及 Ticket 状态仍由各自权威协议管理。
+本协议定义固定原生 `yss` 对 Spec、Design、Backend、Frontend 的同家族实例升级，以及旧四 CLI 实例的显式迁移。`yss-harness-upgrade` 负责判断、冲突处置和授权范围；执行器负责保存计划、输入校验、受管基线、事务、恢复和回退。历史批准及 Ticket 状态仍由各自权威协议管理。
 
-## 输入与接口
+## 输入、来源与接口
 
-固定精确 CLI 版本、包内容及模板快照，确认真实项目根、metadata/schema、profile、受管基线和 Git 状态。旧版本缺少受支持的基线/schema 时停止，不重新初始化。目标模板使用所执行 CLI 的内置快照；不在 apply 阶段查询 latest 或运行外部计划提供的脚本。
+确认真实项目根、根 `yss-project.yaml`、`CONTEXT.md`、metadata/schema、Profile、插件 binding、受管基线及 Git 状态。身份缺失或矛盾时停止，不能按目录猜测、删除 metadata 或重新 init。固定统一 CLI 版本、源码提交和二进制 SHA-256，核对 `yss bundle inspect --profile <Profile> --json` 中的协议、模板提交、Bundle、manifest 和快照摘要。旧 CLI 版本只记录历史基线，不能冒充统一 CLI 来源。
 
-- `migrate plan --target-dir <绝对目录> --output <项目外全新文件> [--archive-dir <项目外全新目录>] [--migrate-layout] [--prune] [--resolutions <文件>]`：项目只读，在项目外生成固定计划；冲突返回机器可读诊断。
-- `migrate apply --plan <文件> [--target-dir <同一目录>]`：显式执行。
-- `migrate status --target-dir <目录>`：只读状态。
-- `migrate recover|rollback --target-dir <目录> [--apply]`：默认只读预览，显式写入。
+| 操作 | 原生接口与写入语义 |
+|---|---|
+| 新建 | `init --profile <Profile> --root <目标>` 默认直接初始化；审阅路线加 `--plan --out <新计划>`，再以 `--apply --plan-file <计划>` 应用 |
+| 接管普通工程 | `attach --profile <Profile> --root <目标> --plan --out <新计划>`；默认预演，写入用 `--apply --plan-file <计划>` |
+| 升级原生实例 | `sync --root <目标> --plan --out <新计划>`；默认预演，写入用 `--apply --plan-file <计划>` |
+| 迁移未绑定旧实例 | `migrate plan --root <目标> --profile <Profile> --out <新计划>`；写入用 `migrate apply --root <目标> --plan-file <计划>` |
+| 状态 | `migrate status --root <目标>` 只读 |
+| 普通项目恢复与回退 | `recover --root <目标>`、`rollback --root <目标>` 默认只读检查；各加 `--apply` 才恢复未完成项目事务或回退最近成功项目事务 |
+| 迁移恢复与回退 | `migrate recover --root <目标>` 是显式恢复写入子命令；`migrate rollback --root <目标>` 是最近成功迁移的显式回退写入子命令，不要求 `--apply` |
+| 资源补装 | `assets ensure <stage>` / `skills ensure <skill>` 默认预演，保存计划后用 `--apply --plan-file <计划>` 写入 |
 
-所有命令接受 `--json`，输出 schemaVersion 1 JSON。失败非零退出；区分 `CONFLICT`、`STALE_PLAN`、`EXECUTOR`、`PLAN`、`ARCHIVE`、`INTERRUPTED`、`CONCURRENT`、`RECOVERY_FAILED` 等。原 CLI 命令及错误协议保持兼容。
+命令均可用 `--json` 消费 `outputVersion`、`protocolVersion`、`command`、`profile`、`status`、`code`、`result` 的版本化 envelope。成功须同时观察实际退出 0、`status=ok`、`code=OK`。计划、metadata、Bundle 和输出 envelope 各有自己的 schema，不把旧成功 JSON 当原生协议。
 
-## 计划与冲突
+计划推荐保存到项目外全新普通文件；原生也允许专用 `.yss/plans/`。业务目录、Git 内部目录、链接别名及已有输出文件不能用作计划覆盖目标。目标模板来自固定二进制内的 Bundle；apply 不查询 `latest` 或执行计划提供的外部脚本。`bundle export --profile <Profile> --out <项目外新目录> --json` 可独立读取完整资产与 manifest。
 
-计划绑定 schemaVersion、事务 ID、时间、项目根、家族、执行器摘要、目标模板、归档位置、迁移选项、输入清单、Git HEAD/index/gitlink、规则 ID、操作前后内容/权限摘要和候选内容。整体 planDigest 检测意外修改；执行器还重新生成候选操作，不信任手改计划或重新计算摘要。摘要不等于授权。
+## 插件绑定
 
-版本化规则 `managed-sync.v1`、`layout-migration.v1`、`retirement.v1` 复用各 CLI 原有身份/schema 范围和可信文件基线判定；后两者分别要求显式布局迁移与 prune。不凭名称或目录推断旧资产属于模板，不提供未知旧版本的猜测迁移。
+后端交付插件绑定 `spec`，产品设计插件绑定 `design`。绑定旧实例使用对应插件 `project-migration-plan` / `project-migration-apply`；绑定原生实例更换二进制、模板或 Bundle 来源时，使用对应插件 `project-upgrade-plan` / `project-upgrade-apply`。插件通过公开原生保存计划把 `.yss.json`、受管基线和新 binding 纳入同一事务，旧 metadata 与历史插件记录原字节进入恢复材料。
 
-`resolutions` 为路径到决议的 JSON 映射。每项包含 `action: preserve|merge`、`beforeDigest`、`templateDigest`；merge 另含候选字节的 `contentBase64`。只接受确实存在、有可信基线且可合并的受管冲突；未知路径、受保护资产、过期摘要或未消费决议拒绝。技能在项目外起草合并差异，新增语义决定取得用户回复后重新生成计划。CLI 不把决议文件当成人工批准。
+直接 `yss sync` 更换来源而没有匹配的新 binding 返回 `BINDING_REQUIRED`；既有身份和 binding 已失配返回 `BINDING_CONFLICT`。不能手改绑定或 metadata 绕过拒绝。同一来源的治理资源补装仍可使用 `assets ensure` / `skills ensure`，其输入保护现有 binding 的字节和权限。
 
-未修改受管文件自动更新。修改过的退出分发文件保留；`--prune` 只删除仍匹配旧基线的文件。项目拥有的 tracker、业务文档和已批准资产按现有保护规则保留；历史冻结和批准不会因路径移动获得新的有效性。
+## 计划、冲突与保护
 
-## 归档、执行与恢复
+保存计划绑定命令、绝对项目根、Profile、协议、目标模板提交、快照摘要、变量、资源选择、binding、输入描述、变更前后字节及 mode 和整体摘要。应用使用相同固定二进制，重新核验输入并重建候选；手改计划或重算摘要不能替代合法规划，计划摘要也不授予权限。
 
-默认归档位置为 `~/.yss-harness/archives/<项目路径与家族摘要>/<事务ID>/`，可显式改为项目外全新目录。保存 plan.json、before/ 原字节与权限、receipt.json；首版不自动清理归档。布局迁移额外保存 project-copy/ 项目内容副本；不跟随符号链接，排除 Git 内部数据、依赖、索引缓存及事务状态，这些排除项不是迁移写入范围。Git 工作区和索引不重建、不 reset、不 stash。
+原生 metadata 保存受管基线与已应用状态。符合基线的受管文件可更新；用户修改、未知基线或不能证明权限来源的旧受管文件进入冲突，不能自动覆盖。旧 metadata 在迁移事务中按原字节保留。唯一根 `CONTEXT.md`、业务资产、用户 `.github`、Git HEAD/index/gitlink、文件类型与权限按执行器既有保护规则保留。
 
-候选操作先在隔离副本中完成生成锁文件与实例校验。真实执行前重新核验输入，先归档并校验，再在互斥锁下写入。内部事务日志预写并持久化，文件、生成锁及 metadata 属于同一事务。既有业务文件和无关未提交/未跟踪工作保持；输入漂移要求新计划。
+预演可成功返回包含 `conflicts` 的计划；有冲突的 apply 返回 `CONFLICT`。`INPUT_DRIFT` 要求从当前现场重新规划，`BUNDLE` 要求恢复原计划的固定快照或重新规划。必要资源的 `UNPORTED` 阻断对应升级。负例验证必须检查准确错误码，不能把偶然输入漂移当作冲突、身份或恢复保护通过。
 
-内部 `.yss-harness-state/upgrade.json` 索引关联外部回执与事务。失败自动恢复本次写入；进程中断后 recover 校验事务和备份再恢复。成功提交但回执尚未完成的情况依据持久日志收敛状态。保留损坏、冲突及未恢复路径，不把恢复失败写成成功。
+冲突处置先在项目外起草差异，说明保留和合并选择；新增语义决定取得真实用户回复后按授权处理，再从当前输入重新规划。原生不仿制旧 `--resolutions`、`--migrate-layout`、`--prune`、`--archive-dir` 等参数；未支持参数明确拒绝，布局重组、资产清理或人工合并另行形成可审阅范围。不得用 `--force`、reset、clean、stash 或删除状态绕过保护。
 
-rollback 只针对索引中最近一次成功迁移，完整预检全部原件和升级后状态后才开始。任何后续修改、丢失或损坏备份都会阻断；不提供忽略冲突的 force。回退使用新的可恢复事务，不更改 CLI 安装版本。重复 apply 只有在同一计划已成功且结果仍匹配时才返回原回执；恢复或回退后的旧计划不复用。
+## 事务、恢复与回退
+
+原生事务位于项目专用 `.yss/transactions/`，保存事务计划、持久日志、原字节及权限备份；回执给出 `transactionId`、状态和 `backupPath`。需要仓外长期恢复材料时，按归档清单保存固定二进制、Bundle、来源锁、插件包和完整事务材料，不能把旧执行器的默认外部归档路径写成原生行为。
+
+输入、受管文件、metadata 与 binding 在互斥锁下作为同一事务处理。取消、失败及中断按持久状态恢复；准备阶段中断也从原生恢复入口检查与收敛。恢复前核验身份、范围、日志和备份，不删除损坏或未完成状态制造成功。旧未完成事务由下一节的对应固定旧执行器处理，不交由原生执行器猜测旧日志。
+
+回退仅针对最近成功的适用事务；`migrate rollback` 要求最近成功事务为迁移，普通 `rollback --apply` 支持项目事务。恢复原件前先预检全部当前状态及备份；apply 后、首次 rollback 前的用户修改返回 `CONCURRENT` 并保持整个现场。备份损坏、身份或范围不符也阻断写入。成功回退后的重复回退保持幂等，不继续回退更早事务。回退不改变程序安装版本；程序升级使用独立工具根的 `update` 合同。
+
+## 历史执行器边界
+
+旧四 CLI 的固定 npm 包、完整源码 SHA、包摘要、模板快照、运行时和恢复说明由仓外恢复清单保留。历史版本长期可获取，不执行 unpublish。活跃构建、插件和分发不 require 旧 gitlink 私有模块。
+
+发现旧 journal、lock 或未完成事务时，原生迁移以 `LEGACY_INTERRUPTED` 拒绝。先在隔离副本核验对应固定旧执行器能够独立取得和运行，按该版本自身的 `migrate status/recover/rollback`、预览与 `--apply` 规则完成恢复，再生成原生迁移计划。旧 `--target-dir`、`--output`、外部归档和决议协议只属于这些历史版本，不与上面的原生命令互换。
+
+旧恢复、原生迁移、整体回退和恢复后的旧执行器维护均留真实公共入口日志与包、二进制摘要。不能用手造 metadata 或 synthetic CI fixture 替代历史实例验收。
 
 ## 验证与结论
 
-校验身份、布局、Context、Skill 锁和投影等各家族现有实例合同；有失败不跳过。对未迁移资产与 Git index/HEAD/gitlink 做并发检查。迁移完成再规划，证明不会重复执行；计划保留项不是自动消失的冲突。
+迁移后核验身份、Profile、Context、受管基线、Skill 锁与投影、插件 binding 和适用实例治理；再按相同选项规划，确认没有重复变更。核对业务文件、无关 dirty/untracked 工作、Git index/HEAD/gitlink 和权限保护；原有失败与新增失败分别记录。
 
-回执说明实际版本、范围、归档、事务状态和验证结果。原有失败与新增失败分别说明；升级成功不表示产品阶段批准或发布就绪。提交、推送、发布及真实项目迁移均按会话授权，不由技能或计划摘要授予。
+交付说明实际二进制和来源、计划/回执/备份位置、真实命令与退出码、恢复结果、冲突及未覆盖风险。升级成功不代表产品阶段批准或发行就绪。真实业务项目先在隔离副本验证，原地迁移另行安排；提交、推送、发布、npm 弃用与仓库归档按各自授权执行。

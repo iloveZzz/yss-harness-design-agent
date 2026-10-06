@@ -46,17 +46,16 @@ YSS skills 的公开发布投影维护在 [iloveZzz/yss-spec-dev-skills](https:/
 
 ## 模板初始化 CLI
 
-`create-yss-harness-design` 是本 harness 的实例初始化 CLI，维护位置是独立仓库 [iloveZzz/create-yss-harness-design](https://github.com/iloveZzz/create-yss-harness-design)。它不是 `create-yss-spec`：后者面向全生命周期模板 `yss-spec-project-template`。
-
-- [create-yss-harness-design 使用说明](./.template-spec/user-guide/CLI使用说明.md)
-
-推荐入口：
+统一 CLI `yss` 的 `design` Profile 生成本仓业务方案实例，职责仍为 `harness.business-ddd-strategy-handoff`。使用已验收的固定二进制，先用 `yss bundle inspect --profile design --json` 核对模板提交及 Bundle 来源。
 
 ```bash
-npm create yss-harness-design@latest
+yss init --profile design --root /absolute/path/to/project --plan --out /absolute/path/to/init-plan.json --json
+yss init --profile design --root /absolute/path/to/project --apply --plan-file /absolute/path/to/init-plan.json --json
 ```
 
-首次使用前请先确认独立仓库和 npm 包已完成发布。未完成跨仓验证前，不要把本命令当作已发布入口。
+新实例使用 `.yss.json`；历史 `create-yss-harness-design` 和 `.yss-harness-design.json` 只用于旧实例身份识别与固定执行器恢复。旧实例先显式 `yss migrate plan`，检查后应用保存的计划，不以普通 sync 自动接管。固定模板、统一 CLI 和历史执行器分别记录来源。
+
+创建、同步、迁移和恢复见 [yss design 使用说明](./.template-spec/user-guide/CLI使用说明.md)。候选二进制仍需当前源码验证及发布门禁，命令示例不表示已经发布。
 
 ## 模板配置取舍
 

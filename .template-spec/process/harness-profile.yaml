@@ -150,3 +150,12 @@ skill_scope:
   - yss-web-controller
   - ytable-usage
   - ytree-usage
+
+instantiation:
+  cli_package: yss
+  native_profile: design
+  metadata_file: .yss.json
+  template_source: github:iloveZzz/yss-harness-design-agent
+  command: yss init --profile design --root <directory>
+  legacy_cli_package: create-yss-harness-design
+  legacy_metadata_file: .yss-harness-design.json

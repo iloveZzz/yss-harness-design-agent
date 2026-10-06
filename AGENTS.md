@@ -13,6 +13,7 @@
 - `template-source` 只维护模板，不生成具体产品的 Plan、Spec、原型、业务级 Ticket 或交接包。
 - `project-instance` 使用 `harness.business-ddd-strategy-handoff`；本地终点为 `work-unit.strategic-design-handoff`。
 - 文件缺失、schema 不支持或模式非法时停止路由并执行迁移检查；不得根据目录、Git 远程或占位符猜测身份。
+- 新实例使用 `yss init --profile design --root <新目录>`，元数据为 `.yss.json`；来源合同为 Harness Profile 的 `cli_package: yss`、`native_profile: design` 和 `metadata_file: .yss.json`。历史 `create-yss-harness-design` / `.yss-harness-design.json` 只作旧身份识别；旧实例必须通过显式 `yss migrate plan`，未完成旧事务先用匹配的固定旧执行器恢复。
 
 ## 2. 单一事实来源
 
@@ -42,7 +43,7 @@ README、用户指南和 `CLAUDE.md` 只解释或指向上述事实，不定义�
 
 - 创建、修改或退役 skill 时使用 `maintaining-skills`，维护强度和证据以裁剪文档为准；日常停在 `implementation-ready`，发布前执行完整门禁。
 - `.agents/skills` 是共享技能权威内容；`.codex/skills`、`.cursor/skills`、`.pi/skills` 是生成投影，不得分别手改。
-- 依次使用 `scripts/verify-template-fast`、显式候选时的 `scripts/verify-template-candidate` 和发布前不可裁剪的 `scripts/verify-template`。未完成 `create-yss-harness-design` 快照同步及生成实例验证，不得宣称可发布；不得绑定 `create-yss-spec`。
+- 依次使用 `scripts/verify-template-fast`、显式候选时的 `scripts/verify-template-candidate` 和发布前不可裁剪的 `scripts/verify-template`。未完成 `yss` 的 `design` 固定 Bundle 及生成实例验证，不得宣称可发布；不得把 `spec` Profile 作为本仓业务方案入口。
 
 ## 5. `project-instance` 战略设计路由
 

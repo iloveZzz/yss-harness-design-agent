@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { parseDocument } from "../vendor/yaml.mjs";
-import { STRATEGIC_PROFILE_ID } from "./harness-profile.mjs";
+import { STRATEGIC_PROFILE_ID, INSTANTIATION } from "./harness-profile.mjs";
 import { ROOT } from "./lifecycle-registry.mjs";
 
 export const DEFAULT_MANIFEST = path.join(ROOT, ".template-spec/process/instance-distribution-manifest.yaml");
@@ -128,8 +128,8 @@ export function validateInstanceDistribution(
   if (manifest.template_source !== "github:iloveZzz/yss-harness-design-agent") {
     fail("template_source 必须指向 yss-harness-design-agent");
   }
-  if (manifest.cli_package !== "create-yss-harness-design") {
-    fail("cli_package 必须为 create-yss-harness-design");
+  if (manifest.cli_package !== INSTANTIATION.cli_package) {
+    fail("cli_package 必须为 yss");
   }
   requireStringArray(manifest.allow_root_entries, "allow_root_entries");
   requireStringArray(manifest.allow_root_files, "allow_root_files");

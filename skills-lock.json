@@ -269,7 +269,7 @@
         "source": "project",
         "sourceType": "local",
         "skillPath": ".agents/skills/yss-harness-upgrade/SKILL.md",
-        "effectiveHash": "d0cf740eb836618a6463beae62a3533a20fb65824ee4bbc6621572f728a8bbf9",
+        "effectiveHash": "56d5f91342f75e181fc7b13dd319d5e25b734835c32f91f519eaf57c7fe48a88",
         "targets": [
           ".agents/skills",
           ".codex/skills",

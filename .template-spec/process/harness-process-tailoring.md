@@ -11,6 +11,8 @@
 3. 判断 UI、API、数据、后端、前端、跨仓库和高风险影响。
 4. 从最近可信阶段恢复；不要因为当前目录存在某类文件就猜测阶段已通过。
 
+只读问答、状态查询和定位只返回来源、结论及未决项；写正式资产、批准或流转才进入工作单元。行动请求先核验复用已有资产、登记与追踪，再补本轮缺项；只推进 profile 允许且本轮触发的工作单元及依赖。未要求的未来产物不是当前缺项，业务实现仍须批准且当前的 Slice 合同与允许写范围。
+
 ## 2. 裁剪矩阵
 
 | 类型 | 默认入口 | 必需工作 | 可记录为 `not-applicable` |
@@ -27,14 +29,49 @@
 
 同一独立执行者可以在一个连续工作单元内完成相邻的实现动作，但不能替代独立审查者。阶段证据在集中 checkpoint 回写，至少包含：范围、变更文件、受影响仓库、验证命令及结果、阻塞项、人工审查点、Ticket 状态和下一步。
 
+Fresh Verification 指当前范围的真实验证，不等于全仓检查。按当前合同、工程基线和已采纳 CI 条件选择检查；同一边界且资产 / 上游字节、校验器 / schema、命令参数及仓库根均未变时可复用，变化只使受影响依赖失效。恢复、handoff、进入实现、合并和发布时重验当前边界，当前性不明即重跑适用检查。产品实例不运行模板回归，除非另有明确模板维护或回归任务；局部完成不推导整体业务完成或发布。
+
+专业审查由主控派发独立实例并等待，无依赖工作继续。按本仓角色表核验当前原始真实决定与批准，缺失、失效或实质变化时才展示资产并询问；非阻断建议进入待办，必要证据和真实缺陷继续阻断。
+
 ## 4. 模板维护验证与审查强度
 
-等级和触发项以 `maintenance-intensity.yaml` 为准。L1 至少有相关实际检查；L2 有行为反例、Fresh Verification 和维护者自检；L3 有 Fresh Verification 和维护者自检，并覆盖权限、恢复及跨仓反例。
+本节只适用于 template-source。等级与触发项由 .template-source/process/maintenance-intensity.yaml 决定；分级改变证据强度，不替代产品实例的条件门禁。
 
-日常维护停在 `implementation-ready`，不因 L2/L3 自动要求独立审查或冻结候选。独立审查按需；适用时实施者不得兼任 Reviewer，旧正式审查证据保持只读兼容。产品实例的业务会签与真实用户决定不因模板维护裁剪而减少。
+| 等级 | 必需证据 | 日常审查 |
+|---|---|---|
+| L1 | 至少一项直接相关的实际检查 | self-check 或显式 human-checkpoint |
+| L2 | 最小行为反例、维护者自检与本轮 Fresh Verification | self-check；独立审查按需 |
+| L3 | 维护者自检与本轮 Fresh Verification | self-check；不因等级强制冻结候选或独立审查 |
 
-- 内循环：`scripts/verify-template-fast`；未知路径和核心校验器变更按配置回退完整检查。
-- PR：`scripts/verify-template-candidate`。
-- main 与发布前：不可裁剪的 `scripts/verify-template`；发布和 Git 操作另按实际授权执行。
+命中 counterexample_triggers 的每项风险还须有对应真实拒绝运行记录。L1 不人为构造 RED；L2 的最小反例可来自现有失败或 fixture；L3 不强制完整 RED/GREEN/REFACTOR/压力套件。未知 trigger 先更新策略；发现新影响重新分级并补受影响证据。重要缺陷与必要证据继续阻断。
 
-维护 checkpoint 沿用 schema v2，日常使用 `review_mode: self-check`、`verification_profile: fast`、`review_round: 0`、`candidate_digest: null`。通过 `scripts/verify-maintenance-checkpoint` 校验，记录范围、实际命令、退出码、证据、自检和剩余风险。`release-ready` 须绑定本轮完整验证，不能由历史结果推导。
+日常交付默认 implementation-ready，执行本轮改动及直接 / 传递依赖的定向检查。先看 scripts/verify-template-fast --plan；计划扩大到全量时改做有明确范围的定向检查，记录选择依据、实际命令、退出码与未覆盖风险。未知影响先调查，不用全量兜底；定向通过不冒充整个 fast / candidate / release 通过。
+
+日常不因交付措辞、L3、当前分支为 main 或缺发布 baseline 自动全量，也不依次运行三个入口。PR 候选使用 scripts/verify-template-candidate；main 集成验证及正式发布任务使用 scripts/verify-template。各入口的机器计划、拒绝与回退规则保持生效，正式任务选中集合不得手工删减；发布另须固定版本生成器与实例兼容证据及实际授权。
+
+新维护 checkpoint 使用 schema v2；历史 v1 只读兼容。日常形状如下，逐条 evidence 填本轮实际范围，verification_profile 表示交付层级：
+
+```yaml
+schema_version: 2
+intensity: L1 | L2 | L3
+classification_reason: <分级依据>
+triggers: [<当前策略 trigger>]
+changed_assets: [<本轮路径>]
+verification_evidence:
+  - kind: relevant-check | counterexample | self-check | fresh-verification
+    command: <实际命令或可读取运行记录>
+    result: pass
+review_mode: self-check
+escalation: none | <新影响及升级依据>
+target_state: implementation-ready
+current_state: implementation-ready
+verification_profile: fast
+review_round: 0
+candidate_digest: null
+```
+
+使用 scripts/verify-maintenance-checkpoint 校验。L2 必须有 counterexample、fresh-verification、self-check；L3 必须有 fresh-verification、self-check；命中风险触发项补带 trigger、run_ref、实际命令和日志摘要的 counterexample。结构通过不替代实际执行证据。
+
+自检路径的 release-ready 必须使用 release，并提供绑定当前来源与完整适用集合的 final-release-verification，其 command 为 scripts/verify-template；实际监督退出成功、input_drift=false、unexecuted=[]。该状态不代替 CLI 集成、平台兼容或发布授权。
+
+focused-independent / formal-independent 仅在明确采用独立审查路径时消费对应严格合同，不能由强度自动触发。历史正式证据按现有兼容入口只读核验，不能自报 legacy 或用请求代替审查通过。修复按差异、受影响结论和依赖定向复审，全部结论绑定当前候选；drift / new_impacts 先调查再更新范围和合同。Reviewer 不写实现，实施者不自审。

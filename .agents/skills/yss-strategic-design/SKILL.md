@@ -37,9 +37,11 @@ Plan 入口读取 `.template-spec/plan/README.md` 和 `.template-spec/process/pl
 
 Matt 的 `ask-matt`、`to-spec`、`to-tickets`、`triage` 和 `wayfinder` 保留为显式兼容入口；`implement` 已从本分支移除。默认路径是本 skill 持有的原生工作单元，由本编排器创建正式资产、维护状态并在会签门禁暂停。兼容入口不得自动调用它们或代替其创建正式资产；Matt 只导航，不得写生命周期资产或改变门禁/Ticket 状态；任何写入前回交本编排器。
 
-## 不可裁剪的主链
+## 阶段导航与门禁
 
 机会与目标 → 业务故事 → 业务边界与协作 → 规则、例子与疑问 → 方案决策包 → Spec/功能架构 → 产品设计与页面验证 → 业务级 Ticket 正式化 → 业务方案交接。
+
+按 `.template-spec/process/harness-process-tailoring.md` 从当前可信阶段处理本轮缺失工作，核验复用当前批准资产和工作项；只读咨询不创建票、checkpoint 或审批，未来产物不作为当前缺项。命中的门禁和本 profile 交接终点仍须满足。模板日常维护由 `maintaining-skills` 自检，独立审查按需；Fresh Verification、检查范围、证据复用和边界重验按裁剪合同执行，注册表优先消费 `public_*` 展示说明。
 
 ## 面向业务角色的默认问法
 

@@ -334,12 +334,15 @@ work_units:
     input: 变更仓库、强度分级与对应最低证据。
     output: 命令输出与证据。
     completion: L1 相关检查、L2 最小反例与 fresh verification、L3 完整 RED / GREEN / REFACTOR 与 fresh verification 按命中等级通过。
+    public_completion: 日常按当前影响及依赖完成分级证据：L1 相关实际检查，L2 最小反例、自检和 Fresh Verification，L3 自检和 Fresh Verification；仅命中风险触发项补定向反例。等级不强制完整套件；main 集成验证和正式发布另核验完整适用集合。
   - id: work-unit.intensity-aware-review
     name: 分级审查
     scope: template-source
     input: 变更 diff、强度分级与验证证据。
     output: L1 self-check / 人工 checkpoint、L2 聚焦独立审查或 L3 正式独立审查结论。
+    public_output: 维护者自检结论与阻断项；按需记录独立审查结果。
     completion: 已按命中等级完成审查且无未处理阻断项；L1 不强制独立 reviewer。
+    public_completion: 日常完成维护者自检并处理适用阻断项；L2/L3 不自动要求独立审查或冻结候选，明确采用独立审查路径时执行其严格合同。
   - id: work-unit.release-and-rollback
     name: 发布与回滚
     scope: template-source
@@ -436,6 +439,7 @@ work_units:
     input: 不可变候选快照、Spec、Ticket、合同和执行结果。
     output: Standards、Spec、UI fidelity 三轴 Review 与 fresh verification。
     completion: findings 已处理；修复后重新捕获候选并全量复审。
+    public_completion: findings 已处理；首轮覆盖全部适用审查项，修复后按差异、受影响结论及直接 / 传递依赖定向复审；未受影响结论仅凭可核验依据复用，全部结论重新绑定当前候选。
   - id: work-unit.release-and-retrospective
     name: 发布与复盘
     scope: project-instance

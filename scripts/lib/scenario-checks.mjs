@@ -195,13 +195,13 @@ const profiles = {
   },
   prototype: {
     message: "原型到后端脚手架及后续 YSS 代码生成压力场景验证通过",
-    files: [".agents/skills/yss-ddd-scaffold-generator/scripts/generate_scaffold.mjs", ".agents/skills/yss-router/references/router-contract.yaml"],
-    markers: [[".agents/skills/yss-strategic-design/SKILL.md", "Strategic Design Handoff"]]
+    files: [".agents/skills/yss-ddd-scaffold-generator/scripts/generate_scaffold.mjs", ".agents/skills/yss-implementation-contract-compiler/references/compiler-contract.yaml"],
+    markers: [[".agents/skills/yss-strategic-design/SKILL.md", "业务方案交接"]]
   },
   router: {
     message: "YSS Router stage 7 scenarios passed",
-    files: [".agents/skills/yss-router/references/router-contract.yaml", ".agents/skills/yss-router/SKILL.md"],
-    markers: [[".agents/skills/yss-router/references/router-contract.yaml", "slice_contract_required"]]
+    files: [".agents/skills/yss-implementation-contract-compiler/references/compiler-contract.yaml", ".agents/skills/yss-implementation-contract-compiler/SKILL.md"],
+    markers: [[".agents/skills/yss-implementation-contract-compiler/references/compiler-contract.yaml", "slice_contract_required"]]
   },
   openapiYaml: {
     message: "OpenAPI YAML-first 场景验证通过",
@@ -226,17 +226,19 @@ const profiles = {
     markers: [
       [".agents/skills/yss-dto/SKILL.md", "x-yss-response-wrapper"],
       [".agents/skills/yss-openapi-governance/SKILL.md", "verify-yss-dto-openapi-profile"],
-      [".agents/skills/yss-openapi-draft-review/SKILL.md", "offset`, `needTotalCount`, and `tempTotalCount"],
+      [".agents/skills/yss-openapi-draft-review/SKILL.md", "`offset` / `needTotalCount` / `tempTotalCount`"],
       [".template-spec/api/templates/openapi-draft-review-checklist.md", "DTO wire shape"]
     ]
   }
 };
 
-export function runScenario(name) {
+export function runScenario(name, { testAssets = null } = {}) {
+  const assetFile = ref => testAssets?.has(ref) ? testAssets.get(ref) : path.join(root,ref);
+  const assetRead = ref => readFileSync(assetFile(ref),"utf8");
   const profile = profiles[name];
   if (!profile) throw new TypeError(`未知 Node 场景: ${name}`);
-  for (const file of profile.files) ensure(exists(file), `缺少场景资产: ${file}`);
-  for (const [file, marker] of profile.markers) ensure(read(file).includes(marker), `场景资产缺少标记 ${marker}: ${file}`);
+  for (const file of profile.files) ensure(existsSync(assetFile(file)), `缺少场景资产: ${file}`);
+  for (const [file, marker] of profile.markers) ensure(assetRead(file).includes(marker), `场景资产缺少标记 ${marker}: ${file}`);
   if (name === "lifecycle") {
     const result = spawnSync("scripts/verify-lifecycle-registry", [], { cwd: root, encoding: "utf8" });
     ensure(result.status === 0, result.stderr || result.stdout);
@@ -373,7 +375,7 @@ export function runScenario(name) {
     }
   }
   if (name === "yssDtoWire") {
-    const result = spawnSync("scripts/verify-yss-dto-openapi-profile", [], { cwd: root, encoding: "utf8" });
+    const result = spawnSync(process.execPath, [assetFile("scripts/verify-yss-dto-openapi-profile")], { cwd: root, encoding: "utf8" });
     ensure(result.status === 0, result.stderr || result.stdout);
   }
   process.stdout.write(`${profile.message}\n`);

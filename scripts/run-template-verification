@@ -2,7 +2,7 @@
 import { spawn, spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { parseArgs } from "node:util";
-import { assertRequiredFiles, planTemplateVerification, ROOT } from "./lib/template-verification.mjs";
+import { assertRequiredFiles, planTemplateVerification, ROOT, compileScenarioExecution, assertScenarioExecution } from "./lib/template-verification.mjs";
 
 function git(args) {
   const result = spawnSync("git", args, { cwd: ROOT, encoding: "utf8" });
@@ -29,7 +29,8 @@ function runCommand(command) {
   return new Promise((resolve) => {
     const started = Date.now();
     process.stderr.write(`[开始] ${command}\n`);
-    const child = spawn(command, { cwd: ROOT, shell: true, env: process.env, stdio: ["ignore", "pipe", "pipe"] });
+    const execution=compileScenarioExecution(command);
+    const child = execution ? spawn(execution.file, execution.args, {cwd:execution.cwd,env:process.env,stdio:["ignore","pipe","pipe"]}) : spawn(command, { cwd: ROOT, shell: true, env: process.env, stdio: ["ignore", "pipe", "pipe"] });
     let stdout = "";
     let stderr = "";
     child.stdout.on("data", (chunk) => { stdout += chunk; });
@@ -38,7 +39,8 @@ function runCommand(command) {
     child.on("close", (code) => {
       const duration_ms = Date.now() - started;
       process.stderr.write(`[${code === 0 ? "完成" : "失败"}] ${command} (${duration_ms}ms, exit=${code ?? 1})\n`);
-      resolve({ command, code: code ?? 1, duration_ms, stdout, stderr });
+      try {if(execution)assertScenarioExecution(execution);} catch(error) {stderr+=`${error.message}\n`;code=1;}
+      resolve({ command, code: code ?? 1, duration_ms, stdout, stderr, ...(execution?{execution}:{}) });
     });
   });
 }
@@ -127,8 +129,8 @@ try {
   if (failed) throw new TypeError(`检查失败: ${failed.command}`);
 
   if (plan.effective_profile === "release") {
-    for (const file of plan.syntax_files) runValidator(process.execPath, ["--check", file]);
-    const roots = ["scripts", ".template-source/scripts"].filter((dir) => existsSync(`${ROOT}/${dir}`));
+    for (const file of plan.syntax_files) {const execution=compileScenarioExecution(`node --check ${file}`);if(execution)runValidator(execution.file,execution.args);else runValidator(process.execPath,["--check",file]);}
+    const roots = ["scripts", ".template-source/scripts", "tests/scenarios"].filter((dir) => existsSync(`${ROOT}/${dir}`));
     const legacyRuntime = ["ru", "by"].join("");
     const legacyCall = spawnSync("rg", ["-n", `^#!.*${legacyRuntime}|\\b${legacyRuntime}\\b`, ...roots, "--glob", "!*.md"], { cwd: ROOT, encoding: "utf8" });
     if (legacyCall.status === 0) throw new TypeError("模板脚本不得保留活跃 Ruby 调用或 shebang");

@@ -206,7 +206,7 @@ task_package:
   schema_ref: .template-spec/process/schemas/digital-human-task-package.schema.json
   compatibility_schema_ref: .template-spec/process/schemas/subagent-task-package.schema.json
   validator: scripts/verify-digital-human-task-package
-  compatibility_validator: scripts/verify-subagent-task-package
+  compatibility_validator: scripts/verify-digital-human-task-package
   persistence_layout: docs/.scratch/<feature>/task-packages/<task-id>.yaml
   required:
     [

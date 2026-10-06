@@ -19,7 +19,7 @@ core_escalation_patterns:
   - scripts/run-template-verification
   - scripts/lib/template-verification.mjs
   - scripts/verify-template-verification-scenarios
-  - .template-source/tooling/node/scripts/design-md.mjs
+  - .agents/skills/yss-design-system/scripts/design-md.mjs
   - .template-source/process/template-verification-profiles.yaml
 required_files:
   - yss-project.yaml
@@ -75,7 +75,7 @@ required_files:
   - scripts/lib/template-verification.mjs
   - scripts/verify-digital-human-task-package
   - scripts/verify-digital-human-task-package-scenarios
-  - scripts/verify-subagent-task-package
+  - scripts/verify-digital-human-task-package
   - scripts/verify-subagent-task-package-scenarios
   - scripts/verify-lifecycle-transition-scenarios
   - scripts/verify-maintenance-checkpoint
@@ -108,7 +108,7 @@ syntax_files:
   - scripts/lib/task-package.mjs
   - scripts/verify-digital-human-task-package
   - scripts/verify-digital-human-task-package-scenarios
-  - scripts/verify-subagent-task-package
+  - scripts/verify-digital-human-task-package
   - scripts/verify-subagent-task-package-scenarios
   - scripts/verify-maintenance-checkpoint
   - scripts/verify-maintenance-intensity-scenarios
@@ -143,7 +143,7 @@ routing:
     groups: [profile, workspace-fixtures]
   - patterns: [".template-source/**", "scripts/vendor/**"]
     groups: [tooling]
-  - patterns: ["DESIGN.md", "docs/design/**", ".template-source/tooling/node/scripts/design-md.mjs", ".template-source/tooling/node/test/design-md.test.mjs"]
+  - patterns: ["DESIGN.md", "docs/design/**", ".agents/skills/yss-design-system/scripts/design-md.mjs", ".template-source/tooling/node/test/design-md.test.mjs"]
     groups: [design-system, tooling]
   - patterns: [".github/**"]
     groups: [candidate-integrity]
@@ -154,7 +154,7 @@ groups:
     commands:
       - { run: "scripts/verify-strategic-handoff-tools-lock", when: template-source }
       - { run: "node --check scripts/lib/strategic-handoff.mjs" }
-      - { run: "scripts/verify-strategic-handoff-package-scenarios" }
+      - { run: "tests/scenarios/verify-strategic-handoff-package-scenarios.mjs" }
   hygiene:
     commands:
     - run: scripts/verify-governance-layout
@@ -165,8 +165,8 @@ groups:
       - { run: "pnpm --dir .template-source/tooling/node check:vendor", when: template-source }
   design-system:
     commands:
-      - { run: "node .template-source/tooling/node/scripts/design-md.mjs lint DESIGN.md", when: template-source }
-      - { run: "node .template-source/tooling/node/scripts/design-md.mjs drift", when: template-source }
+      - { run: "node .agents/skills/yss-design-system/scripts/design-md.mjs lint DESIGN.md", when: template-source }
+      - { run: "node .agents/skills/yss-design-system/scripts/design-md.mjs drift", when: template-source }
   skills:
     commands:
       - { run: "scripts/sync-skills --check" }

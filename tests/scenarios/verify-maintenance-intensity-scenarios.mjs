@@ -1,0 +1,79 @@
+#!/usr/bin/env node
+import { readFileSync, writeFileSync, mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+import { createHash } from 'node:crypto';
+import { validateMaintenanceCheckpoint } from "../../scripts/lib/maintenance-intensity.mjs";
+
+const checkerSource = readFileSync(new URL("../../scripts/lib/maintenance-intensity.mjs", import.meta.url), "utf8");
+if (checkerSource.includes("LEVEL_BY_TRIGGER = new Map")) throw new TypeError("触发项映射必须由 .template-source/process/maintenance-intensity.yaml 唯一维护");
+if (!checkerSource.includes("maintenance-intensity.yaml")) throw new TypeError("维护强度校验器必须加载权威触发项映射");
+
+const evidence = (...kinds) => kinds.map((kind) => ({ kind, command: `verify ${kind}`, result: "pass" }));
+// Synthetic review materials exercise the current binding; never reuse as real review evidence.
+const reviewRoot = mkdtempSync(path.join(tmpdir(), 'design-maintenance-review-'));
+const save = (ref, value) => writeFileSync(path.join(reviewRoot, ref), typeof value === 'string' || Buffer.isBuffer(value) ? value : JSON.stringify(value));
+const stream = Buffer.concat([Buffer.from('YSS-WORKTREE-CANDIDATE-V1\0'), Buffer.from([0x54]), Buffer.alloc(8)]);
+const candidateDigest = createHash('sha256').update(stream).digest('hex');
+save('candidate.bin', stream); save('tracked.diff', '');
+save('manifest.json', { review_mode: 'worktree', review_base_ref: 'test-only.base', merge_base: 'test-only.base', implementation_candidate_ref: 'working-tree', candidate_snapshot_ref: 'manifest.json', candidate_digest: candidateDigest, tracked_diff_command: 'test-only.diff', commit_list_command: 'test-only.log', untracked_inventory_command: 'test-only.inventory', untracked_diff_command: 'test-only.untracked', untracked_files: [], untracked_path_bytes: [], untracked_content_refs: [], snapshot_stream_ref: 'candidate.bin', tracked_diff_ref: 'tracked.diff' });
+save('review.md', `# 合成独立审查\n审查者：test-only.reviewer\n实施者：test-only.implementer\n候选：${candidateDigest}\n审查结论：pass\n`);
+save('task.json', { schema_version: 1, task_id: 'test-only.maintenance-review', work_unit_id: 'work-unit.intensity-aware-review', actor_id: 'test-only.reviewer', role_id: 'role.product-manager', runtime_id: 'runtime.generic', execution_state: 'Reviewer', workflow_status: 'active', skill_source: { registry_ref: '.template-spec/agents/digital-human-roles.yaml', defaults_ref: 'taskPackageDefaults(role.product-manager)', core_skills: ['prototype-review'], forbidden_skills: ['implement'] }, contract: { kind: 'template-maintenance', contract_id: 'test-only.maintenance', contract_version: 1, status: 'issued', contract_ref: 'test-only.checkpoint.json', maintenance_ref: 'test-only.checkpoint.json' }, inputs: ['manifest.json'], objective: '验证合成审查绑定', allowed_write_paths: ['review.md'], forbidden_actions: ['修改实现'], expected_outputs: ['合成审查结论'], expected_evidence_files: ['review.md'], verification_commands: ['test-only.check'], verification_results: [], review_context: { implementation_actor_id: 'test-only.implementer' }, downstream_consumers: ['role.lifecycle-orchestrator'], convergence: { parent_work_unit: 'work-unit.intensity-aware-review', convergence_ref: 'test-only.checkpoint.json', conflict_escalation: '返回合成主控' } });
+save('formal.json', { schema_version: 1, record_kind: 'maintenance-independent-review', review_mode: 'formal-independent', status: 'approved', reviewer_id: 'test-only.reviewer', implementation_actor_id: 'test-only.implementer', candidate_digest: candidateDigest, candidate_snapshot_ref: 'manifest.json', task_package_ref: 'task.json', review_report_ref: 'review.md', reviewed_at: '2026-10-04T06:00:00Z', findings: [] });
+const boundEvidence = (...kinds) => evidence(...kinds).map(item => ({ ...item, command: item.kind === 'formal-independent-review' ? 'formal.json' : item.kind === 'focused-independent-review' ? 'review.md' : item.command }));
+const verify = value => validateMaintenanceCheckpoint(value, { baseDir: reviewRoot });
+try {
+const base = { schema_version: 1, classification_reason: "场景验证", changed_assets: ["docs/example.md"], escalation: "none" };
+const implementationReady = {
+  ...base,
+  schema_version: 2,
+  intensity: "L3",
+  triggers: ["core-validator"],
+  verification_evidence: evidence("fresh-verification", "self-check"),
+  review_mode: "self-check",
+  target_state: "implementation-ready",
+  current_state: "implementation-ready",
+  verification_profile: "fast",
+  review_round: 0,
+  candidate_digest: null
+};
+const legacyFormal = {
+  ...base,
+  intensity: "L3",
+  triggers: ["core-validator"],
+  verification_evidence: boundEvidence("red", "green", "refactor", "pressure-scenario", "fresh-verification", "formal-independent-review"),
+  review_mode: "formal-independent"
+};
+const accepted = [
+  { ...base, intensity: "L1", triggers: ["textual-only"], verification_evidence: evidence("relevant-check"), review_mode: "self-check" },
+  { ...base, intensity: "L2", triggers: ["local-rule"], verification_evidence: boundEvidence("counterexample", "fresh-verification", "focused-independent-review"), review_mode: "focused-independent" },
+  { ...base, intensity: "L2", triggers: [], verification_evidence: boundEvidence("counterexample", "fresh-verification", "focused-independent-review"), review_mode: "focused-independent" },
+  legacyFormal,
+  implementationReady,
+  {...base, intensity:"L2",triggers:["local-rule"],verification_evidence:evidence("counterexample","fresh-verification","self-check"),review_mode:"self-check"}
+];
+for (const checkpoint of accepted) verify(checkpoint);
+
+const rejected = [
+  { ...accepted[1], verification_evidence: evidence("fresh-verification") },
+  { ...accepted[1], verification_evidence: evidence("counterexample", "fresh-verification") },
+  { ...accepted[0], triggers: ["release-semantics"] },
+  { ...accepted[0], triggers: ["aggregate-behavior-change"] },
+  { ...implementationReady, verification_evidence: evidence("fresh-verification") },
+  { ...implementationReady, triggers: ['lifecycle-gate'] },
+  { ...accepted[1], verification_evidence: evidence('counterexample', 'fresh-verification', 'focused-independent-review') },
+  { ...legacyFormal, verification_evidence: evidence('red', 'green', 'refactor', 'pressure-scenario', 'fresh-verification', 'formal-independent-review') },
+  { ...implementationReady, verification_profile: "candidate" },
+  { ...implementationReady, review_round: 1 },
+  { ...implementationReady, candidate_digest: "a".repeat(64) },
+  { ...accepted[1], escalation: "发现发布语义影响但仍维持 L2", triggers: ["release-semantics"] },
+  { ...accepted[2], intensity: "L1" }
+];
+for (const checkpoint of rejected) {
+  let failed = false;
+  try { verify(checkpoint); } catch { failed = true; }
+  if (!failed) throw new TypeError(`错误 checkpoint 未被拒绝: ${JSON.stringify(checkpoint)}`);
+}
+
+process.stdout.write("模板维护 L1/L2/L3 强度场景验证通过\n");
+} finally { rmSync(reviewRoot, { recursive: true, force: true }); }

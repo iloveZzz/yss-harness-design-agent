@@ -1,0 +1,133 @@
+#!/usr/bin/env node
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync, symlinkSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
+import { parseDocument } from "../../scripts/vendor/yaml.mjs";
+import { planTemplateVerification } from "../../scripts/lib/template-verification.mjs";
+import { validateHistoricalTaskPackage } from "../../.template-source/scripts/verify-historical-task-package";
+
+const releaseBaseline = [
+  ".template-source/scripts/evidence-index --check",
+  "pnpm --dir .template-source/tooling/node test",
+  "pnpm --dir .template-source/tooling/node check:vendor",
+  "scripts/sync-skills --check",
+  "scripts/update-skill-lock --check",
+  "scripts/verify-skill-registry",
+  "scripts/verify-skill-governance",
+  "scripts/verify-digital-human-roles",
+  "scripts/verify-digital-human-roles-scenarios",
+  "scripts/verify-harness-profile",
+  "scripts/verify-harness-profile-scenarios",
+  "scripts/verify-entry-alignment",
+  "scripts/verify-strategic-design-handoff-scenarios",
+  "scripts/verify-instance-distribution",
+  "scripts/verify-instance-distribution-scenarios",
+  "scripts/verify-approval-record --history .template-spec/templates/approval-record-template.yaml",
+  "scripts/verify-lifecycle-registry",
+  "scripts/verify-context-contract --root . --json",
+  "scripts/verify-context-contract-scenarios",
+  "scripts/verify-context-reconciliation-scenarios",
+  "scripts/verify-plan-requirements-context-scenarios",
+  "scripts/verify-lifecycle-checkpoint .template-spec/process/templates/lifecycle-checkpoint-template.yaml",
+  "scripts/verify-subagent-task-package-scenarios",
+  "scripts/verify-digital-human-task-package-scenarios",
+  ".template-source/scripts/verify-historical-task-package .template-source/evidence/maintenance/digital-human-task-package-review-task.yaml",
+  ".template-source/scripts/verify-historical-task-package .template-source/evidence/maintenance/lifecycle-ticket-transition-review-task-package.yaml",
+  "scripts/verify-lifecycle-scenarios",
+  "scripts/verify-lifecycle-transition-scenarios",
+  "scripts/verify-maintenance-intensity-scenarios"
+].sort();
+
+const release = planTemplateVerification({ profile: "release", changedFiles: [] });
+assert.equal(release.effective_profile, "release");
+const releaseCommands = new Set(release.commands.map((entry) => entry.command));
+assert.deepEqual(releaseBaseline.filter((command) => !releaseCommands.has(command)), [], "release profile 必须保留旧发布门禁的全部行为命令");
+assert.ok(releaseCommands.has("node scripts/verify-template-verification-scenarios"), "release profile 必须验证三级核验路由本身");
+
+const docsOnly = planTemplateVerification({ profile: "fast", changedFiles: ["docs/plan/example.md"] });
+assert.equal(docsOnly.effective_profile, "fast");
+assert.ok(docsOnly.groups.includes("hygiene"));
+assert.ok(!docsOnly.groups.includes("skills"), "文档内循环不得运行无关 skill 投影检查");
+
+const strategicChange = planTemplateVerification({ profile: "fast", changedFiles: [".agents/skills/yss-strategic-design/SKILL.md"] });
+assert.ok(strategicChange.groups.includes("skills"));
+assert.ok(strategicChange.groups.includes("strategic-design"), "战略设计 skill 变化必须运行入口与生命周期专属场景");
+
+const candidate = planTemplateVerification({ profile: "candidate", changedFiles: [".template-spec/process/harness-process-tailoring.md"] });
+assert.equal(candidate.effective_profile, "candidate");
+assert.ok(candidate.groups.includes("maintenance"));
+assert.ok(candidate.groups.includes("candidate-integrity"));
+
+const distributionChange = planTemplateVerification({ profile: "fast", changedFiles: ["scripts/verify-instance-distribution"] });
+assert.ok(distributionChange.groups.includes("workspace-fixtures"), "实例分发检查必须与共享 fixture 场景串行");
+
+const unknown = planTemplateVerification({ profile: "candidate", changedFiles: ["new-unmapped-root/file.txt"] });
+assert.equal(unknown.effective_profile, "release");
+assert.match(unknown.escalation_reason, /未映射/);
+
+const core = planTemplateVerification({ profile: "fast", changedFiles: ["scripts/lib/template-verification.mjs"] });
+assert.equal(core.effective_profile, "release");
+assert.match(core.escalation_reason, /核心核验/);
+assert.equal(core.source_requirement, "current", "fast 全量升级仍消费工作树");
+assert.ok(core.commands.every(entry => !entry.command.includes("--require-committed")), "fast 升级不得要求未授权 Git 提交");
+for (const plan of [candidate, unknown, release]) {
+  assert.equal(plan.source_requirement, "committed");
+  assert.ok(plan.commands.some(entry => entry.command === "scripts/verify-strategic-handoff-tools-lock --require-committed"), "显式 candidate/release 保留已提交来源门禁");
+}
+
+const entryRule = planTemplateVerification({ profile: "candidate", changedFiles: ["AGENTS.md"] });
+assert.equal(entryRule.effective_profile, "release", "Agent 入口规则变化必须 fail-safe 到完整门禁");
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+const archivePrefix = ".template-source/evidence/maintenance/";
+const historicalRefs = ["digital-human-task-package-review-task.yaml", "lifecycle-ticket-transition-review-task-package.yaml"].map((name) => archivePrefix + name);
+for (const ref of historicalRefs) {
+  const bytes = readFileSync(path.join(root, ref));
+  const result = spawnSync(process.execPath, [path.join(root, ".template-source/scripts/verify-historical-task-package"), ref], { cwd: root, encoding: "utf8" });
+  assert.equal(result.status, 0, result.stderr);
+  const receipt = JSON.parse(result.stdout);
+  assert.equal(receipt.status, "historical-only");
+  assert.equal(receipt.execution_authorization, "not-evaluated");
+  assert.equal(receipt.archive_digest, `sha256:${createHash("sha256").update(bytes).digest("hex")}`);
+  assert.deepEqual(readFileSync(path.join(root, ref)), bytes, "历史结构检查必须保留原始字节");
+  const current = spawnSync(process.execPath, [path.join(root, "scripts/verify-digital-human-task-package"), ref], { cwd: root, encoding: "utf8" });
+  assert.equal(current.status, 1, "历史包不得取得当前执行资格");
+  assert.match(current.stderr, /registry_ref|digital-human-roles/);
+}
+
+// 反例仅写入仓外合成归档，不修改任何历史记录。
+const archiveFixtureRoot = mkdtempSync(path.join(tmpdir(), "historical-task-structure-"));
+try {
+  mkdirSync(path.join(archiveFixtureRoot, archivePrefix), { recursive: true });
+  const fixtureRef = `${archivePrefix}synthetic-task.json`;
+  const original = parseDocument(readFileSync(path.join(root, historicalRefs[0]), "utf8")).toJS();
+  const write = (value) => writeFileSync(path.join(archiveFixtureRoot, fixtureRef), JSON.stringify(value));
+  write(original);
+  assert.equal(validateHistoricalTaskPackage(fixtureRef, { root: archiveFixtureRoot }).status, "historical-only");
+  for (const field of ["objective", "inputs", "convergence", "review_context"]) {
+    const missing = structuredClone(original);
+    delete missing[field];
+    write(missing);
+    assert.throws(() => validateHistoricalTaskPackage(fixtureRef, { root: archiveFixtureRoot }), /历史 v1 结构无效/, `历史结构缺 ${field} 须拒绝`);
+  }
+  for (const patch of [ { schema_version: 2 }, { contract: { ...original.contract, kind: "lifecycle-work-unit" } }, { skill_source: { ...original.skill_source, registry_ref: ".template-spec/agents/digital-human-roles.yaml" } } ]) {
+    write({ ...original, ...patch });
+    assert.throws(() => validateHistoricalTaskPackage(fixtureRef, { root: archiveFixtureRoot }), /仅接受 schema_version=1/, "非历史合同须拒绝");
+  }
+  write(original);
+  assert.throws(() => validateHistoricalTaskPackage(`${archivePrefix}../../../outside.json`, { root: archiveFixtureRoot }), /路径不得越界/);
+  assert.throws(() => validateHistoricalTaskPackage(path.join(archiveFixtureRoot, fixtureRef), { root: archiveFixtureRoot }), /路径不得越界/);
+  const outside = path.join(archiveFixtureRoot, "outside.json");
+  writeFileSync(outside, JSON.stringify(original));
+  const linkRef = `${archivePrefix}outside-link.json`;
+  symlinkSync(outside, path.join(archiveFixtureRoot, linkRef));
+  assert.throws(() => validateHistoricalTaskPackage(linkRef, { root: archiveFixtureRoot }), /真实维护归档目录|路径不得越界/);
+} finally {
+  rmSync(archiveFixtureRoot, { recursive: true, force: true });
+}
+
+process.stdout.write("战略设计模板三级核验路由场景验证通过\n");

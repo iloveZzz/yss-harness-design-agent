@@ -8,17 +8,17 @@
 
 | 资产 | 路径 | 状态 |
 |---|---|---|
-| API 影响记录 / 契约草案 | issue note / design note / `docs/.scratch/<feature>/api/<feature>.yaml` |  |
-| OpenAPI Draft | `docs/.scratch/<feature>/api/<feature>.yaml` |  |
+| API 影响记录 / 契约草案 | issue note / design note / `.work/<feature>/api/<feature>.yaml` |  |
+| OpenAPI Draft | `.work/<feature>/api/<feature>.yaml` |  |
 | Spec / 需求冻结 |  |  |
 | 产品总体设计 / 功能架构 |  |  |
-| 交互说明 / 页面清单 | `docs/.scratch/<feature>/design/<feature>-interaction-spec.md` |  |
+| 交互说明 / 页面清单 | `.work/<feature>/design/<feature>-interaction-spec.md` |  |
 | 原型 / 线框图 |  |  |
-| 状态矩阵 | `docs/.scratch/<feature>/design/<feature>-state-matrix.md` |  |
-| 原型评审结论 | `docs/.scratch/<feature>/design/<feature>-prototype-review.md` |  |
-| H1/H2 原型交付物 | `docs/.scratch/<feature>/design/prototypes/index.html` | 有产品设计影响时按档位必需；H1/H2 默认离线 HTML；独立视觉稿按需使用 Product Design，复杂控件按需使用 AntD 预构建 |
-| AntD CLI 校验证据 | `docs/.scratch/<feature>/design/<feature>-prototype-confirmation.md` 或评审记录 | 有 UI 时必需；记录 design.md / info / demo / token / semantic 查询 |
-| 用户确认记录 | `docs/.scratch/<feature>/design/<feature>-prototype-confirmation.md` | 有 UI 时必需；未确认前不得进入 OpenAPI Draft 评审 |
+| 状态矩阵 | `.work/<feature>/design/<feature>-state-matrix.md` |  |
+| 原型评审结论 | `.work/<feature>/design/<feature>-prototype-review.md` |  |
+| H1/H2 原型交付物 | `.work/<feature>/design/prototypes/index.html` | 有产品设计影响时按档位必需；H1/H2 默认离线 HTML；独立视觉稿按需使用 Product Design，复杂控件按需使用 AntD 预构建 |
+| AntD CLI 校验证据 | `.work/<feature>/design/<feature>-prototype-confirmation.md` 或评审记录 | 有 UI 时必需；记录 design.md / info / demo / token / semantic 查询 |
+| 用户确认记录 | `.work/<feature>/design/<feature>-prototype-confirmation.md` | 有 UI 时必需；未确认前不得进入 OpenAPI Draft 评审 |
 | YSS 工程基线 | `.agents/skills/yss-ddd-scaffold-generator/references/engineering-baseline.md` |  |
 | YSS DTO wire profile | `.agents/skills/yss-dto/references/openapi-wire-profile.yaml`；`scripts/verify-yss-dto-openapi-profile` |  |
 

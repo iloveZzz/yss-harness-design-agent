@@ -3,7 +3,7 @@ export default {
   "schema_version": 1,
   "kind": "test-only-canonical-source",
   "source_repository": "yss-spec-project-template",
-  "source_head": "6e308e670e942064d1142a4a3c02f6628d34eb61",
+  "source_head": "3c2b2b2fd4ff675b320a385bf3309bd1b913862c",
   "source_state": "working-tree",
   "files": [
     {
@@ -17,14 +17,14 @@ export default {
       "path": ".agents/skills/yss-api-integration/SKILL.md",
       "source_path": ".agents/skills/yss-api-integration/SKILL.md",
       "storage_path": ".agents/skills/yss-api-integration/SKILL.md",
-      "sha256": "1a3a670efce80775aa5341415f565f57b0c08eae1515ba81312a555fa100fdb2",
+      "sha256": "59ecdc875e24a58a79324a6994a54f104a456f958a665630b6d1a3d3b61d8c59",
       "mode": 420
     },
     {
       "path": ".agents/skills/yss-ddd-scaffold-generator/SKILL.md",
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/SKILL.md",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/SKILL.md",
-      "sha256": "1d5a78a7f3cbb0653af7d412ba6039898f85f64c3c3a1ef53d7a56fa669948ef",
+      "sha256": "aa7fec2b0c941314901df23da2167dcbc96e7b364251039d98c8b24e3968cc63",
       "mode": 420
     },
     {
@@ -325,21 +325,21 @@ export default {
       "path": ".agents/skills/yss-openapi-draft-review/SKILL.md",
       "source_path": ".agents/skills/yss-openapi-draft-review/SKILL.md",
       "storage_path": ".agents/skills/yss-openapi-draft-review/SKILL.md",
-      "sha256": "00f0565f1a7582ba6766bb284ee483a9206f68d7651cdf04961c81b44f36d494",
+      "sha256": "8d1d772f447c5071752c75231b7785f486b0094f724ad1c3398533c0c0c09dc0",
       "mode": 420
     },
     {
       "path": ".agents/skills/yss-openapi-governance/SKILL.md",
       "source_path": ".agents/skills/yss-openapi-governance/SKILL.md",
       "storage_path": ".agents/skills/yss-openapi-governance/SKILL.md",
-      "sha256": "924484f47319eddf6d6cfc49d21590aa2c445d4452d9988f1792d228caf32eae",
+      "sha256": "57231a9e52800d21c9f8fb875488ef2b18f1f53baf388b2c6b94e9b2fb8160f6",
       "mode": 420
     },
     {
       "path": ".agents/skills/yss-product-lifecycle/references/orchestration-contract.yaml",
       "source_path": ".agents/skills/yss-product-lifecycle/references/orchestration-contract.yaml",
       "storage_path": ".agents/skills/yss-product-lifecycle/references/orchestration-contract.yaml",
-      "sha256": "94955147800f524d4dd5dea0857447a2f7a3a7fe8e00e2fa9653d235f3c467d2",
+      "sha256": "5d59f7d334d9c9c86c9d2557cacddb16029b12c31ef8cf0e48b81532125a299d",
       "mode": 420
     },
     {
@@ -1382,7 +1382,7 @@ export default {
       "path": ".template-spec/agents/issue-tracker.md",
       "source_path": ".template-spec/agents/issue-tracker.md",
       "storage_path": ".template-spec/agents/issue-tracker.md",
-      "sha256": "ebc16a34da99f8cc6f4e072600ab14c313aece6ae18d427e2809148c28a59417",
+      "sha256": "f50435051485606cff15b191ad15810209adce1692dd87d533088850fcedfb54",
       "mode": 420
     },
     {
@@ -1571,7 +1571,7 @@ export default {
       "path": ".template-spec/process/schemas/openapi-draft-validation-record.schema.json",
       "source_path": ".template-spec/process/schemas/openapi-draft-validation-record.schema.json",
       "storage_path": ".template-spec/process/schemas/openapi-draft-validation-record.schema.json",
-      "sha256": "63fccc988e92d2ef55b44b63c8995fbfc5a3ca5a7a0709afb8d4497f9fcacd45",
+      "sha256": "aa21dbcba56a6062f6331e2b12077f26eaec4885fbd71470fe5e008ebc5fe72f",
       "mode": 420
     },
     {
@@ -1599,7 +1599,7 @@ export default {
       "path": ".template-spec/process/schemas/reading-policy.schema.json",
       "source_path": ".template-spec/process/schemas/reading-policy.schema.json",
       "storage_path": ".template-spec/process/schemas/reading-policy.schema.json",
-      "sha256": "760bdfab9cb1c0993f5f1675da66b5ffa943b9f88d9c04589c109638cbbc5d3f",
+      "sha256": "a13e193d27d2d1bd5ef5dff7ce14cac4e5ca788999db4f73773df6728ff06f1e",
       "mode": 420
     },
     {
@@ -1802,7 +1802,7 @@ export default {
       "path": "scripts/lib/approval-checkpoint-discovery.mjs",
       "source_path": "scripts/lib/approval-checkpoint-discovery.mjs",
       "storage_path": "scripts/lib/approval-checkpoint-discovery.mjs",
-      "sha256": "6f16b289bd3ac9f79ec5f6683cd86463579000ed91895aa69fa658749a022717",
+      "sha256": "5f2ea262172d9e0a95275354c02d24a6eea5dfb93995eaf563946f48da73959f",
       "mode": 420
     },
     {
@@ -1844,7 +1844,7 @@ export default {
       "path": "scripts/lib/asset-transactions.mjs",
       "source_path": "scripts/lib/asset-transactions.mjs",
       "storage_path": "scripts/lib/asset-transactions.mjs",
-      "sha256": "a3557291f672547630594f1de7ce75ce64bc2e3760eb6533e7c3a58ea6731439",
+      "sha256": "ace364ebe7cba42d14fa11cf532122797bdeca5e6f263f302ddd464de9e16161",
       "mode": 420
     },
     {
@@ -2047,7 +2047,7 @@ export default {
       "path": "scripts/lib/instance-metadata.mjs",
       "source_path": "scripts/lib/instance-metadata.mjs",
       "storage_path": "scripts/lib/instance-metadata.mjs",
-      "sha256": "c7950b46b3065c5084f13b50fc085c7328029ed2011502045eeaf0b1e7388ddb",
+      "sha256": "f7a505cd3c983cd786bbd0238abefcfbfe3c96088394486640d94b195586f023",
       "mode": 420
     },
     {
@@ -2089,7 +2089,7 @@ export default {
       "path": "scripts/lib/lifecycle-transition.mjs",
       "source_path": "scripts/lib/lifecycle-transition.mjs",
       "storage_path": "scripts/lib/lifecycle-transition.mjs",
-      "sha256": "5fbe39a0644d1a8336f9233fbbc9cd08dee9f376420c628a9035b1231da1ef12",
+      "sha256": "db4a4f1428085b6fa59836ab7b54f4f8261a5adb5595770963dd6b1360cf0e7d",
       "mode": 420
     },
     {
@@ -2117,7 +2117,7 @@ export default {
       "path": "scripts/lib/openapi-draft-validation.mjs",
       "source_path": "scripts/lib/openapi-draft-validation.mjs",
       "storage_path": "scripts/lib/openapi-draft-validation.mjs",
-      "sha256": "d37ca46115227b8f32fdf8a394086094aac602fbdd77815762a63ad0d39c9bba",
+      "sha256": "384a9152aa8c64b16902d5f09dfbedc397c51b566027fb3cfe627660d239fb28",
       "mode": 420
     },
     {
@@ -2152,7 +2152,7 @@ export default {
       "path": "scripts/lib/reading-view-bundle.mjs",
       "source_path": "scripts/lib/reading-view-bundle.mjs",
       "storage_path": "scripts/lib/reading-view-bundle.mjs",
-      "sha256": "2aab86301d37ffb95fbbc1136bf8989411b0f594aa8246ea3df0552d952b4772",
+      "sha256": "b86e75f9ed04e51822878041b0395cdf6334e56e4305e8c6e1d9ffced207bb80",
       "mode": 420
     },
     {
@@ -2180,7 +2180,7 @@ export default {
       "path": "scripts/lib/reading-view-policy.mjs",
       "source_path": "scripts/lib/reading-view-policy.mjs",
       "storage_path": "scripts/lib/reading-view-policy.mjs",
-      "sha256": "5ee427b8efb3c1011438d90558626baa14fcc656c71704285481843746d62404",
+      "sha256": "d045fe4acf540a00cb3fd44717edcfc597a9811d2087cc5ce275219f1edf8f49",
       "mode": 420
     },
     {
@@ -2208,7 +2208,7 @@ export default {
       "path": "scripts/lib/runtime-store.mjs",
       "source_path": "scripts/lib/runtime-store.mjs",
       "storage_path": "scripts/lib/runtime-store.mjs",
-      "sha256": "894065fb91ac05501796e8948b4015f0230deef4a72700e96c2890266310ac41",
+      "sha256": "ff4c078bde10b3e9bbd874246d7fd513d98330e212bc9d50979d241cd2a1bb4b",
       "mode": 420
     },
     {
@@ -2278,7 +2278,7 @@ export default {
       "path": "scripts/lib/stage-tracking.mjs",
       "source_path": "scripts/lib/stage-tracking.mjs",
       "storage_path": "scripts/lib/stage-tracking.mjs",
-      "sha256": "41b8472635ccb4728162cd776f7b45b0b2a573e3239ecab9f76be0cc1f6a1cb9",
+      "sha256": "006f2b42bf10e3037993458d6b58ad2f50868d0f79d2338ce0e4bb70269f6a8a",
       "mode": 420
     },
     {
@@ -2377,6 +2377,13 @@ export default {
       "source_path": "scripts/lib/validation-phase.mjs",
       "storage_path": "scripts/lib/validation-phase.mjs",
       "sha256": "5a08dc611ef1ad75786c26010ebc1cb25e34c51b0d1a41db17101ffb52daf425",
+      "mode": 420
+    },
+    {
+      "path": "scripts/lib/work-layout.mjs",
+      "source_path": "scripts/lib/work-layout.mjs",
+      "storage_path": "scripts/lib/work-layout.mjs",
+      "sha256": "6fce6516ceb49c30919aa4b64b308cf3745cef97eb305f9252e585e8c0d06d62",
       "mode": 420
     },
     {

@@ -92,7 +92,7 @@ Matt flow 的通用提交指令不构成 YSS Git 授权。执行 commit 必须�
 
 该检查每个任务只执行一次并缓存；只有 tracker、主远端、真实标签或配置变化时重查。
 
-证据必须覆盖实际 platform、五态 `label_check` 或 Local `Status:` 检查、`domain_layout`、`artifact_root` 和 `migration_ref`。已持久化 tracker 配置优先于主远端；配置之间或真实标签/Local 状态之间冲突时不覆盖。Local 主 tracker 使用 `docs/.scratch/<feature>/` 完整功能包，不要求远程 Ticket；根 `.scratch/` 与 `docs/requirements/tickets/` 只可作为旧路径迁移来源。仅发现旧路径资产时返回迁移所需结果并暂停写入；新旧路径同时存在时返回 `conflict`。已选择的 GitHub/GitLab 暂不可用时才保留“待发布平台”草案，并在 map.md 保留目标平台、`publication: pending` 和 `pending_publication_to`。`template-source` 只执行 validate-only，不初始化具体产品 tracker。
+证据必须覆盖实际 platform、五态 `label_check` 或 Local `Status:` 检查、`domain_layout`、`artifact_root` 和 `migration_ref`。已持久化 tracker 配置优先于主远端；配置之间或真实标签/Local 状态之间冲突时不覆盖。Local 主 tracker 使用 `.work/<feature>/` 完整功能包，不要求远程 Ticket；根 `.scratch/` 与 `docs/requirements/tickets/` 只可作为旧路径迁移来源。仅发现旧路径资产时返回迁移所需结果并暂停写入；新旧路径同时存在时返回 `conflict`。已选择的 GitHub/GitLab 暂不可用时才保留“待发布平台”草案，并在 map.md 保留目标平台、`publication: pending` 和 `pending_publication_to`。`template-source` 只执行 validate-only，不初始化具体产品 tracker。
 
 当 YSS 生命周期处于 active 状态时，Matt `to-spec` 中独立运行时的 `ready-for-agent` 发布提示由本适配层覆盖为 `ready-for-human`。本 profile 永不提升为 `ready-for-agent`；是否创建可实现切片由下游研发 profile 重新裁决。这只约束 YSS 编排下的状态写入，不修改 Matt skill 单独运行时的核心行为。
 
@@ -104,13 +104,13 @@ Matt flow 的通用提交指令不构成 YSS Git 授权。执行 commit 必须�
 
 | Matt 产物 | Local 载体 |
 |---|---|
-| Plan | `docs/.scratch/<feature>/plan/` |
-| Spec | `docs/.scratch/<feature>/spec.md` |
-| Wayfinder map | `docs/.scratch/<feature>/map.md` |
-| 产品设计与原型 | `docs/.scratch/<feature>/design/` |
-| 业务级 Ticket | `docs/.scratch/<feature>/issues/NN-<slug>.md` |
-| Strategic Design Handoff | `docs/.scratch/<feature>/strategic-design-handoff.yaml` |
-| 门禁 / 验证 / checkpoint | `docs/.scratch/<feature>/gates/`、`verification/` |
+| Plan | `.work/<feature>/plan/` |
+| Spec | `.work/<feature>/spec.md` |
+| Wayfinder map | `.work/<feature>/map.md` |
+| 产品设计与原型 | `.work/<feature>/design/` |
+| 业务级 Ticket | `.work/<feature>/issues/NN-<slug>.md` |
+| Strategic Design Handoff | `.work/<feature>/strategic-design-handoff.yaml` |
+| 门禁 / 验证 / checkpoint | `.work/<feature>/gates/`、`verification/` |
 
 Local Ticket 的文件路径是稳定身份，顶部 `Status:` 保存 Matt 五态；远程 URL 只作为显式镜像引用。本 profile 的业务 Ticket 固定停在 `ready-for-human`。
 

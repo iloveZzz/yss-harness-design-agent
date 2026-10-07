@@ -15,7 +15,7 @@ gates:
     status: <not-evaluated|blocked|ready-for-human|approved|stale|not-applicable>
     reason: <why this status applies>
     evidence_refs: []
-    approval_ref: <docs/.scratch/<feature>/gates/<gate-id>-approval.yaml when approved countersign gate>
+    approval_ref: <.work/<feature>/gates/<gate-id>-approval.yaml when approved countersign gate>
 phase_boundary:
   decision: <continue|clear|handoff|subagent|compact>
   reason: <decision evidence>

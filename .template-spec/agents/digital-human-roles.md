@@ -45,7 +45,7 @@
 
 Plan 的领域战略与阶段决策检查由产品经理在一个 `review-bundle.plan` 任务中逐项给出结论。bundle 只包含实际命中的 check；`gate.plan-approved` 使用独立批准记录，并通过同一个 `review_session_id` 复用本次审查。没有领域或阶段决策影响时不生成空 bundle。旧独立批准记录继续可读，不因协议升级失效。
 
-会签写入 `docs/.scratch/<feature>/gates/<gate-id>-approval.yaml`，形状见 `.template-spec/templates/approval-record-template.yaml`。恢复前运行 `scripts/verify-approval-record`。错误会签只能得到 `blocked`，不能把门禁标成 `approved`。Checkpoint 里会签桶门禁为 `approved` 时必须有可读 `approval_ref`。
+会签写入 `.work/<feature>/gates/<gate-id>-approval.yaml`，形状见 `.template-spec/templates/approval-record-template.yaml`。恢复前运行 `scripts/verify-approval-record`。错误会签只能得到 `blocked`，不能把门禁标成 `approved`。Checkpoint 里会签桶门禁为 `approved` 时必须有可读 `approval_ref`。
 
 `paused-human-gate` 表示等待上述指定会签人，不是「必须是生物人」。
 

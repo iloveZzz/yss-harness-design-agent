@@ -207,7 +207,7 @@ task_package:
   compatibility_schema_ref: .template-spec/process/schemas/subagent-task-package.schema.json
   validator: scripts/verify-digital-human-task-package
   compatibility_validator: scripts/verify-digital-human-task-package
-  persistence_layout: docs/.scratch/<feature>/task-packages/<task-id>.yaml
+  persistence_layout: .work/<feature>/task-packages/<task-id>.yaml
   required:
     [
       schema_version,
@@ -793,7 +793,7 @@ tracker:
   remote_origin_role: code_host_only
   no_automatic_cross_platform_switch: true
   local_markdown:
-    root: docs/.scratch
+    root: .work
     legacy_roots: [ .scratch, docs/requirements/tickets ]
     feature_layout:
       [
@@ -811,7 +811,7 @@ tracker:
   remote_platforms:
     primary_sync: remote
     remote_ticket_required: true
-    unavailable_fallback_root: docs/.scratch
+    unavailable_fallback_root: .work
     unavailable_fallback_marker: pending-publication
     unavailable_fallback_record: map.md
     unavailable_fallback_fields: [ tracker, publication, pending_publication_to ]

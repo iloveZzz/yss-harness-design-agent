@@ -31,7 +31,7 @@ node .agents/skills/yss-prototype-stage/scripts/prototype-comparison.mjs validat
 node .agents/skills/yss-prototype-stage/scripts/prototype-comparison.mjs seal --root <未批准的v2比较包>
 ```
 
-输出固定为 `docs/.scratch/<feature>/design/comparisons/<comparison-id>/`。prepare 检查 ID 存在、各候选共同数据及派生脚本一致、Token 和资源完整；非空目录拒绝覆盖，失败删除临时包。manifest v2 只保存来源、入口、场景与摘要，不保存批准。
+输出固定为 `.work/<feature>/design/comparisons/<comparison-id>/`。prepare 检查 ID 存在、各候选共同数据及派生脚本一致、Token 和资源完整；非空目录拒绝覆盖，失败删除临时包。manifest v2 只保存来源、入口、场景与摘要，不保存批准。
 
 ## 初始化与实际评审
 

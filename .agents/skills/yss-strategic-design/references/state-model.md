@@ -54,7 +54,7 @@ Git 动作分别保存 `commit_authorized`、`commit_scope`、`commit_authorizat
 
 ## 状态块
 
-checkpoint 是唯一机器状态事实源，使用 `.template-spec/process/templates/lifecycle-checkpoint-template.yaml` 的 schema v1 形状。`docs/.scratch/<feature>/map.md` 仅展示状态并引用 `gates/lifecycle-checkpoint.yaml`；业务 Ticket 独立存放。远程 tracker 也保留本地 checkpoint，不建立第二份状态权威。
+checkpoint 是唯一机器状态事实源，使用 `.template-spec/process/templates/lifecycle-checkpoint-template.yaml` 的 schema v1 形状。`.work/<feature>/map.md` 仅展示状态并引用 `gates/lifecycle-checkpoint.yaml`；业务 Ticket 独立存放。远程 tracker 也保留本地 checkpoint，不建立第二份状态权威。
 
 ```yaml
 lifecycle:
@@ -73,7 +73,7 @@ gates:
   prototype_verified: {status: stale}
 tracker:
   kind: local-markdown
-  root: docs/.scratch
+  root: .work
   refs: [docs/.scratch/example/map.md]
   role: ready-for-human
 pause:
@@ -90,7 +90,7 @@ pause:
 - 版本缺失、解析失败或版本不在支持列表时，必须暂停并进入迁移检查；不得按 v1 猜测、覆盖或降级写回。
 - checkpoint 优先，map.md 只作派生导航；旧 `ticket_sync.parent_ticket` 仅作历史引用。新旧索引必须明确指向同一 checkpoint；不可读、越界、循环或指向冲突即阻断，不静默合并、不自动产生批准。
 - 不得用旧版本状态覆盖较新版本。迁移记录至少包含来源版本、目标版本、来源载体、冲突、真实资产证据、迁移人和时间。
-- 活动 `docs/.scratch/<feature>/` 出现旧战略 gate 时返回 `STRATEGIC_GATE_MIGRATION_REQUIRED`。先用 `scripts/migrate-strategic-gates --plan` 生成零写入计划，再用 `--apply` 消费同一计划；冻结的 `docs/deliveries/**` 不改写，旧批准只标记为 `historical-only`。
+- 活动 `.work/<feature>/` 出现旧战略 gate 时返回 `STRATEGIC_GATE_MIGRATION_REQUIRED`。先用 `scripts/migrate-strategic-gates --plan` 生成零写入计划，再用 `--apply` 消费同一计划；冻结的 `docs/deliveries/**` 不改写，旧批准只标记为 `historical-only`。
 
 ## Resume
 

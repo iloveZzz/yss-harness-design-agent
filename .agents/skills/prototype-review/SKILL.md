@@ -16,10 +16,10 @@ Run this independent gate only when UI changes affect a primary user flow, navig
 ## Required Inputs
 
 - Spec baseline or confirmed user stories.
-- `docs/.scratch/<feature>/design/<feature>-interaction-spec.md` or prototype link.
+- `.work/<feature>/design/<feature>-interaction-spec.md` or prototype link.
 - State matrix, preferably based on `.template-spec/design/templates/state-matrix-template.md`.
 - Existing OpenAPI Draft only if the review is checking alignment; do not require OpenAPI before product design.
-- `docs/.scratch/<feature>/verification/prototype-evidence.yaml` may be created as a pending Prototype Evidence schema v4 record, but档位构建、Visual Baseline schema v1 与浏览器验证属于后续 `check.prototype-verified`。
+- `.work/<feature>/verification/prototype-evidence.yaml` may be created as a pending Prototype Evidence schema v4 record, but档位构建、Visual Baseline schema v1 与浏览器验证属于后续 `check.prototype-verified`。
 
 ## Review Gates
 

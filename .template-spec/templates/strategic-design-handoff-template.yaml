@@ -10,31 +10,31 @@ source:
     version: v1
     digest: <domain-strategy-digest>
     status: approved
-    persisted_ref: docs/.scratch/<feature>/domain/domain-strategy.yaml
+    persisted_ref: .work/<feature>/domain/domain-strategy.yaml
   stage_decision_package_ref:
     id: stage-decision.<feature>
     version: v1
     digest: <stage-decision-digest>
     status: approved
-    persisted_ref: docs/.scratch/<feature>/decisions/stage-decision-package.yaml
+    persisted_ref: .work/<feature>/decisions/stage-decision-package.yaml
   spec_ref:
     id: spec.<feature>
     version: v1
     digest: <spec-digest>
     status: approved
-    persisted_ref: docs/.scratch/<feature>/requirements/spec.md
+    persisted_ref: .work/<feature>/requirements/spec.md
   prototype_ref:
     id: prototype.<feature>
     version: v1
     digest: <prototype-digest>
     status: approved
-    persisted_ref: docs/.scratch/<feature>/design/prototype.html
+    persisted_ref: .work/<feature>/design/prototype.html
   visual_baseline_ref:
     baseline_id: visual-baseline.<feature>
     version: v1
     digest: <visual-baseline-digest>
     status: approved
-    persisted_ref: docs/.scratch/<feature>/handoff/visual-baseline-v1
+    persisted_ref: .work/<feature>/handoff/visual-baseline-v1
     manifest_ref: visual-baseline.yaml
     case_ids: [primary-desktop, primary-narrow]
   business_ticket_set_ref:
@@ -42,7 +42,7 @@ source:
     version: v1
     digest: <business-ticket-set-digest>
     status: approved
-    persisted_ref: docs/.scratch/<feature>/business-ticket-set.yaml
+    persisted_ref: .work/<feature>/business-ticket-set.yaml
 
 source_context_snapshot:
   context_ref: CONTEXT.md

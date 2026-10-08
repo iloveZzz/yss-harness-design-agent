@@ -1,3 +1,5 @@
+<!-- Generated from .template-spec/process/harness-upgrade.md by .template-source/scripts/sync-harness-upgrade.mjs; edit the source protocol. -->
+
 # YSS 安装、初始化与升级维护协议
 
 本协议定义 YSS Go CLI 安装与升级、四 Profile 治理工程新建与接管、同家族实例同步、旧四 CLI 显式迁移、资源补装及事务恢复回退。`setup-yss-harness` 负责分流、来源核验、冲突处置和授权范围；执行器负责保存计划、输入校验、受管基线和事务。历史批准及 Ticket 状态仍由各自权威协议管理。

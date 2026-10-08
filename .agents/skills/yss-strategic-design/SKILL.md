@@ -115,3 +115,6 @@ Plan → Spec（含正式草稿、恢复与显式 `to-spec`）写入前，按 `.
 
 <!-- PLAN_REVIEW_CONTROL -->
 Plan 专业审查按当前主控合同 `planning.review_control` 和 checkpoint `plan_review_control` 执行；准备、派发、消费和恢复均核验原周期及本轮检查范围。聚合复用内部结论，诊断不默认请求用户；关键决定与最终 Plan 批准展示当前资产后取得同一次真实回复。工具与受控历史接入见 `.template-spec/plan/entry-review.md`。
+
+<!-- PROFILE_GUIDANCE -->
+当前职责完成、状态查询或恢复时，消费合同 `profile_guidance` 与 `yss lifecycle status --root <当前工程> --checkpoint <当前checkpoint>` 给出下游 Profile 建议；不按邻近目录猜初始化状态。Spec 默认继续当前职责；没有当前战略交接时，可经用户明确选择交给独立 Design。Spec 或 Design 已形成经核验的当前战略交接后，按消费者路由建议 Backend、Frontend 或同时准备，两者仍在独立目录执行；设计完成声明不能替代交接及来源批准，显式交接失效时先解除阻断。目标 Design 接入已批准 Spec 走 `spec-baseline` 冻结包与 Receipt、目标 Context 对账后从设计继续，不重走 Plan，不复制源 checkpoint 批准到目标；目标 Backend / Frontend 使用战略接收记录及各自消费合同。建议不改变当前工作单元、不授予批准或执行，下游推荐不扩展本 Profile 的实现写范围。

@@ -15,7 +15,7 @@ audience:
     - role.lifecycle-orchestrator
   non_target_role_policy: >-
     本分支仅注册产品、需求和商务三个业务角色；项目管理、前后端工程、测试和发布等
-    角色不在当前 profile 中注册，也不由当前 Harness 推荐或派发。主分支与下游研发
+    角色不在当前 profile 中注册或派发；完成当前职责后可建议接入对应下游 Profile。主分支与下游研发
     模板可继续保留完整角色能力，由业务方案交接后接管。
   boundary: >-
     当前 Harness 只负责业务边界与规则设计、Spec、页面原型、业务级 Ticket 和业务方案交接包，
@@ -55,6 +55,17 @@ lifecycle:
     - artifact.vertical-slice-ticket
     - artifact.slice-implementation-contract
     - artifact.tactical-design
+
+spec_baseline_intake:
+  schema_version: 1
+  source_profile_id: harness.spec-template
+  source_approval_policy: frozen-source-policy-and-current-plan-spec-proof
+  receipt_schema: .template-spec/process/schemas/spec-baseline-import-receipt.schema.json
+  checkpoint_binding: upstream_spec_baseline
+  acceptance: target-context-reconciliation-and-receipt-byte-binding
+  entry_route: registered-product-design-or-business-ticket-formalization
+  source_checkpoint: immutable-package-proof-only
+  local_plan_spec_gates: not-promoted-from-source
 
 handoff:
   package_template: .template-spec/templates/strategic-design-handoff-template.yaml

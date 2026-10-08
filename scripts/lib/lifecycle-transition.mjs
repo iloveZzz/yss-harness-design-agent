@@ -6,6 +6,7 @@ import { assertTrackingTransition } from './stage-tracking.mjs';
 import { existsSync, readFileSync } from "node:fs";
 import { parseDocument } from "../vendor/yaml.mjs";
 import { assertStrategicWorkUnitDecision } from './approval-record.mjs';
+import {verifySpecBaselineBinding} from './spec-baseline.mjs';
 import { validatePlanSpecEntry } from './plan-spec-entry.mjs';
 
 const IMPLEMENTATION_WORK_UNIT = "work-unit.slice-implementation";
@@ -143,7 +144,11 @@ export function validateNextRoute(currentWorkUnit, nextRoute, state = {}, option
   catch (error) { return blockedResult(['stage-tracking-blocked'], [error.message]); }
   const profileId = state.profileId || state.profile_id || ((state.repository_mode === 'project-instance' || state.workflow_reference?.source === 'yss-strategic-design') ? STRATEGIC_PROFILE_ID : null);
 
-  const routes = profileId === STRATEGIC_PROFILE_ID ? PROFILE_NEXT_ROUTES[profileId][currentWorkUnit] : NEXT_ROUTES[currentWorkUnit];
+  let routes = profileId === STRATEGIC_PROFILE_ID ? PROFILE_NEXT_ROUTES[profileId][currentWorkUnit] : NEXT_ROUTES[currentWorkUnit];
+  if(state.upstream_spec_baseline) {
+    try {const imported=verifySpecBaselineBinding(state,{root:options.root || ROOT});if(currentWorkUnit==='work-unit.entry-triage')routes=[imported.next_work_unit];}
+    catch(error){return blockedResult(['spec-baseline-blocked'],[error.message]);}
+  }
   if (!routes) return blockedResult([BLOCKING_SIGNALS.invalidRoute], ["known_current_work_unit"]);
   if (profileId === STRATEGIC_PROFILE_ID && (routes.includes(nextRoute) || (nextRoute === null && !routes.length))) {
     try { assertStrategicWorkUnitDecision(currentWorkUnit,state,options); }

@@ -17,7 +17,7 @@ export default {
       "path": ".agents/skills/yss-api-integration/SKILL.md",
       "source_path": ".agents/skills/yss-api-integration/SKILL.md",
       "storage_path": ".agents/skills/yss-api-integration/SKILL.md",
-      "sha256": "59ecdc875e24a58a79324a6994a54f104a456f958a665630b6d1a3d3b61d8c59",
+      "sha256": "f1b84e0545d34a8bc70cfed0d2f0173b27e2dc1a0e5315b72caff203976d41d8",
       "mode": 420
     },
     {
@@ -304,7 +304,7 @@ export default {
       "path": ".agents/skills/yss-dto/SKILL.md",
       "source_path": ".agents/skills/yss-dto/SKILL.md",
       "storage_path": ".agents/skills/yss-dto/SKILL.md",
-      "sha256": "77a47ba132af5556cf91818789d0ac57d75724bb0b53aa104a77bd7a1c556568",
+      "sha256": "6879ea050a070267cd69c32c7da90910b373b3ca5ae941d9424b4b9b7d39773e",
       "mode": 420
     },
     {
@@ -360,14 +360,14 @@ export default {
       "path": ".agents/skills/yss-openapi-draft-review/SKILL.md",
       "source_path": ".agents/skills/yss-openapi-draft-review/SKILL.md",
       "storage_path": ".agents/skills/yss-openapi-draft-review/SKILL.md",
-      "sha256": "8d1d772f447c5071752c75231b7785f486b0094f724ad1c3398533c0c0c09dc0",
+      "sha256": "5077e171503dd4313c115e98a15d24ea0004a9802474efa1f7e643ea32c49b91",
       "mode": 420
     },
     {
       "path": ".agents/skills/yss-openapi-governance/SKILL.md",
       "source_path": ".agents/skills/yss-openapi-governance/SKILL.md",
       "storage_path": ".agents/skills/yss-openapi-governance/SKILL.md",
-      "sha256": "57231a9e52800d21c9f8fb875488ef2b18f1f53baf388b2c6b94e9b2fb8160f6",
+      "sha256": "7795a8b6a92b37b9a6a85ab6a526963a738aa5743eaa6dd059c57781cd7fa9aa",
       "mode": 420
     },
     {

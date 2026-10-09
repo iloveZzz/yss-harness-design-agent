@@ -2,7 +2,7 @@
   "schema_version": 1,
   "target_id": "yss-harness-design-agent",
   "source_repository": "yss-spec-project-template",
-  "source_revision": "51b4c46e7129fc9a66839994b80bcfc3e8858548",
+  "source_revision": "48fa43b9d58c412deb0ec96b04eab64cbbd9792f",
   "source_state": "committed",
   "transformation_set": [
     "design-query-runtime",
@@ -555,7 +555,7 @@
     "tests/scenarios/verify-existing-ui-baseline-scenarios.mjs": "sha256:7c4e88649da41a41cc6513f73057ebd3332194af7e0f47e7c26947a82b23f8c5",
     "tests/scenarios/verify-strategic-context-import-scenarios.mjs": "sha256:424ccdbb2e91e3619f800efe1aad463be0470716547f5d767215f944611e4b14",
     "tests/scenarios/verify-strategic-handoff-package-scenarios.mjs": "sha256:2674f132a7f3d41797b578ff7bd21c718c3d5b855095f8637716589918347d82",
-    ".agents/skills/yss-strategic-design/references/orchestration-contract.yaml": "sha256:446430ccbc8edfdbbe39d1582a5d0f56e5b725090bdcc284ecba2506e47ea83f",
+    ".agents/skills/yss-strategic-design/references/orchestration-contract.yaml": "sha256:414cc8be2ccff713ff671a527a9418e61c95ec6bbee3ec253515418e8bb4db37",
     ".template-spec/agents/yss-skill-registry.yaml": "sha256:4466a7fee20213c9b8cc79f6dc1f2cdc560fa0cd5635186c2794e735f8c64c56"
   }
 }

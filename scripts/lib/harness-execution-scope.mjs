@@ -44,6 +44,10 @@ export function enforceHarnessTaskScope(task,{root=ROOT}={}) {
   const profile=activeProfile(root);
   if (!profile) return;
   ensure(task.contract?.kind!=='template-maintenance','专职产品项目不得派发模板维护任务');
+  if(['role.requirements-manager','role.product-manager'].includes(task.role_id)) {
+    ensure(task.execution_state!=='Worker','业务分析角色不能执行生产实现');
+    ensure(['work-unit.plan-opportunity','work-unit.plan-requirements','work-unit.domain-strategy-design','work-unit.stage-decision','work-unit.spec-synthesis'].includes(task.work_unit_id),'业务分析角色仅限 Plan/Spec 起草与审查');
+  }
   const local=[...profile.audience.target_user_roles,...profile.audience.control_plane_roles];
   const crossReview=['Explorer','Reviewer'].includes(task.execution_state)&&task.allowed_write_paths.length===0;
   ensure(local.includes(task.role_id)||crossReview,'专职 Harness 不允许派发另一端的实现/起草任务');

@@ -1662,7 +1662,7 @@ export default {
       "path": ".template-spec/process/schemas/slice-implementation-contract-v3.schema.json",
       "source_path": ".template-spec/process/schemas/slice-implementation-contract-v3.schema.json",
       "storage_path": ".template-spec/process/schemas/slice-implementation-contract-v3.schema.json",
-      "sha256": "5d273c7a1de03b7a2f8bee1706e5abed93e647590919c38fd82ecbc24797c9df",
+      "sha256": "a6a3e6666fd3483edd95c7e5382a526cf64ee05461e444510ac1146f4fc14807",
       "mode": 420
     },
     {
@@ -2075,7 +2075,7 @@ export default {
       "path": "scripts/lib/frontend-delivery-boundary.mjs",
       "source_path": "scripts/lib/frontend-delivery-boundary.mjs",
       "storage_path": "scripts/lib/frontend-delivery-boundary.mjs",
-      "sha256": "b760e82ed9eb3f4926c89050b36e9ba89a0acea75c8440bde69211f6d7f2e383",
+      "sha256": "c632fbedc0ec6e3aa1549b1faae4539fca17e6304d056a414af60619086fce8b",
       "mode": 420
     },
     {
@@ -2096,7 +2096,7 @@ export default {
       "path": "scripts/lib/harness-execution-scope.mjs",
       "source_path": "scripts/lib/harness-execution-scope.mjs",
       "storage_path": "scripts/lib/harness-execution-scope.mjs",
-      "sha256": "f5ff42220d53c9c79ae8ffbff39cb5d0a53bb716a90cd1a44bce3acb0e355508",
+      "sha256": "6c5c8c938886e588389e85bb9f6fd6c6524b0c4be65908a9cf0b4eb2b84192cb",
       "mode": 420
     },
     {
@@ -2369,7 +2369,7 @@ export default {
       "path": "scripts/lib/spec-baseline.mjs",
       "source_path": "scripts/lib/spec-baseline.mjs",
       "storage_path": "scripts/lib/spec-baseline.mjs",
-      "sha256": "f536e1f01c63551d3806936f06453cce34f2b4470a29e2ed0a6050e0a3a85e02",
+      "sha256": "ac776fd1460f417e6186dfc6ceb9e8e2a2713ccb41646a7e5a9c05fdb3289f64",
       "mode": 420
     },
     {

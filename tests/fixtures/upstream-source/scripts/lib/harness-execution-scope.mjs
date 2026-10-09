@@ -46,7 +46,8 @@ export function enforceHarnessTaskScope(task,{root=ROOT}={}) {
   ensure(task.contract?.kind!=='template-maintenance','专职产品项目不得派发模板维护任务');
   if(['role.requirements-manager','role.product-manager'].includes(task.role_id)) {
     ensure(task.execution_state!=='Worker','业务分析角色不能执行生产实现');
-    ensure(['work-unit.plan-opportunity','work-unit.plan-requirements','work-unit.domain-strategy-design','work-unit.stage-decision','work-unit.spec-synthesis'].includes(task.work_unit_id),'业务分析角色仅限 Plan/Spec 起草与审查');
+    const analysisUnits=['work-unit.plan-opportunity','work-unit.plan-requirements','work-unit.domain-strategy-design','work-unit.stage-decision','work-unit.spec-synthesis',...(profile.profile_id==='harness.frontend-delivery'?['work-unit.prototype-design-v2']:[])];
+    ensure(analysisUnits.includes(task.work_unit_id),'业务分析角色仅限本端 Plan/Spec 与产品设计起草和审查');
   }
   const local=[...profile.audience.target_user_roles,...profile.audience.control_plane_roles];
   const crossReview=['Explorer','Reviewer'].includes(task.execution_state)&&task.allowed_write_paths.length===0;

@@ -3,7 +3,7 @@ export default {
   "schema_version": 1,
   "kind": "test-only-canonical-source",
   "source_repository": "yss-spec-project-template",
-  "source_head": "8de0e1dbd0c26843a0ad31cea1c088d9a120e108",
+  "source_head": "33e9ac4295e2f8df3838baec2a3f6d2ae2372d8c",
   "source_state": "working-tree",
   "files": [
     {
@@ -2341,7 +2341,7 @@ export default {
       "path": "scripts/lib/slice-contract.mjs",
       "source_path": "scripts/lib/slice-contract.mjs",
       "storage_path": "scripts/lib/slice-contract.mjs",
-      "sha256": "f90e8eca39797fa06120fa27b3516bf7b760d2aca92be824f5ba774dd857017a",
+      "sha256": "328d53acc7678a903c23214c6c75c14ce9dbcc2e826e10a93de4d2f1c14e61e0",
       "mode": 420
     },
     {

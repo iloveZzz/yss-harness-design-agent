@@ -273,6 +273,10 @@
           "public_completion": {
             "type": "string",
             "minLength": 1
+          },
+          "stage": {
+            "type": "string",
+            "pattern": "^stage\\."
           }
         }
       }

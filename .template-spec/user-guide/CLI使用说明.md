@@ -2,6 +2,18 @@
 
 统一 CLI `yss` 使用 `--profile design` 创建和维护 `harness.business-ddd-strategy-handoff` 的治理资产。先用 `yss version --json`、`yss capabilities --json` 和 `yss bundle inspect --profile design --json` 核对已安装二进制、当前能力与固定模板来源；安装和升级消费已验收的固定发行，不按旧包名或 `latest` 推断来源。
 
+## 本端职责与综合主控目标
+
+本 Profile 完成战略设计交接，由 Spec 综合主控汇总同一业务范围的整体验收。支持 `lifecycle-target-v1` 的实例在只读状态中显示 `profile-terminal`，这是本端职责终点，不是可写目标枚举；本端不使用 `lifecycle target --plan/--apply` 写综合目标。
+
+```sh
+yss lifecycle status --root ./new-project --checkpoint "<本端当前已登记checkpoint>" --json
+```
+
+原始 checkpoint 引用按本端真实登记替换。只有当前输入、适用批准和交付证据闭合才可报告本端完成；接收成功、文件存在或历史完成标签不能替代。Spec 主控若要消费本端结果，应显式绑定本工程绝对根、同功能 checkpoint 及当前接收／交付依据。旧实例缺政策时先核对固定程序能力，另行审阅模板同步计划，不静默启用。
+
+本次目标、停止与续推、消费者绑定及恢复步骤见[统一 CLI 操作说明](unified-cli.md#正式功能的可续推目标)。产品设计里程碑达到仍须分别核验战略交接职责；技术设计由前后端工程路线承担。
+
 ## 创建与接入
 
 新实例先保存计划，再应用同一计划。计划文件放在项目外的已有目录，输出文件必须尚不存在。
@@ -44,7 +56,7 @@ yss migrate rollback --profile design --root ./old-project --json
 
 ## 原生事务恢复与来源核对
 
-`yss recover --profile design --root ./new-project --json` 会恢复该项目未完成的原生事务；该命令执行恢复写入。普通成功事务需要撤销时，先用 `yss rollback --profile design --root ./new-project --json` 查看，再用同命令加 `--apply` 回退。文件、技能锁与元数据属于同一事务，保护条件失败时保留现场。
+`yss recover --profile design --root ./new-project --json` 只读检查该项目未完成的原生事务；确认已有恢复授权后，加 `--apply` 才执行恢复写入。普通成功事务需要撤销时，先用 `yss rollback --profile design --root ./new-project --json` 查看，再用同命令加 `--apply` 回退。文件、技能锁与元数据属于同一事务，保护条件失败时保留现场。
 
 实例来源以 `.template-spec/process/harness-profile.yaml` 和 `.yss.json` 为准：`cli_package: yss`、`native_profile: design`、`metadata_file: .yss.json`。异族、未知 Profile、损坏元数据、符号链接、gitlink 或越界路径在写入前拒绝。实例使用二进制内固定 Bundle；source lock 冻结模板提交及分发政策摘要，不在运行时调用旧 CLI 或拉取浮动模板。
 

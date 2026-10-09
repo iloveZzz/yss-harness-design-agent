@@ -1,4 +1,4 @@
-# YSS 业务方案设计 Harness
+# YSS 产品与业务设计 Harness（Design Profile）
 
 > **项目名称：** [填写]
 > **业务领域：** [填写]
@@ -7,6 +7,8 @@
 > 面向产品、需求、商务的业务方案工作台（内部兼容 ID：`harness.business-ddd-strategy-handoff`）。本地生命周期在业务方案交接结束，不进入 OpenAPI、下游技术设计、垂直切片实现或发布。
 
 ## 定位
+
+默认作为一个 Spec 综合研发主控的按需专职协作方，也可独立承接设计。产品设计完成是可汇总的阶段里程碑，本地职责终点仍为战略交接包成包并整包验证通过；主控按显式同功能 checkpoint 与当前接收证据判断业务验收，不把本地设计完成当作整个业务交付。
 
 本模板默认作为业务方案设计 / 研发管理仓库，保留 Plan、Spec、原型、业务级 Ticket、业务方案交接包、Agent skills 和协作约定。OpenAPI、实现仓库和运行时代码由下游研发 profile 接管。机器可读边界见 [`.template-spec/process/harness-profile.yaml`](./.template-spec/process/harness-profile.yaml)。
 

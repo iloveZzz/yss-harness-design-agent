@@ -1,4 +1,25 @@
 schema_version: 2
+progression_target:
+  schema_version: 1
+  required_capabilities: [ lifecycle-target-v1 ]
+  config_file: progression-target.json
+  writer_profiles: []
+  default_target: profile-terminal
+  coordinator: explicit-spec-root-and-same-feature-checkpoint
+  no_second_progress_state: true
+  business_completion: not-evaluated-local-terminal-only
+  completion_policy:
+    profile-terminal:
+      public_name: 产品与业务设计职责完成
+      required_gates: [ gate.strategic-design-handoff-approved ]
+      required_checks: [ strategic-handoff-delivery ]
+    product-design-completed:
+      public_name: 产品设计完成
+      required_gates: [ gate.product-design-approved ]
+      conditional_gates: { gate.product-design-approved: product-design-impact }
+      required_checks: [ inherited-spec-baseline, business-tickets-formal ]
+      no_ui_presentation: not-applicable-with-current-impact-evidence
+      strategic_handoff_terminal: separate-responsibility
 document_writing:
   supporting_skill: i-have-adhd
   condition: lifecycle-document-output
@@ -1172,3 +1193,5 @@ profile_guidance:
   unregistered_target: unknown-never-inferred-from-neighbor-directories
   design_intake: frozen-spec-baseline-then-target-context-reconciliation
   role_boundary: recommend-downstream-profile-without-dispatching-its-implementation
+  progression_intent: one-spec-controller-with-optional-specialists
+  specialist_terminal_is_business_acceptance: false

@@ -3,7 +3,7 @@ export default {
   "schema_version": 1,
   "kind": "test-only-canonical-source",
   "source_repository": "yss-spec-project-template",
-  "source_head": "544bf81b32edc6fdb70087361271d530f5d58065",
+  "source_head": "ff9a9a78456bbe0540acae060f2a9ddb3627acbd",
   "source_state": "working-tree",
   "files": [
     {
@@ -2110,7 +2110,7 @@ export default {
       "path": "scripts/lib/implementation-contract-compiler.mjs",
       "source_path": "scripts/lib/implementation-contract-compiler.mjs",
       "storage_path": "scripts/lib/implementation-contract-compiler.mjs",
-      "sha256": "7f0c8c9f984b33cecaddba0235cacf1cb4abbe583d7f81219f3787ff1ce2d74f",
+      "sha256": "ea6c8662bdec764e15f4c9496566018f656b5f56654dcf6f9c52934adc3c194d",
       "mode": 420
     },
     {

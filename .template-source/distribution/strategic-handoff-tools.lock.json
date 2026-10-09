@@ -2,7 +2,7 @@
   "schema_version": 1,
   "target_id": "yss-harness-design-agent",
   "source_repository": "yss-spec-project-template",
-  "source_revision": "544bf81b32edc6fdb70087361271d530f5d58065",
+  "source_revision": "ff9a9a78456bbe0540acae060f2a9ddb3627acbd",
   "source_state": "committed",
   "transformation_set": [
     "design-query-runtime",

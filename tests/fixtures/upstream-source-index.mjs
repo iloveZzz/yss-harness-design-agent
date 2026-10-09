@@ -3,7 +3,7 @@ export default {
   "schema_version": 1,
   "kind": "test-only-canonical-source",
   "source_repository": "yss-spec-project-template",
-  "source_head": "afe35930fd744d20ecd5a8154e3bfb8590fa8245",
+  "source_head": "544bf81b32edc6fdb70087361271d530f5d58065",
   "source_state": "working-tree",
   "files": [
     {
@@ -2075,7 +2075,7 @@ export default {
       "path": "scripts/lib/frontend-delivery-boundary.mjs",
       "source_path": "scripts/lib/frontend-delivery-boundary.mjs",
       "storage_path": "scripts/lib/frontend-delivery-boundary.mjs",
-      "sha256": "c632fbedc0ec6e3aa1549b1faae4539fca17e6304d056a414af60619086fce8b",
+      "sha256": "adcf9600b904368d26f9c236aeea95e3548af0ada357a001f29621fda4b4b959",
       "mode": 420
     },
     {
@@ -2110,7 +2110,7 @@ export default {
       "path": "scripts/lib/implementation-contract-compiler.mjs",
       "source_path": "scripts/lib/implementation-contract-compiler.mjs",
       "storage_path": "scripts/lib/implementation-contract-compiler.mjs",
-      "sha256": "7f1cc35e13632b5a34faa7310fa0175a0b8b39deba52e47dacf44152ff795054",
+      "sha256": "7f0c8c9f984b33cecaddba0235cacf1cb4abbe583d7f81219f3787ff1ce2d74f",
       "mode": 420
     },
     {

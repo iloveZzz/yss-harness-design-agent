@@ -3,7 +3,7 @@ export default {
   "schema_version": 1,
   "kind": "test-only-canonical-source",
   "source_repository": "yss-spec-project-template",
-  "source_head": "48fa43b9d58c412deb0ec96b04eab64cbbd9792f",
+  "source_head": "8799e3997d084c37107c9136c357748fdc48648b",
   "source_state": "working-tree",
   "files": [
     {
@@ -1963,7 +1963,7 @@ export default {
       "path": "scripts/lib/business-tickets.mjs",
       "source_path": "scripts/lib/business-tickets.mjs",
       "storage_path": "scripts/lib/business-tickets.mjs",
-      "sha256": "5fe632ef8aa235d8203fafc2878d634b57ed72038b2aa970b4888e7b812e45a9",
+      "sha256": "4ca944b589e1f7e6d5123d1e3929ff19bafd978449557ddfa73c8fd0c4eaeea7",
       "mode": 420
     },
     {

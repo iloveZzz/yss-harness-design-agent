@@ -55,6 +55,7 @@
     "excludePaths": [
       "docs/discovery",
       ".codex/hooks.json",
+      ".codex/config.toml",
       ".codex/settings.local.json",
       ".cursor/environment.json",
       ".pi/settings.json",

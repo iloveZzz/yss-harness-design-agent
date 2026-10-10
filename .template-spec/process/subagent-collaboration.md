@@ -6,7 +6,7 @@ Subagent 和其它运行时实例只接收边界清晰的任务包。主控数�
 
 ## 任务包
 
-先按交付路径政策判定。已合格 Spec `daily` 子任务复用普通 Ticket / PR 的证据段，写明角色、`runtime_id`、执行态、输入、目标、互不重叠写范围、禁止事项、预期结果与汇合点；返回实际变更、测试和独立审查证据。不强制生成下面的正式 v1 任务包、checkpoint 或 Slice，也不宣布 `approved` / `ready-for-agent`。审查者与实现者分离、只读审查和写边界仍严格；缺能力或新风险先调查并升级。此能力须已启用的 Spec 政策及支持 `route` / `verify-daily` 的 CLI，其他 Profile/旧 CLI 明确不支持。本轮模板维护和已绑定正式工作包继续使用原 schema，不按普通路径降级。
+先按当前主控合同 `request_triage.delivery_path` 判定。已合格 `daily` 子任务复用普通 Ticket / PR 的证据段，写明角色、`runtime_id`、执行态、输入、目标、互不重叠写范围、禁止事项、预期结果与汇合点；返回实际变更、测试和独立审查证据。不强制生成下面的正式 v1 任务包、checkpoint 或 Slice，也不宣布 `approved` / `ready-for-agent`。审查者与实现者分离、只读审查和写边界仍严格；缺能力或新风险先调查并升级。此能力须本 Profile 已在唯一政策中启用且 CLI 支持 `route` / `verify-daily`；政策缺失、Profile 未启用或旧 CLI 不得自行启用。本轮模板维护和已绑定正式工作包继续使用原 schema，不按普通路径降级。
 
 凡主控向数字人角色或独立运行时正式派发生命周期工作单元，都必须使用 `.template-spec/process/schemas/digital-human-task-package.schema.json` 定义的任务包，并写明 `task_id`、`work_unit_id`、`actor_id`、数字人角色 ID、`runtime_id`、执行态、工作流状态、从 `.template-spec/agents/digital-human-roles.yaml` 复制的 `core_skills` / `forbidden_skills`（可用 `taskPackageDefaults`）、合同类型和版本、输入资产、目标、允许写路径、禁止事项、验收标准、验证命令及其实际退出码 / 执行时间 / 证据引用、下游消费者和汇合方式。`slice-implementation` 才额外绑定 Slice Implementation Contract；禁止手写第二套技能包；任务包由 `scripts/verify-digital-human-task-package` 校验；已退役的兼容入口不得继续调用。
 

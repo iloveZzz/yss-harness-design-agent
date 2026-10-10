@@ -8,7 +8,7 @@
 
 ## 1. 仓库身份
 
-每个任务先读根目录 `yss-project.yaml`：
+路径相对当前治理仓根；本地身份、Profile 和工具由本入口解释。进入独立实现仓后消费其入口；共同授权、用户工作保护与允许写范围继续有效。每个任务先读根目录 `yss-project.yaml`：
 
 - `template-source` 只维护模板，不生成具体产品的 Plan、Spec、原型、业务级 Ticket 或交接包。
 - `project-instance` 使用 `harness.business-ddd-strategy-handoff`；本地终点为 `work-unit.strategic-design-handoff`。
@@ -24,7 +24,7 @@
 | 业务词汇 | 根 `CONTEXT.md` |
 | 本仓职责与允许 / 禁止工作单元 | `.template-spec/process/harness-profile.yaml` |
 | 生命周期 ID 与条件门禁 | `.template-spec/process/lifecycle-registry.yaml`；`.template-spec/process/lifecycle-artifact-map.md` 仅为派生视图 |
-| 影响面与维护强度 | `.template-spec/process/harness-process-tailoring.md`、`.template-source/process/maintenance-intensity.yaml` |
+| 影响面 | `.template-spec/process/harness-process-tailoring.md` |
 | 技能身份与路由 | `.template-spec/agents/yss-skill-registry.yaml`（`status: active`；由生命周期消费，Router 不消费）；来源与投影见 `skills-lock.json` |
 | 数字人角色与会签 | `.template-spec/agents/digital-human-roles.yaml` |
 | 视觉规范 | 根 `DESIGN.md`；治理见 `.template-spec/design/design.md`，Token 快照为派生视图 |
@@ -40,6 +40,7 @@ README、用户指南和 `CLAUDE.md` 只解释或指向上述事实，不定义�
 - 稳定术语先在根 `CONTEXT.md` 登记 PascalCase 英文标识，再进入 Spec、原型、Ticket 或交接资产。每仓仅允许一个根 `CONTEXT.md`；术语引用使用 `<ContextId>/<EnglishIdentifier>`，真正共享的术语使用 `Global/<EnglishIdentifier>`。
 - `project-instance` 每个正式工作单元流转或申请批准前完成 `context_reconciliation`：先回写稳定术语，再核对 `document_digest` 与 `referenced_terms_digest`；缺失、冲突或漂移即 `blocked`。模板源只校验该合同并记录有理由的 `not-applicable`。
 
+<!-- YSS_TEMPLATE_SOURCE_ONLY_START -->
 ## 4. `template-source` 维护
 
 在用户已授权的模板维护范围内，继续完成受影响 Skill、投影、锁文件和分发快照的同步与适用验证；按当前影响面读取文档。首次编辑完成不等于交付完成。只有新增决定、缺失必要输入或命中既有审批边界时才暂停；提交、推送、发布仍按本仓授权规则执行。
@@ -47,12 +48,14 @@ README、用户指南和 `CLAUDE.md` 只解释或指向上述事实，不定义�
 - 创建、修改或退役 skill 时使用 `maintaining-skills`，按 `.template-source/process/maintenance-intensity.yaml` 判定 L1/L2；日常验证与交付按本节执行，正式发布按发布合同执行。
 - `.agents/skills` 是共享技能权威内容；`.codex/skills`、`.cursor/skills`、`.pi/skills` 是生成投影，不得分别手改。
 - 日常维护交付默认执行本轮改动及其直接 / 传递依赖的定向检查，补齐 L1/L2 适用证据后交付 `implementation-ready`。不因交付措辞、维护等级、当前分支为 main 或缺少发布 baseline 自动运行全量检查，也不把 fast → candidate → release 当作固定顺序。
-- 使用 `scripts/verify-template-fast` 前先看 `--plan`；计划若扩大到全量，日常交付改为执行上述定向检查，记录范围、实际命令、退出码及未覆盖风险。发现本轮缺陷或新增影响时，只补受影响检查；影响无法确定时先调查，不用全量检查代替影响分析。日常维护不强制独立审查或候选冻结。
+- 使用 `scripts/verify-template-fast` 前先看 `--plan`；未知路径、缺输入映射或非法依赖先修正计划，不自动回退全量；每项检查说明受影响行为、消费者和可检测的具体错误，适用强制检查注明合同依据。记录 limited 范围、实际命令、退出码及未覆盖风险。发现本轮缺陷或新增影响时，只补受影响检查；影响无法确定时先调查，不用全量检查代替影响分析。日常维护不强制独立审查或候选冻结。
 - PR 候选使用 `scripts/verify-template-candidate`；main 集成验证及正式发布任务使用 `scripts/verify-template`，适用检查与回退由验证 profile 和发布合同定义，不能用日常定向检查冒充通过。未完成 `yss` 的 `design` 固定 Bundle 及生成实例验证，不得宣称可发布；不得把 `spec` Profile 作为本仓业务方案入口。
+
+<!-- YSS_TEMPLATE_SOURCE_ONLY_END -->
 
 ## 5. `project-instance` 战略设计路由
 
-先读 `.template-spec/process/harness-profile.yaml`，再按影响面和最近可信阶段裁剪；注册表可保留下游兼容 ID，本地只执行 profile 的 `allowed_work_units`。
+先消费 `.agents/skills/yss-strategic-design/references/orchestration-contract.yaml` 的 `request_triage.delivery_path`；Design 未启用日常实现，不因“小改动”自行获得实现权限。再读 `.template-spec/process/harness-profile.yaml`，按影响面和最近可信阶段裁剪；注册表可保留下游兼容 ID，本地只执行 profile 的 `allowed_work_units`。
 
 - 生命周期导航：入口分诊 → 机会与目标 → 业务故事 → 业务边界与规则 → 阶段决策 → Spec → 页面验证 → 业务级 Ticket → Strategic Design Handoff。只推进本轮触发的工作单元及其依赖，不把导航当作每次任务的固定执行顺序。
 - 小改动从分诊处理，中等变更从最近可信的 Spec / 架构恢复，高风险变更复核冻结基线；只校验当前资产、触发合同及直接 / 传递依赖。未变化的可信上游资产先核验复用，未来阶段尚未要求的产物不作为当前缺项。
@@ -93,6 +96,7 @@ README、用户指南和 `CLAUDE.md` 只解释或指向上述事实，不定义�
 - 命中会签时按 `.template-spec/agents/digital-human-roles.yaml`，运行 `scripts/verify-approval-record --require-approved --checkpoint <current checkpoint>`。关键决定先核验当前有效的原始真实回复与批准；仅缺失、失效或实质变化时展示资产后询问负责人。历史读取不放行；发布、商务承诺和运行时外部副作用仍须生物人。
 - 专业审查等待由主控按角色表自主派发并等待，无依赖的已授权工作继续；非阻断建议进入待办，必要证据和真实缺陷仍阻断，仅缺真实决定或无法自主取得的必要输入时询问用户。
 - 在暂停、handoff 和业务方案交接边界同步范围、证据、风险、会签点、Ticket 状态和下一步。
+- 决定和授权消费 [.agents/skills/yss-strategic-design/references/user-decisions.md](.agents/skills/yss-strategic-design/references/user-decisions.md)，复用有效范围授权；提交、推送、发布分别消费用户授权。
 - Git checkpoint 只含本轮范围；获得用户授权后才提交或推送。返工或 IMPORTANT / CRITICAL finding 触发简体中文复盘并修订权威资产。
 
 ## 11. Subagent 协同

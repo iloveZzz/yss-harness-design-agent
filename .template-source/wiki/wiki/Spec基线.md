@@ -1,22 +1,21 @@
 # Spec基线
 
-Spec 是记录用户问题、解决方案、用户故事、关键决策、验收标准和测试 seam 的产品研发规格。新资产统一使用 Spec；过时称谓只出现在迁移指南或明确标注的旧项目上下文。它是 [[产品研发生命周期]] 进入实现前的核心需求资产，不是可以直接编码的 Ticket。
+Spec 记录用户问题、解决方案、用户故事、关键决策、需求、验收与测试 seam，不授予直接实现权限。稳定术语先在唯一根 Context 登记，正文、API 标识与代码按已确认词干使用。
 
-新功能或较大变更先进入 `yss-product-lifecycle` 的原生 Discovery / 需求分析工作单元；`to-spec` 只是用户显式兼容入口。Spec 基线与产品设计影响的完整判定以生命周期注册表和 [[影响面分诊与流程裁剪]] 为准，不以兼容入口替代原生工作单元。`work-unit.spec-synthesis` 的输入是已确认的 Discovery 记录和测试 seam，产出 Spec、产品总体设计和功能架构；内容完整后进入 `ready-for-human`，下游推进仍需 `gate.spec-baseline-approved`。
+正式工作消费已批准且当前的业务资产，按 Profile 与注册表只推进本轮触发单元及依赖。
 
-模板 `.template-spec/templates/spec-template.md` 的 frontmatter 含 `pipeline`、`stage`、`status`、`owner`；`status` 默认 `ready-for-human`，`stage` 默认 `open`，`owner` 默认 `ai`。正文先挂功能父 Ticket，再写问题陈述、解决方案、用户故事、功能需求、非功能需求、验收标准（gherkin）、产品总体设计 / 功能架构、OpenAPI 影响、DDD 影响判断、测试决策、AI / 人工审查点、非目标范围和风险。Local 路径约定为 `docs/.scratch/<feature>/spec.md`，父 Ticket 为 `docs/.scratch/<feature>/parent-ticket.md`。
+当前模板 frontmatter 默认 `stage: open`、`status: ready-for-human`、`owner: ai`，业务 Ticket 草案与 Spec 同时形成，Design 校准同组 ID。正文明确 FR/NFR/AC 对应、可观察成功/拒绝/边界/恢复、非目标和未决项；没有依据时不补造阈值或性能承诺。
 
-验收标准写可观察结果，不写实现步骤。测试决策要标明主要测试 seam、代码库中的相似测试，以及单元 / 领域行为、API / 契约、前端组件、E2E 关键路径是否必需。DDD 影响判断只做轻量检查：统一语言变化回写 `CONTEXT.md` 的中文术语和 PascalCase `英文标识`；限界上下文变化在产品总体设计中补 Strategic DDD Check；聚合、不变量或状态机变化在系统概要设计 / 数据架构中补 Tactical DDD Check。未触发时不另开流程阶段。
-
-存在 UI 影响时，Spec 才强制低保真页面草图、状态矩阵、高保真 HTML 原型和用户确认；否则记录 `not-applicable` 及原因。UI 影响不等于 [[产品设计影响与原型]]：只有主流程、导航、权限体验、异常 / 恢复、状态流转或 API 反推才构成产品设计影响。OpenAPI 影响在 Spec 中先勾选「无 / 需要 API 影响分析 / 需要 review-only OpenAPI Draft」，Draft 路径为 `docs/.scratch/<feature>/api/<feature>.yaml`；Draft 在 Freeze 前只供评审，见 [[OpenAPI契约]]。
-
-Spec 初稿、产品设计和待冻结资产使用 `ready-for-human`，见 [[Ticket与流程状态]]。相对既有冻结基线的高风险行为差异才写 [[SpecDelta]]；全新产品、全新模块和低风险调整不生成 Delta。冻结后的 Spec 是 [[垂直切片Ticket]] 拆分与 [[切片实现合同]] 编译的输入，也受 [[条件强制门禁]] 约束：命中才裁决，未命中只记 `not-applicable`。入口边界见 [[Agent入口规则]]。
+只有产品设计影响才强制低保真草图、状态矩阵、H1/H2 原型交付物与确认。OpenAPI Draft 在 Freeze 前仅供评审。功能包根消费 tracker.root，当前初始化示例为 `.work/`，旧实例不因示例路径被迁移。本地终点为 `work-unit.strategic-design-handoff`，完成后 `next_route: null`；本仓不生成技术设计、OpenAPI、父/垂直切片 Ticket、Slice Implementation Contract 或运行时代码，实施请求转交下游研发 Profile。 参见 [[SpecDelta]]、[[产品设计影响与原型]]。
 
 ## 来源
 
-- `CONTEXT.md`
-- `AGENTS.md`
-- `.template-spec/templates/spec-template.md`
-- `.template-spec/process/lifecycle-registry.yaml`
-- `.template-spec/agents/issue-tracker.md`
-- `.template-spec/agents/triage-labels.md`
+- `AGENTS.md:36-43`：本页路由、授权及完成边界依据当前入口的 ## 3. 语言与 Context Contract。
+- `AGENTS.md:56-66`：本页路由、授权及完成边界依据当前入口的 ## 5. `project-instance` 战略设计路由。
+- `AGENTS.md:39-41`：稳定术语先在唯一根 Context 登记；正式流转前对账摘要，缺失冲突或漂移阻断。
+- `AGENTS.md:60-63`：Design 从最近可信阶段推进本轮触发单元及依赖；复用可信上游，不将导航和未来资产当每次必做项；命中条件门禁必须完成。
+- `AGENTS.md:64-65`：Design 本地禁止 Tactical Design、OpenAPI、父/垂直切片 Ticket、Slice 合同和运行时代码；实施 blocked 转交下游，战略交接完成 next_route 必须 null。
+- `.template-spec/templates/spec-template.md:1-19`：Spec 默认 ready-for-human，业务 Ticket 草案与 Spec 同时形成。
+- `.template-spec/templates/spec-template.md:51-77`：验收可观察且仅产品设计影响触发原型，Draft 不作为稳定实现合同。
+- `CONTEXT.md:1-15`：根 Context 持有稳定业务语言与消费约定，正文不能授予实现权限。
+- `.template-spec/process/lifecycle-registry.yaml:1-8`：active 生命周期注册表持有稳定 ID，本地执行仍受 Profile 允许范围限制。

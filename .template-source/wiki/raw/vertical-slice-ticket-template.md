@@ -4,11 +4,13 @@ status: ready-for-human
 
 # 垂直切片 Ticket：<标题>
 
+> Design profile 中本模板仅供历史读取；新业务拆分使用 business-ticket-template.md 和 business-ticket-set-template.yaml，不在战略侧创作实现票。
+
 Status: ready-for-human
 
 ## 父级
 
-<Spec：`docs/.scratch/<feature>/spec.md`；功能父 Ticket：`docs/.scratch/<feature>/parent-ticket.md` 或远程 Issue URL>
+<Spec：`.work/<feature>/spec.md`；功能父 Ticket：`.work/<feature>/parent-ticket.md` 或远程 Issue URL>
 
 ## 要构建什么
 
@@ -21,7 +23,7 @@ Status: ready-for-human
 ## OpenAPI 影响
 
 - [ ] 无
-- [ ] 基于冻结 OpenAPI：`docs/.scratch/<feature>/api/<feature>.yaml`
+- [ ] 基于冻结 OpenAPI：`.work/<feature>/api/<feature>.yaml`
 
 受影响端点：
 
@@ -112,7 +114,7 @@ Status: ready-for-human
 
 | 门禁 | 记录路径 | 会签角色 | 状态 |
 |---|---|---|---|
-|  | `docs/.scratch/<feature>/gates/<gate-id>-approval.yaml` | 见 `.template-spec/agents/digital-human-roles.yaml` | pending / approved / blocked / not-applicable |
+|  | `.work/<feature>/gates/<gate-id>-approval.yaml` | 见 `.template-spec/agents/digital-human-roles.yaml` | pending / approved / blocked / not-applicable |
 
 ## 状态
 

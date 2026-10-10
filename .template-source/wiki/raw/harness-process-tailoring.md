@@ -11,15 +11,17 @@
 3. 判断 UI、API、数据、后端、前端、跨仓库和高风险影响。
 4. 从最近可信阶段恢复；不要因为当前目录存在某类文件就猜测阶段已通过。
 
+只读问答、状态查询和定位只返回来源、结论及未决项；写正式资产、批准或流转才进入工作单元。行动请求先核验复用已有资产、登记与追踪，再补本轮缺项；只推进 profile 允许且本轮触发的工作单元及依赖。未要求的未来产物不是当前缺项，本仓不实施运行时代码；下游正式业务实现仍须批准且当前的 Slice 合同与允许写范围。
+
 ## 2. 裁剪矩阵
 
 | 类型 | 默认入口 | 必需工作 | 可记录为 `not-applicable` |
 |---|---|---|---|
 | 模板源维护 | 影响面分析 | 修改单一事实来源、按验证与审查强度分级执行证据、必要的技能投影同步、fresh verification / review | 产品 Spec、产品设计、OpenAPI、运行时代码 |
 | 小改动 | 入口分诊 | 影响面、主 tracker 同步、fresh verification | Spec、架构、原型、切片（没有触发条件时） |
-| 中等变更 | 最近可信的 Spec / 架构阶段 | Spec、功能架构、必要工程审查、父 Ticket 和切片 | 未命中的 UI、数据或 API 门禁 |
-| 全新产品 / 模块 | Discovery | Discovery、Spec、产品总体设计、功能架构、必要设计 / 契约审查、父 Ticket 和切片 | 未命中的 UI、数据或 API 门禁 |
-| 高风险变更 | 既有冻结基线 | Spec Delta、架构 / 数据 / 工程审查、契约复核、切片和回滚设计 | 与风险证据无关的门禁 |
+| 中等变更 | 最近可信的 Spec / 架构阶段 | Spec、功能架构、必要业务审查、业务 Ticket 和交接 | 未命中的 UI、数据或 API 门禁 |
+| 全新产品 / 模块 | Plan | Plan、Spec、产品总体设计、功能架构、必要设计审查、业务 Ticket 和交接 | 未命中的 UI、数据或 API 门禁 |
+| 高风险变更 | 既有冻结基线 | Spec Delta、业务规则复核、受影响确认及交接范围复核 | 与风险证据无关的门禁 |
 
 任何裁剪都必须写明原因和证据，不生成空文档。对跨仓库变更，Harness 记录必须绑定实现仓库、分支、CI、验证命令、发布顺序和回滚点；没有前端、后端或 OpenAPI 影响时显式记录 `not-applicable`。
 
@@ -27,38 +29,49 @@
 
 同一独立执行者可以在一个连续工作单元内完成相邻的实现动作，但不能替代独立审查者。阶段证据在集中 checkpoint 回写，至少包含：范围、变更文件、受影响仓库、验证命令及结果、阻塞项、人工审查点、Ticket 状态和下一步。
 
-## 4. 模板维护验证与审查强度分级
+Fresh Verification 指当前范围的真实验证，不等于全仓检查。按当前合同、工程基线和已采纳 CI 条件选择检查；同一边界且资产 / 上游字节、校验器 / schema、命令参数及仓库根均未变时可复用，变化只使受影响依赖失效。恢复、handoff、进入实现、合并和发布时重验当前边界，当前性不明即重跑适用检查。产品实例不运行模板回归，除非另有明确模板维护或回归任务；局部完成不推导整体业务完成或发布。
 
-本节只适用于 `template-source` 的模板、流程规则和共享 skill 维护，不降低 `project-instance` 的 Spec、OpenAPI Freeze、垂直切片或高风险工程门禁。强度由错误逃逸损失和是否改变 Agent 行为决定，不由文件所在目录单独决定。
+专业审查由主控派发独立实例并等待，无依赖工作继续。按本仓角色表核验当前原始真实决定与批准，缺失、失效或实质变化时才展示资产并询问；非阻断建议进入待办，必要证据和真实缺陷继续阻断。
 
-| 强度 | 权威触发项 | 最低验证证据 | Review |
-|---|---|---|---|
-| L1 | `maintenance-intensity.yaml` 的 `levels.L1.triggers` | 至少一项与变更直接相关的实际检查 | `self-check` 或显式 `human-checkpoint` |
-| L2 | `maintenance-intensity.yaml` 的 `levels.L2.triggers`，或该策略的 `default_level` | 修改前可失败的最小反例，以及本轮 fresh verification | 一名非实施者执行 `focused-independent` 聚焦审查；结论可内联 checkpoint |
-| L3 | `maintenance-intensity.yaml` 的 `levels.L3.triggers` | 完整 RED、GREEN、REFACTOR、压力场景与本轮 fresh verification | 冻结候选后执行 `formal-independent` 正式独立审查；需要时使用完整 `code-review` |
+## 4. 模板维护验证与审查强度
 
-判定规则：
+本节只适用于 template-source。等级与触发项由 .template-source/process/maintenance-intensity.yaml 决定；分级改变证据强度，不替代产品实例的条件门禁。
 
-1. 等级只由 `maintenance-intensity.yaml` 计算；未给出 trigger 时使用该策略的 `default_level`，未知 trigger 必须更新策略后才可验证。
-2. 实施者可先分级，不要求 L1/L2 预批准；发现新影响时立即更新 `escalation`、重新分级并补齐证据。
-3. 发布、合并或阶段完成时按整体候选重新判定；不得把共同改变整体语义的修改拆成多个 L1/L2 规避 L3。
-4. RED 用于证明行为差异。L1 不人为构造失败；L2 可使用已有失败、最小 fixture 或现有测试修改前失败；只有行为无法确定性表达时才运行聚焦压力场景。L3 使用 `maintaining-skills` 并执行本节定义的完整 RED、GREEN、REFACTOR 和压力场景要求。
-5. 模板发布候选固定按 L3 聚合验证，但不追溯补造每个既有 L1/L2 修改的独立 RED。
+| 等级 | 必需证据 | 日常审查 |
+|---|---|---|
+| L1 | 至少一项直接相关的实际检查 | self-check 或显式 human-checkpoint |
+| L2 | 最小行为反例、维护者自检与本轮 Fresh Verification | self-check；独立审查按需 |
+| L3 | 维护者自检与本轮 Fresh Verification | self-check；不因等级强制冻结候选或独立审查 |
 
-每个模板维护 checkpoint 使用以下轻量合同；L1/L2 可直接写入主 Ticket 或集中 checkpoint，不要求新增独立文档：
+命中 counterexample_triggers 的每项风险还须有对应真实拒绝运行记录。L1 不人为构造 RED；L2 的最小反例可来自现有失败或 fixture；L3 不强制完整 RED/GREEN/REFACTOR/压力套件。未知 trigger 先更新策略；发现新影响重新分级并补受影响证据。重要缺陷与必要证据继续阻断。
+
+日常交付默认 implementation-ready，执行本轮改动及直接 / 传递依赖的定向检查。先看 scripts/verify-template-fast --plan；计划扩大到全量时改做有明确范围的定向检查，记录选择依据、实际命令、退出码与未覆盖风险。未知影响先调查，不用全量兜底；定向通过不冒充整个 fast / candidate / release 通过。
+
+日常不因交付措辞、L3、当前分支为 main 或缺发布 baseline 自动全量，也不依次运行三个入口。PR 候选使用 scripts/verify-template-candidate；main 集成验证及正式发布任务使用 scripts/verify-template。各入口的机器计划、拒绝与回退规则保持生效，正式任务选中集合不得手工删减；发布另须固定版本生成器与实例兼容证据及实际授权。
+
+新维护 checkpoint 使用 schema v2；历史 v1 只读兼容。日常形状如下，逐条 evidence 填本轮实际范围，verification_profile 表示交付层级：
 
 ```yaml
-schema_version: 1
+schema_version: 2
 intensity: L1 | L2 | L3
-classification_reason: <分级理由>
-triggers: [<可观察触发项>]
-changed_assets: [<路径或资产引用>]
+classification_reason: <分级依据>
+triggers: [<当前策略 trigger>]
+changed_assets: [<本轮路径>]
 verification_evidence:
-  - kind: relevant-check | counterexample | red | green | refactor | pressure-scenario | fresh-verification | focused-independent-review | formal-independent-review
-    command: <本轮实际命令或可读取证据引用>
+  - kind: relevant-check | counterexample | self-check | fresh-verification
+    command: <实际命令或可读取运行记录>
     result: pass
-review_mode: self-check | human-checkpoint | focused-independent | formal-independent # L2/L3 还必须在 verification_evidence 中给出对应 review 证据引用
-escalation: none | <升级原因和原等级>
+review_mode: self-check
+escalation: none | <新影响及升级依据>
+target_state: implementation-ready
+current_state: implementation-ready
+verification_profile: fast
+review_round: 0
+candidate_digest: null
 ```
 
-使用 `scripts/verify-maintenance-checkpoint <file>` 或通过 stdin 传入 YAML / JSON 做只读校验。触发项 ID 与最低等级只由 `.template-source/process/maintenance-intensity.yaml` 维护；校验器消费该策略。未知触发项必须先更新该权威策略和场景，不能静默接受。
+使用 scripts/verify-maintenance-checkpoint 校验。L2 必须有 counterexample、fresh-verification、self-check；L3 必须有 fresh-verification、self-check；命中风险触发项补带 trigger、run_ref、实际命令和日志摘要的 counterexample。结构通过不替代实际执行证据。
+
+自检路径的 release-ready 必须使用 release，并提供绑定当前来源与完整适用集合的 final-release-verification，其 command 为 scripts/verify-template；实际监督退出成功、input_drift=false、unexecuted=[]。该状态不代替 CLI 集成、平台兼容或发布授权。
+
+focused-independent / formal-independent 仅在明确采用独立审查路径时消费对应严格合同，不能由强度自动触发。历史正式证据按现有兼容入口只读核验，不能自报 legacy 或用请求代替审查通过。修复按差异、受影响结论和依赖定向复审，全部结论绑定当前候选；drift / new_impacts 先调查再更新范围和合同。Reviewer 不写实现，实施者不自审。

@@ -1,3 +1,4 @@
+import { fixtureTracker } from './work-layout-fixture.mjs';
 import {spawnSync} from 'node:child_process';
 import test from 'node:test';import assert from 'node:assert/strict';
 import {readFile,writeFile,mkdtemp,mkdir,cp,readdir,symlink} from 'node:fs/promises';import path from 'node:path';import os from 'node:os';
@@ -5,7 +6,7 @@ import {parseScenarios,scenarioScript} from '../scripts/scenario-contract.mjs';
 import {prepareFlowPrototype,validatePrototypeProject} from '../scripts/prototype-contract.mjs';
 import {comparisonFixture} from './comparison-fixture.mjs';
 import {validateComparison,sealComparison} from '../scripts/prototype-comparison.mjs';
-async function project(){const root=await mkdtemp(path.join(os.tmpdir(),'prototype-reliability-'));await mkdir(path.join(root,'.template-spec/design/tokens'),{recursive:true});for(const ref of ['DESIGN.md','.template-spec/design/tokens/variables.css'])await cp(new URL(`../../../../${ref}`,import.meta.url),path.join(root,ref));return root;}
+async function project(){const root=await mkdtemp(path.join(os.tmpdir(),'prototype-reliability-'));await mkdir(path.join(root,'.template-spec/design/tokens'),{recursive:true});for(const ref of ['DESIGN.md','.template-spec/design/tokens/variables.css'])await cp(new URL(`../../../../${ref}`,import.meta.url),path.join(root,ref));await fixtureTracker(root);return root;}
 test('scenario data is parsed without execution; IDs and generated script bind exact JSON',async()=>{
  const bytes=await readFile(new URL('../assets/native-workbench/scenarios.json',import.meta.url));const doc=parseScenarios(bytes);assert(doc.scenarios.some(s=>s.id==='conflict'));assert.throws(()=>parseScenarios('globalThis.touched=true'));doc.scenarios.push(doc.scenarios[0]);assert.throws(()=>parseScenarios(JSON.stringify(doc)),/重复/);
  const f=await comparisonFixture();const input=structuredClone(f.input);input.cases[0].scenario='missing';await writeFile(path.join(f.root,'input.json'),JSON.stringify(input));await assert.rejects(f.prepare(),/场景 ID 不存在/);
@@ -31,4 +32,15 @@ test('new compact preset is explicit, invalid density is rejected and old manife
  await prepareFlowPrototype(options);const file=path.join(root,'yss-prototype-adapter.json'),manifest=JSON.parse(await readFile(file,'utf8'));
  assert.equal(manifest.visual_preset.density,'compact');manifest.visual_preset.density='comfortable';await writeFile(file,JSON.stringify(manifest));assert.match((await validatePrototypeProject({root})).errors.join(),/密度不一致/);
  delete manifest.visual_preset;await writeFile(file,JSON.stringify(manifest));assert.deepEqual((await validatePrototypeProject({root})).errors,[]);
+});
+
+test('configured roots drive prototype output and reject other or occupied paths',async()=>{
+ for(const workRoot of ['.work','docs/custom-work','docs/.scratch']){
+  const projectRoot=await project();await fixtureTracker(projectRoot,workRoot);
+  const root=path.join(projectRoot,workRoot,'configured/design/prototypes');
+  await assert.rejects(prepareFlowPrototype({projectRoot,root:path.join(projectRoot,'wrong/configured/design/prototypes'),feature:'configured'}),/精确匹配/);
+  await prepareFlowPrototype({projectRoot,root,feature:'configured'});
+  assert.deepEqual((await validatePrototypeProject({root,projectRoot})).errors,[]);
+  await assert.rejects(prepareFlowPrototype({projectRoot,root,feature:'configured'}),/已存在内容/);
+ }
 });

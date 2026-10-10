@@ -4,31 +4,31 @@ import { validateImplementationEntry, validateNextRoute, validateTicketFormaliza
 
 const exists = (ref) => [
   ".template-spec/process/lifecycle-registry.yaml",
-  "docs/.scratch/demo/issues/01-valid-slice.md",
-  "docs/.scratch/demo/evidence/ticket-decomposition-result.yaml",
+  ".work/demo/issues/01-valid-slice.md",
+  ".work/demo/evidence/ticket-decomposition-result.yaml",
 ].includes(ref);
-const decompositionResult = `result_schema: workflow-execution-result-v1\nwork_unit: work-unit.ticket-decomposition\nresult: completed\nevidence_refs:\n  - docs/.scratch/demo/evidence/ticket-decomposition-result.yaml\n`;
-const read = (ref) => ref === "docs/.scratch/demo/issues/01-valid-slice.md" ? "---\nkind: vertical-slice-ticket\n---\n# 合法切片测试\n" : ref === "docs/.scratch/demo/evidence/ticket-decomposition-result.yaml" ? decompositionResult : "";
+const decompositionResult = `result_schema: workflow-execution-result-v1\nwork_unit: work-unit.ticket-decomposition\nresult: completed\nevidence_refs:\n  - .work/demo/evidence/ticket-decomposition-result.yaml\n`;
+const read = (ref) => ref === ".work/demo/issues/01-valid-slice.md" ? "---\nkind: vertical-slice-ticket\n---\n# 合法切片测试\n" : ref === ".work/demo/evidence/ticket-decomposition-result.yaml" ? decompositionResult : "";
 const options = { exists, read };
 
 const validTicketState = {
   predecessor_work_unit: "work-unit.ticket-decomposition",
   tracker_kind: "local-markdown",
-  ticket_decomposition_result_ref: "docs/.scratch/demo/evidence/ticket-decomposition-result.yaml",
-  vertical_slice_ticket_ref: "docs/.scratch/demo/issues/01-valid-slice.md",
+  ticket_decomposition_result_ref: ".work/demo/evidence/ticket-decomposition-result.yaml",
+  vertical_slice_ticket_ref: ".work/demo/issues/01-valid-slice.md",
   vertical_slice_ticket_role: "ready-for-agent",
   vertical_slice_ticket_kind: "vertical-slice-ticket",
   ticket_decomposition_result: {
     result: "completed",
-    evidence_refs: ["docs/.scratch/demo/evidence/ticket-decomposition-result.yaml"],
+    evidence_refs: [".work/demo/evidence/ticket-decomposition-result.yaml"],
   },
   vertical_slice_ticket: {
-    ref: "docs/.scratch/demo/issues/01-valid-slice.md",
+    ref: ".work/demo/issues/01-valid-slice.md",
     kind: "vertical-slice-ticket",
     role: "ready-for-agent",
   },
   slice_contract: {
-    ticket_ref: "docs/.scratch/demo/issues/01-valid-slice.md",
+    ticket_ref: ".work/demo/issues/01-valid-slice.md",
     status: "approved",
     persisted: true,
     current_version: true,
@@ -50,18 +50,18 @@ const cases = [
   ["missing slice role", { ...validTicketState, vertical_slice_ticket_role: undefined }, "vertical-slice-ticket-role-missing"],
   ["missing slice kind", { ...validTicketState, vertical_slice_ticket_kind: undefined }, "vertical-slice-ticket-kind-missing"],
   ["missing vertical slice", { ...validTicketState, vertical_slice_ticket: undefined }, "vertical-slice-ticket-required"],
-  ["parent ticket reference", { ...validTicketState, vertical_slice_ticket: { ref: "docs/.scratch/demo/parent-ticket.md", kind: "parent-ticket", role: "ready-for-agent" } }, "parent-ticket-forbidden"],
+  ["parent ticket reference", { ...validTicketState, vertical_slice_ticket: { ref: ".work/demo/parent-ticket.md", kind: "parent-ticket", role: "ready-for-agent" } }, "parent-ticket-forbidden"],
   ["human-ready slice", { ...validTicketState, vertical_slice_ticket: { ...validTicketState.vertical_slice_ticket, role: "ready-for-human" } }, "ticket-not-ready-for-agent"],
   ["uncompleted decomposition", { ...validTicketState, ticket_decomposition_result: { result: "blocked", evidence_refs: [] } }, "ticket-decomposition-incomplete"],
   ["needs-human decomposition", { ...validTicketState, ticket_decomposition_result: { result: "needs-human", evidence_refs: [] } }, "ticket-decomposition-incomplete"],
-  ["unreadable decomposition evidence", { ...validTicketState, ticket_decomposition_result: { ...validTicketState.ticket_decomposition_result, evidence_refs: ["docs/.scratch/demo/missing-evidence.md"] } }, "ticket-formalization-evidence-missing"],
+  ["unreadable decomposition evidence", { ...validTicketState, ticket_decomposition_result: { ...validTicketState.ticket_decomposition_result, evidence_refs: [".work/demo/missing-evidence.md"] } }, "ticket-formalization-evidence-missing"],
   ["wrong slice kind", { ...validTicketState, vertical_slice_ticket: { ...validTicketState.vertical_slice_ticket, kind: "parent-ticket" }, vertical_slice_ticket_kind: "parent-ticket" }, "parent-ticket-forbidden"],
   ["unapproved contract", { ...validTicketState, slice_contract: { ...validTicketState.slice_contract, status: "draft" } }, "slice-contract-not-approved"],
   ["unpersisted contract", { ...validTicketState, slice_contract: { ...validTicketState.slice_contract, persisted: false } }, "slice-contract-not-persisted"],
   ["stale formalization", { ...validTicketState, stale: true }, "ticket-formalization-stale"],
   ["wrong implementation predecessor", { ...validTicketState, predecessor_work_unit: "work-unit.spec-synthesis" }, "invalid-implementation-predecessor"],
-  ["contract bound to another ticket", { ...validTicketState, slice_contract: { ...validTicketState.slice_contract, ticket_ref: "docs/.scratch/demo/issues/02-other.md" } }, "slice-contract-ticket-mismatch"],
-  ["unreadable slice", { ...validTicketState, vertical_slice_ticket: { ...validTicketState.vertical_slice_ticket, ref: "docs/.scratch/demo/issues/03-missing.md" } }, "vertical-slice-ticket-unreadable"],
+  ["contract bound to another ticket", { ...validTicketState, slice_contract: { ...validTicketState.slice_contract, ticket_ref: ".work/demo/issues/02-other.md" } }, "slice-contract-ticket-mismatch"],
+  ["unreadable slice", { ...validTicketState, vertical_slice_ticket: { ...validTicketState.vertical_slice_ticket, ref: ".work/demo/issues/03-missing.md" } }, "vertical-slice-ticket-unreadable"],
 ];
 
 for (const [name, state, signal] of cases) {
@@ -72,7 +72,7 @@ for (const [name, state, signal] of cases) {
 
 const parentOnly = validateTicketFormalization({
   ...validTicketState,
-  vertical_slice_ticket: { ref: "docs/.scratch/demo/parent-ticket.md", kind: "parent-ticket", role: "ready-for-human" },
+  vertical_slice_ticket: { ref: ".work/demo/parent-ticket.md", kind: "parent-ticket", role: "ready-for-human" },
 }, options);
 assert.equal(parentOnly.result, "blocked");
 
@@ -105,6 +105,6 @@ assert.equal(validateTicketFormalization({
   vertical_slice_ticket_ref: "https://github.com/example/project/issues/1",
   vertical_slice_ticket: { ref: "https://github.com/example/project/issues/1", kind: "vertical-slice-ticket", role: "ready-for-agent" },
   slice_contract: { ...validTicketState.slice_contract, ticket_ref: "https://github.com/example/project/issues/1" },
-}, { ...options, exists: (ref) => ref === "https://github.com/example/project/issues/1", read: (ref) => ref === "https://github.com/example/project/issues/1" ? decompositionResult.replace("docs/.scratch/demo/evidence/ticket-decomposition-result.yaml", "https://github.com/example/project/issues/1") : "" }).result, "allowed");
+}, { ...options, exists: (ref) => ref === "https://github.com/example/project/issues/1", read: (ref) => ref === "https://github.com/example/project/issues/1" ? decompositionResult.replace(".work/demo/evidence/ticket-decomposition-result.yaml", "https://github.com/example/project/issues/1") : "" }).result, "allowed");
 
 process.stdout.write("生命周期转换压力场景验证通过\n");

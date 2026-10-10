@@ -3,6 +3,7 @@ import { existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, renameSync
 import path from 'node:path';
 import { parseDocument } from '../vendor/yaml.mjs';
 import { loadRegistry } from './lifecycle-registry.mjs';
+import { readWorkLayout, TRACKER_REF } from './work-layout.mjs';
 
 export const MIGRATION_KIND = 'strategic-gate-migration-plan-v1';
 export const MIGRATION_REQUIRED = 'STRATEGIC_GATE_MIGRATION_REQUIRED';
@@ -150,8 +151,9 @@ export function inspectStrategicGateMigration({ root, feature } = {}) {
   const registry = loadRegistry();
   const deprecated = new Set(registry.id_policy.deprecated_ids);
   const active = new Set(registry.gates.map(item => item.id));
-  const base = feature ? `docs/.scratch/${feature}` : 'docs/.scratch';
-  const refs = walk(projectRoot, base);
+  const layout = readWorkLayout(projectRoot);
+  const base = feature ? layout.featureRoot(feature) : layout.root;
+  const refs = [TRACKER_REF, ...walk(projectRoot, base)];
   const inputs = [], operations = [], historical = [], blockers = [], reapproval = new Set();
   for (const ref of refs) {
     const bytes = readFileSync(path.join(projectRoot, ref));
@@ -229,7 +231,8 @@ export function applyStrategicGateMigration(plan, { root } = {}) {
 export function findStrategicGateMigrationIssues({ root, feature } = {}) {
   const projectRoot = path.resolve(root || '.');
   const deprecated = new Set(loadRegistry().id_policy.deprecated_ids);
-  const base = feature ? `docs/.scratch/${feature}` : 'docs/.scratch';
+  const layout = readWorkLayout(projectRoot);
+  const base = feature ? layout.featureRoot(feature) : layout.root;
   const issues = [];
   for (const ref of walk(projectRoot, base)) {
     if (!EXTENSIONS.has(path.extname(ref))) continue;

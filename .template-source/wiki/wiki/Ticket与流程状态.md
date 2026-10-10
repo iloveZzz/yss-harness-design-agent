@@ -1,21 +1,19 @@
 # Ticket与流程状态
 
-Ticket 是在追踪平台上承载功能生命周期或可实现工作单元的通用追踪对象；GitHub Issues / GitLab Issues 是具体平台对象名称，领域资产统一称为 Ticket。主 tracker 以 `.template-spec/agents/issue-tracker.md` 为准，当前模板默认 `local-markdown`，root 为 `docs/.scratch/`；Git remote 只用于代码托管、分支、PR / MR 和 CI，不代表 tracker 选择。
+Ticket 是追踪对象，五态是 needs-triage、needs-info、ready-for-agent、ready-for-human、wontfix，不能与数字人角色、合同状态或临时 claimed/resolved 混用。
 
-每个功能先建立功能父 Ticket，用于汇总 Spec、设计、审查、OpenAPI Freeze、阻塞项和阶段证据（见 [[Spec基线]]、[[OpenAPI契约]]、[[产品设计影响与原型]]）。功能父 Ticket 不作为 Agent 直接实现的单元；可独立验证的实现单元是 [[垂直切片Ticket]]。
+Tracker 由 issue-tracker.md 显式选择，不能从 Git remote 推断；当前 local-markdown 的 tracker.root 为 .work。旧 roots 只读迁移，既有实例按其配置使用功能包根。平台不可用保留待发布草案与目标，不自动改投。
 
-Local 完整功能包写入 `docs/.scratch/<feature>/`，其中 `parent-ticket.md` 汇总阶段资产与阻塞边，`issues/01-<slug>.md` 等文件是垂直切片或 Wayfinder 子 Ticket；不得把多个 Ticket 合成一个文件。根目录 `.scratch/` 与 `docs/requirements/tickets/` 只允许只读迁移检查。选定 GitHub / GitLab 但凭据或平台暂不可用时，在 `docs/.scratch/<feature>/` 生成待发布草案，`parent-ticket.md` 保留目标平台并标记 `publication: pending` 与 `pending_publication_to`，不得自动改投另一远程平台（见 [[实现仓库与跨仓库契约]]）。
+Design 只形成业务 Ticket 集，保持 ready-for-human；不得创建工程父 Ticket、垂直切片或设置 ready-for-agent。
 
-五态见 `.template-spec/agents/triage-labels.md`：`needs-triage`、`needs-info`、`ready-for-agent`、`ready-for-human`、`wontfix`。Local 主 tracker 在 Ticket 顶部用同名 `Status:` 记录；评论追加在 `## Comments`，状态变化须保留原因、证据引用和下一步。Wayfinder 的 `claimed` / `resolved` 只是临时工作状态，不是五态，进入正式切片前必须转换为上述之一。
-
-Spec 初稿、产品设计、原型、OpenAPI Draft 和待冻结资产使用 `ready-for-human`。只有通过必要门禁、阻塞边已清除并具备直接实现条件的垂直切片 Ticket，才能使用 `ready-for-agent`（见 [[条件强制门禁]] 与 [[切片实现合同]]）。调用 `to-tickets` 时新建切片的初始 `Status:` 固定为 `ready-for-human`，须由生命周期编排器核验完整就绪公式后才能改为 `ready-for-agent`。
-
-Ticket、Spec 和阶段证据按主 tracker 持久化。连续自动推进期间累积的证据，在人工暂停、handoff、进入实现、合并或发布边界集中同步范围、验证证据、风险、人工审查点、Ticket 状态和下一步（见 [[Fresh验证与独立审查]]、[[Agent入口规则]]）。Git checkpoint 只包含本轮明确范围，并说明主 tracker、同步状态、验证命令、剩余风险和下一步；获得用户授权后才提交或推送。
+阶段工作项与 checkpoint 不替代 Ticket 五态或批准。提交、推送、发布分别消费用户授权，历史记录或审查结果不自行授予 Git 权限。参见 [[垂直切片Ticket]]、[[产品研发生命周期]]。
 
 ## 来源
 
-- `.template-spec/agents/issue-tracker.md`
-- `.template-spec/agents/triage-labels.md`
-- `AGENTS.md`
-- `CONTEXT.md`
-- `.template-spec/process/lifecycle-registry.yaml`
+- `AGENTS.md:67-74`：本页路由、授权及完成边界依据当前入口的 ## 6. Ticket 与状态。
+- `AGENTS.md:91-101`：本页路由、授权及完成边界依据当前入口的 ## 10. 审查、验证与 Git。
+- `AGENTS.md:71-73`：checkpoint 持有机器状态；Design 只产业务 Ticket 集且 ready-for-human，禁止父/垂直切片和 ready-for-agent；Tracker 显式选择。
+- `AGENTS.md:99-100`：授权消费本地 yss-strategic-design user-decisions；有效范围授权复用，commit/push/publish 分别核验用户授权；返工或重要缺陷触发中文复盘。
+- `.template-spec/agents/issue-tracker.md:1-28`：当前 tracker.root 为 .work，既有实例按实际配置使用根。
+- `.template-spec/agents/triage-labels.md:3-15`：Ticket 五态不是数字人角色或临时工作状态。
+- `CONTEXT.md:1-15`：根 Context 持有稳定业务语言与消费约定，正文不能授予实现权限。

@@ -1,21 +1,19 @@
 # Matt技能体系
 
-Matt Engineering Skills 是来自 `mattpocock/skills` 的轻量工程流程技能集合，用于澄清、Spec、Ticket、实现、TDD、诊断、审查和架构治理，不替代 [[YSS工程技能体系]]。
+Matt Engineering Skills 提供澄清、文档、诊断、TDD、审查与架构方法，不能替代 YSS 专项规则、仓库身份或生命周期批准。锁定来源以当前 skills-lock.json 为准，不复制 README 的历史 revision。
 
-当前锁定 revision 以 `skills-lock.json` 的 `sources` 为准：`mattpocock/skills` 的 `revision` 为 `0ab1b63a410a03d3627979a109c8695de27af954`。不要抄 README 里可能过期的 hash。上游技能基线不等于项目当前生效内容；YSS 适配必须同时保留上游内容哈希、有效内容哈希和适配依据（见 [[技能投影与锁定]]）。
+技术事实用 yss-research，竞品事实用 competitive-intelligence；问题先调查可复现行为，业务实施消费适用 YSS 技术技能。文档按 writing-for-agents 和 i-have-adhd 当前写入范围组织。
 
-`to-spec` 只是用户显式兼容入口；新功能或较大变更的默认路径是 `yss-product-lifecycle` 的原生 Discovery / 需求分析工作单元，[[Spec基线]] 与产品设计影响的完整判定以生命周期注册表和裁剪规则为准（见 [[产品研发生命周期]]）。用户显式 `to-tickets` 同样只是兼容入口；正式化由生命周期原生 Ticket 工作单元完成，禁止只按 Adapter / Application / Domain / Infrastructure 横向拆分（见 [[垂直切片Ticket]]）。
+先消费本地 `yss-strategic-design/references/orchestration-contract.yaml` 的 `request_triage.delivery_path`，再按 Harness Profile 的允许工作单元推进。Design 未启用日常实现，不因小改动获得实现权限。
 
-[[Agent入口规则]] 规定的强制入口包括：技术事实、标准、第三方 API 或框架行为走 `research`；竞品、市场或用户口碑走 `competitive-intelligence`；Bug、测试失败或性能回退先用 `diagnosing-bugs` 再建 `tdd`；merge / rebase 冲突走 `resolving-merge-conflicts`；架构治理、难测模块或深模块设计走 `codebase-design` / `codebase-design`；跨线程、跨仓库、上下文过长或原型结论回流走 `handoff`。
-
-业务行为默认按 `tdd` 使用已确认的公开 seam 逐切片实现。一次性生成、纯配置或流程文档不适用代码 TDD 时，必须记录例外理由和可执行验证方式。一次性一手资料走 `research`；要把研究结果落成持久 wiki 则走 [[LLM Wiki]]。`ask-matt` 的关联入口包括 `生命周期外部输入问卷`、`普通解释对话`、`writing-for-agents` 和 `PHASE-BOUNDARIES.md`，这些支持文件随共享 skill 目录一起计算 `effectiveHash`，不得单独投影或维护。
-
-过时技能不会保留兼容别名。已退休、personal 或由 YSS 有意排除的条目不再进入 `.agents/skills`、共享投影根或 `skills-lock.json`；其中 `wizard` 是最新上游仍存在但 YSS 当前有意排除的人工步骤技能，不应描述为上游已退休。
+旧入口只作历史识别，当前支持项及替代路径以 Skill 迁移说明、注册表和锁文件为准；工具调用成功不等于获得正式批准或外部 Git 权限。参见 [[Agent入口规则]]、[[YSS工程技能体系]]。
 
 ## 来源
 
-- `CONTEXT.md`
-- `AGENTS.md`
-- `skills-lock.json`
-- `.template-source/agents/skills-maintenance.md`
-- `wiki/raw/skills-lock-names.md`
+- `AGENTS.md:80-86`：本页路由、授权及完成边界依据当前入口的 ## 8. 专项入口。
+- `AGENTS.md:82-82`：技术事实使用 yss-research，竞品与市场或用户口碑事实使用 competitive-intelligence。
+- `AGENTS.md:58-58`：Design 消费本地 yss-strategic-design orchestration-contract 的 request_triage.delivery_path；本 Profile 未启用日常实现，只执行 allowed_work_units。
+- `AGENTS.md:99-100`：授权消费本地 yss-strategic-design user-decisions；有效范围授权复用，commit/push/publish 分别核验用户授权；返工或重要缺陷触发中文复盘。
+- `CONTEXT.md:1-15`：根 Context 持有稳定业务语言与消费约定，正文不能授予实现权限。
+- `.template-source/agents/skills-maintenance.md:5-13`：共享内容、平台专属来源、投影与锁各按其事实所有权维护。
+- `skills-lock.json:1-12`：当前锁的版本、canonicalRoot 与来源元数据是技能来源记录；名称摘录是派生视图。

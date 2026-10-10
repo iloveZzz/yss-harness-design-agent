@@ -1,20 +1,25 @@
 # Agent入口规则
 
-`AGENTS.md` 只保存 Agent 必须首先遵守的仓库身份路由、硬门禁和禁止事项。每个任务开始时先读根目录 `yss-project.yaml`：`template-source` 走模板维护，`project-instance` 按产品研发生命周期分诊；文件缺失或模式非法时停止路由并做迁移检查，不根据目录、Git 远程或占位符猜测身份。细则见 [[仓库身份与路由]]。
+每个任务先读取当前治理仓根身份与唯一 `CONTEXT.md`，按任务触发加载规则；只读调查不生成治理状态。进入独立子仓使用其本地入口，共同授权与用户工作保护仍有效。
 
-单一事实来源不得在说明文档里重复定义：领域与流程词汇以 `CONTEXT.md` 为准；Agent 入口以 `AGENTS.md` 为准；主阶段、门禁、产物、工作单元、证据和稳定 ID 以 `.template-spec/process/lifecycle-registry.yaml` 为准（`.template-spec/process/lifecycle-artifact-map.md` 只是派生阅读视图）；影响面触发与 `not-applicable` 以 `.template-spec/process/harness-process-tailoring.md` 为准（见 [[影响面分诊与流程裁剪]]）；技能清单、来源、版本、哈希和投影目标以 `skills-lock.json` 为准。`.template-spec/agents/yss-skill-registry.yaml` 当前 `status: shadow`，不作为 Router / 生命周期运行时入口。
+先消费本地 `yss-strategic-design/references/orchestration-contract.yaml` 的 `request_triage.delivery_path`，再按 Harness Profile 的允许工作单元推进。Design 未启用日常实现，不因小改动获得实现权限。
 
-落地文档正文统一使用简体中文；英文专有名词、路径、schema、命令与协议 metadata 保持原样。业务术语必须已有 PascalCase `英文标识`；代码类型 / 字段与契约 property 使用该词干按 `CONTEXT.md` 文首规则变形；改中文术语或英文标识都先回写 `CONTEXT.md`。新流程统一使用 Spec、Ticket、`to-spec`、`to-tickets`。功能父 Ticket 汇总阶段证据；Spec 初稿、产品设计、原型、OpenAPI Draft 和待冻结资产使用 `ready-for-human`；只有通过必要门禁、阻塞边已清除并具备直接实现条件的垂直切片 Ticket 才能使用 `ready-for-agent`（见 [[Ticket与流程状态]]）。
+正式工作消费已批准且当前的业务资产，按 Profile 与注册表只推进本轮触发单元及依赖。
 
-进入实现前先读 `.template-spec/process/implementation-repo-integration.md` 并登记实现仓库，再由 `yss-router` 编译最小 skill 集合与当前实现合同（见 [[YSS路由与合同编译]]）。当前仓库默认是研发管理仓库，运行时代码优先在独立实现仓库；只有用户明确选择时才用 `apps/backend/<project>/` 或 `apps/frontend/<project>/`。`app/backend/`、`app/frontend/` 禁止作为工程输出（见 [[实现仓库与跨仓库契约]]）。前端测试、type-check 与构建优先 `pnpm`；后端校验、测试与编译优先项目根 `./mvnw`；不要默认 `npm` / `yarn` 或裸 `mvn`。根目录 `CLAUDE.md` 只引用 `AGENTS.md`，不是第二套入口规则。
+本地终点为 `work-unit.strategic-design-handoff`，完成后 `next_route: null`；本仓不生成技术设计、OpenAPI、父/垂直切片 Ticket、Slice Implementation Contract 或运行时代码，实施请求转交下游研发 Profile。
 
-专项任务必须走指定入口：技术事实、标准、第三方 API 或框架行为影响决策时用 `research` 或等价一手资料记录；竞品与市场口碑用 `competitive-intelligence`；UI 设计、原型、组件或主题先 `yss-design-system` 再 `yss-prototype-stage`；Bug 先 `diagnosing-bugs` 再 `tdd`；冲突用 `resolving-merge-conflicts`；架构治理用 `codebase-design` / `codebase-design`；跨线程、跨仓库或上下文过长用 `handoff`。本地知识库 init / refresh / rebuild，或要把研究结果落成持久 wiki，必须使用 `llm-wiki`（落成持久 wiki 用 `ingest`；已映射 live 源变了用 `refresh`；见 [[LLM Wiki]]）。`template-source` 的 wiki-root 为 `.template-source/wiki`；`project-instance` 不附带源仓库编译树，需要时在仓库根 `wiki/` 执行 `init`。一次性一手资料笔记走 `research`，持久 wiki 走 `llm-wiki` 的 `ingest`，不把 ingest 理解成替代权威源。
-
-实现者不能承担命中的独立审查；任何「完成 / 可合并 / 可发布」结论必须基于 fresh verification，不接受「之前跑过」或实现者自述（见 [[Fresh验证与独立审查]]）。业务行为默认按 `tdd` 使用已确认的公开 seam 逐切片实现；YSS 专项规范见 [[YSS工程技能体系]]，通用工程流程见 [[Matt技能体系]]。
+生命周期 ID 与条件门禁由注册表定义，影响面由裁剪文档定义，技能身份由 active Registry 定义；锁文件仍负责来源与投影。实施者不能自审，验证保存实际命令、退出码、范围与未覆盖边界。有效范围授权可复用；提交、推送、发布分别消费用户授权。参见 [[Fresh验证与独立审查]]、[[Ticket与流程状态]]。
 
 ## 来源
 
-- `AGENTS.md`
-- `CONTEXT.md`
-- `yss-project.yaml`
-- `README.md`
+- `AGENTS.md:9-19`：本页路由、授权及完成边界依据当前入口的 ## 1. 仓库身份。
+- `AGENTS.md:20-35`：本页路由、授权及完成边界依据当前入口的 ## 2. 单一事实来源。
+- `AGENTS.md:91-101`：本页路由、授权及完成边界依据当前入口的 ## 10. 审查、验证与 Git。
+- `AGENTS.md:11-18`：Design 身份、模板源不产产品资产、只读诊断零状态写入及显式旧实例迁移。
+- `AGENTS.md:24-33`：根 Context、Profile、生命周期、影响面和 active Registry 分别持有事实；README、Wiki 不另定义规则。
+- `AGENTS.md:58-58`：Design 消费本地 yss-strategic-design orchestration-contract 的 request_triage.delivery_path；本 Profile 未启用日常实现，只执行 allowed_work_units。
+- `AGENTS.md:60-63`：Design 从最近可信阶段推进本轮触发单元及依赖；复用可信上游，不将导航和未来资产当每次必做项；命中条件门禁必须完成。
+- `AGENTS.md:64-65`：Design 本地禁止 Tactical Design、OpenAPI、父/垂直切片 Ticket、Slice 合同和运行时代码；实施 blocked 转交下游，战略交接完成 next_route 必须 null。
+- `AGENTS.md:93-93`：命中产品审查使用独立 Reviewer，实施者不自审；模板日常 self-check 消费维护规则。
+- `AGENTS.md:99-100`：授权消费本地 yss-strategic-design user-decisions；有效范围授权复用，commit/push/publish 分别核验用户授权；返工或重要缺陷触发中文复盘。
+- `CONTEXT.md:1-15`：根 Context 持有稳定业务语言与消费约定，正文不能授予实现权限。

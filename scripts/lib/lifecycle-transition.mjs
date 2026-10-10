@@ -8,6 +8,7 @@ import { parseDocument } from "../vendor/yaml.mjs";
 import { assertStrategicWorkUnitDecision } from './approval-record.mjs';
 import {verifySpecBaselineBinding} from './spec-baseline.mjs';
 import { validatePlanSpecEntry } from './plan-spec-entry.mjs';
+import { readWorkLayout } from './work-layout.mjs';
 
 const IMPLEMENTATION_WORK_UNIT = "work-unit.slice-implementation";
 const TICKET_DECOMPOSITION_WORK_UNIT = "work-unit.ticket-decomposition";
@@ -117,16 +118,11 @@ function readDecompositionResult(ref, read) {
   }
 }
 
-function validateTicketPath(ref) {
-  if (!hasText(ref)) return false;
-  return /^docs\/\.scratch\/[^/]+\/issues\/[^/]+\.md$/.test(ref);
-}
-
-function validateTicketReference(ref, trackerKind) {
+function validateTicketReference(ref, trackerKind, root) {
   if (trackerKind === "github" || trackerKind === "gitlab") {
     return /^(https?:\/\/|(?:github|gitlab):)[^\s]+$/.test(ref);
   }
-  return validateTicketPath(ref);
+  return readWorkLayout(root).isTicket(ref);
 }
 
 /**
@@ -173,7 +169,7 @@ export function validateNextRoute(currentWorkUnit, nextRoute, state = {}, option
  * Validate that Ticket formalization produced a real, implementable vertical slice.
  * `exists` is injectable so external adapters can resolve their own tracker refs.
  */
-export function validateTicketFormalization(state, { exists = existsSync, read = (ref) => readFileSync(ref, "utf8") } = {}) {
+export function validateTicketFormalization(state, { root = ROOT, exists = existsSync, read = (ref) => readFileSync(ref, "utf8") } = {}) {
   try {if(state?.vertical_slice_ticket?.ref)assertImplementationTicket(read(state.vertical_slice_ticket.ref),state.vertical_slice_ticket.ref);}catch(error){return blockedResult(['ticket-content-invalid'],[error.message]);}
   const decomposition = state?.ticket_decomposition_result;
   const ticket = state?.vertical_slice_ticket;
@@ -238,9 +234,12 @@ export function validateTicketFormalization(state, { exists = existsSync, read =
       signals.push(BLOCKING_SIGNALS.wrongRole);
       missing.push("vertical_slice_ticket_role=vertical_slice_ticket.role");
     }
-    if (!validateTicketReference(ticket.ref, trackerKind)) {
+    let validTicket = false;
+    try { validTicket = validateTicketReference(ticket.ref, trackerKind, root); }
+    catch (error) { missing.push(error.message); }
+    if (!validTicket) {
       signals.push(ticket.kind === "parent-ticket" || ticket.ref.endsWith("/parent-ticket.md") ? BLOCKING_SIGNALS.parentTicket : BLOCKING_SIGNALS.missingSlice);
-      missing.push(trackerKind === "local-markdown" ? "vertical_slice_ticket.ref under docs/.scratch/<feature>/issues/" : "remote tracker Ticket reference");
+      missing.push(trackerKind === "local-markdown" ? "vertical_slice_ticket.ref under configured tracker.root/<feature>/issues/" : "remote tracker Ticket reference");
     }
     if (ticket.kind === "parent-ticket" || ticket.ref.endsWith("/parent-ticket.md")) {
       signals.push(BLOCKING_SIGNALS.parentTicket);

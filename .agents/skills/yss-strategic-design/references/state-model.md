@@ -67,14 +67,14 @@ workflow:
   active_skill: yss-prototype-stage
   status: paused
 artifacts:
-  spec: {status: approved, ref: docs/.scratch/example/spec.md}
-  prototype: {status: stale, ref: docs/.scratch/example/design/prototype-evidence.yaml, stale_by: [spec]}
+  spec: {status: approved, ref: .work/example/spec.md}
+  prototype: {status: stale, ref: .work/example/design/prototype-evidence.yaml, stale_by: [spec]}
 gates:
   prototype_verified: {status: stale}
 tracker:
   kind: local-markdown
   root: .work
-  refs: [docs/.scratch/example/map.md]
+  refs: [.work/example/map.md]
   role: ready-for-human
 pause:
   reason_code: human-gate

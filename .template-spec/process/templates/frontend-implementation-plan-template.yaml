@@ -2,8 +2,8 @@ schema_version: 1
 kind: plan
 template: true
 status: draft
-prototype_ref: docs/.scratch/example/design/prototype.html
-spec_ref: docs/.scratch/example/spec.md
+prototype_ref: .work/example/design/prototype.html
+spec_ref: .work/example/spec.md
 route_and_page_inventory:
   - route: /example
     page: ExamplePage

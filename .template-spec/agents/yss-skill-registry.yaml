@@ -261,6 +261,10 @@ invocation_contract:
       trigger_conditions: [ skill-maintenance-request ]
       exclusion_conditions: [ outside-authorized-scope ]
       primary_output: skill-maintenance-evidence
+    publish-skills-sh:
+      invocation_mode: user
+    llm-wiki:
+      invocation_mode: user
 agent_runtime_roots:
   codex: .codex/skills
   cursor: .cursor/skills

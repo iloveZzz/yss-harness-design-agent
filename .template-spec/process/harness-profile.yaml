@@ -1,10 +1,11 @@
 schema_version: 2
 profile_id: harness.business-ddd-strategy-handoff
 status: active
-name: 产品需求商务业务方案交付模式
+name: 产品与业务设计专职协作模式
 purpose: >-
   面向产品、需求和商务角色，把机会与业务约束收敛为可审查的业务边界、协作关系和关键规则，
   形成可直接交付给下游研发团队的业务方案交接包。
+  可由一个 Spec 综合主控按需协作；产品设计里程碑与本端战略交接终点分开核验，整体业务验收由主控负责。
 
 audience:
   target_user_roles:

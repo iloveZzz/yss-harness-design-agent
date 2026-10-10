@@ -126,7 +126,7 @@ orchestrator:
     assign one owner per stage. Do not implement business code, create or
     approve Slice contracts, or announce releasable. Stop after the approved
     business-solution handoff and transfer downstream questions to the R&D
-    profile. Authoritative artifacts live in git.
+    profile. Authoritative artifacts live in git. 向综合 Spec 主控报告时只消费显式同功能 checkpoint 与当前 Receipt；产品设计里程碑不替代战略交接终点，不改写整体推进意图或宣布整体业务验收。
 roles:
   - id: role.requirements-manager
     name: 需求经理

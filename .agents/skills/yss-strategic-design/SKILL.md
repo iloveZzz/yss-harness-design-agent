@@ -27,6 +27,8 @@ Plan 入口读取 `.template-spec/plan/README.md` 和 `.template-spec/process/pl
 
 ## 业务方案设计 Harness profile
 
+本入口是产品与业务设计专职协作方。Spec 主控可显式绑定本功能 checkpoint 与当前接收 Receipt 汇总；不创建第二套推进状态，也不改写主控的 `progression-target.json`。`product-design-completed` 只表示产品设计里程碑；本 Profile 仍须完成批准的战略交接、finalize 和整包实际验证才到职责终点。无 UI 设计影响按当前证据显示不适用。职责完成不代表主控业务验收或 Git 发布授权。
+
 本分支默认面向内部兼容 ID `harness.business-ddd-strategy-handoff`：目标用户只有 `role.product-manager`（产品）、`role.requirements-manager`（需求）和 `role.business`（商务）；`role.lifecycle-orchestrator` 仅作为流程控制平面。项目管理、工程、测试和发布角色不在本分支注册或派发，由业务方案交接后的下游研发 profile 接管。
 
 该 profile 的本地生命周期在业务级 Ticket 和业务方案交接处结束：

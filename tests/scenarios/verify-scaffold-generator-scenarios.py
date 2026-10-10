@@ -350,8 +350,8 @@ def main() -> int:
         )
         require(
             forbidden_harness_output.returncode != 0
-            and "禁止使用单数 app/backend" in (forbidden_harness_output.stdout + forbidden_harness_output.stderr),
-            "脚手架不得把 app/backend 作为工程输出路径",
+            and "必须提供已持久化的结构化脚手架合同" in (forbidden_harness_output.stdout + forbidden_harness_output.stderr),
+            "app/backend 输出仍须具有当前脚手架合同",
         )
 
         stale_contract_root = temp_root / "stale-contract-output"

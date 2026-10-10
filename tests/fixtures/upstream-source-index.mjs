@@ -3,14 +3,14 @@ export default {
   "schema_version": 1,
   "kind": "test-only-canonical-source",
   "source_repository": "yss-spec-project-template",
-  "source_head": "33e9ac4295e2f8df3838baec2a3f6d2ae2372d8c",
+  "source_head": "2bd0043e7d088eb861d0822c50613c2e52e5f2df",
   "source_state": "working-tree",
   "files": [
     {
       "path": ".agents/skills/implementation-repo-onboarding/SKILL.md",
       "source_path": ".agents/skills/implementation-repo-onboarding/SKILL.md",
       "storage_path": ".agents/skills/implementation-repo-onboarding/SKILL.md",
-      "sha256": "b03109a6d4914b9fb1f24ba981cd3aa05b464d5292bc772c399ff2cd20ec239f",
+      "sha256": "2e167cbb4bb628bdb1549cd2a007a1df3c8e48865c6b5843986c065b46482c04",
       "mode": 420
     },
     {
@@ -24,7 +24,7 @@ export default {
       "path": ".agents/skills/yss-ddd-scaffold-generator/SKILL.md",
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/SKILL.md",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/SKILL.md",
-      "sha256": "3c659e19109537a97139a4a4e8d20d441608628d52121cc2f81f2b1c4258e984",
+      "sha256": "c6b60c48b19410eff2a56f3bcf104c92aaacbae8f3469512cbe26256381b77e9",
       "mode": 420
     },
     {
@@ -213,7 +213,7 @@ export default {
       "path": ".agents/skills/yss-ddd-scaffold-generator/references/generation-workflow.md",
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/references/generation-workflow.md",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/references/generation-workflow.md",
-      "sha256": "3dec93d47cf83ef8ce1d6fd534d55b1ef336c1e2530e498828794989381999b1",
+      "sha256": "14b43f629026500d2687c59b605beecef382a56c32fc1362d0780d9f1d39e3f5",
       "mode": 420
     },
     {
@@ -269,7 +269,7 @@ export default {
       "path": ".agents/skills/yss-ddd-scaffold-generator/scripts/generate_scaffold.mjs",
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/scripts/generate_scaffold.mjs",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/scripts/generate_scaffold.mjs",
-      "sha256": "0f824941fe4b08084fc27646c8fc3162a8baf19b2a9baee5914494d1032597f2",
+      "sha256": "e08c0186fae060706c37fe22fbf8a27771e343c9fbb98b5213cab6c75471fc11",
       "mode": 420
     },
     {
@@ -297,7 +297,7 @@ export default {
       "path": ".agents/skills/yss-ddd-scaffold-generator/scripts/standalone.test.mjs",
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/scripts/standalone.test.mjs",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/scripts/standalone.test.mjs",
-      "sha256": "46ae4a3fb4bb8d3137b5cc3dde691a216cd4aa6bc5d4ced542755e853a14a8b4",
+      "sha256": "654f62d0a4711dc53361a7d9a35d2f1b77c41ded2d5986db33fa8b0bea834664",
       "mode": 420
     },
     {
@@ -318,14 +318,14 @@ export default {
       "path": ".agents/skills/yss-implementation-contract-compiler/SKILL.md",
       "source_path": ".agents/skills/yss-implementation-contract-compiler/SKILL.md",
       "storage_path": ".agents/skills/yss-implementation-contract-compiler/SKILL.md",
-      "sha256": "257764077d560da14f28aaae2b03af5b486e749172deeee66e269d4e3069cc96",
+      "sha256": "81788181bf329edc42ca761e61f72b29c94a53200b6986d3788036cc8bd047a1",
       "mode": 420
     },
     {
       "path": ".agents/skills/yss-implementation-contract-compiler/references/compiler-contract.yaml",
       "source_path": ".agents/skills/yss-implementation-contract-compiler/references/compiler-contract.yaml",
       "storage_path": ".agents/skills/yss-implementation-contract-compiler/references/compiler-contract.yaml",
-      "sha256": "662092de5d9fc201113daf8cd46a62e69b3470017dce2561a519a5c4a3f14f47",
+      "sha256": "d60f18b6cab1e2f0716d89d7d59ce42a914306312ff61c94faf34497ac86491f",
       "mode": 420
     },
     {
@@ -346,7 +346,7 @@ export default {
       "path": ".agents/skills/yss-layered-mvc-scaffold-generator/scripts/generate_scaffold.mjs",
       "source_path": ".agents/skills/yss-layered-mvc-scaffold-generator/scripts/generate_scaffold.mjs",
       "storage_path": ".agents/skills/yss-layered-mvc-scaffold-generator/scripts/generate_scaffold.mjs",
-      "sha256": "8d1313f7bb882a8797dc9aa56c1053709acba91afb2fcff51bb431d3776f4f3a",
+      "sha256": "18d27a680b090ee753408211caf32738b387252cc21061a682f65593665ef2dd",
       "mode": 493
     },
     {
@@ -374,7 +374,7 @@ export default {
       "path": ".agents/skills/yss-product-lifecycle/references/orchestration-contract.yaml",
       "source_path": ".agents/skills/yss-product-lifecycle/references/orchestration-contract.yaml",
       "storage_path": ".agents/skills/yss-product-lifecycle/references/orchestration-contract.yaml",
-      "sha256": "c8c5da26d6971eab7de922d67ff18e33f9737c3f235d00716d099e5b793deeb8",
+      "sha256": "3617d6ba1b8236d56b0af517c9ed46fca437dabf6862d4124e18ac687c41b051",
       "mode": 420
     },
     {
@@ -2082,7 +2082,7 @@ export default {
       "path": "scripts/lib/git-submodule-fixtures.mjs",
       "source_path": "scripts/lib/git-submodule-fixtures.mjs",
       "storage_path": "scripts/lib/git-submodule-fixtures.mjs",
-      "sha256": "9ea30d29eb29b878c3cd82345edf722b5cfdae1e9ac51eade1c565a40f3d0485",
+      "sha256": "053fd6d5706cec59eaefb81ee8c5a3a15b8c47e0f1103b5971f9f656b668073b",
       "mode": 420
     },
     {
@@ -2117,7 +2117,7 @@ export default {
       "path": "scripts/lib/implementation-path-policy.mjs",
       "source_path": "scripts/lib/implementation-path-policy.mjs",
       "storage_path": "scripts/lib/implementation-path-policy.mjs",
-      "sha256": "65f96fec6b786374d2ffc341bd7e3c9e42bb6a850ebfba476c9fc574b7655ef4",
+      "sha256": "c8a2463e4d1cb2791afd2f2e0f71a7848c5c0db80ae2efcdcafbdc5a259dc724",
       "mode": 420
     },
     {
@@ -2285,7 +2285,7 @@ export default {
       "path": "scripts/lib/repository-scope-policy.mjs",
       "source_path": "scripts/lib/repository-scope-policy.mjs",
       "storage_path": "scripts/lib/repository-scope-policy.mjs",
-      "sha256": "419be37886b313981f0686c9b49d99195499bcbc1acda4ef800d8d96c780196e",
+      "sha256": "093e32e1ccc021ec705e5e5ef76f2b3045587ebb9b92dac836cc07ff869a8f92",
       "mode": 420
     },
     {
@@ -2341,7 +2341,7 @@ export default {
       "path": "scripts/lib/slice-contract.mjs",
       "source_path": "scripts/lib/slice-contract.mjs",
       "storage_path": "scripts/lib/slice-contract.mjs",
-      "sha256": "328d53acc7678a903c23214c6c75c14ce9dbcc2e826e10a93de4d2f1c14e61e0",
+      "sha256": "b31808f292a96286e372d28753be8aceed7d2e3c39d776540c2c4cc4b6e0c132",
       "mode": 420
     },
     {

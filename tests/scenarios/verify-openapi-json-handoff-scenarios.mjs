@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { runScenario } from "../../scripts/lib/scenario-checks.mjs";
+import { runScenario } from "../helpers/scenario-checks.mjs";
 import { fixtureFile, verifyFixtureSource } from "../fixtures/canonical-source.mjs";
 import inventory from "../fixtures/upstream-source-index.mjs";
 verifyFixtureSource();

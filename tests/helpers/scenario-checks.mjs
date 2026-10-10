@@ -1,12 +1,12 @@
 import { existsSync, readFileSync, mkdtempSync, rmSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { buildDecisionFixture } from "../fixtures/user-decision/build-fixture.mjs";
-import { buildPlanFixture } from "../fixtures/user-decision/plan-fixture.mjs";
+import { buildDecisionFixture } from "../../scripts/fixtures/user-decision/build-fixture.mjs";
+import { buildPlanFixture } from "../../scripts/fixtures/user-decision/plan-fixture.mjs";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
-import { parseDocument } from "../vendor/yaml.mjs";
-import { lifecycleTransitionContract, validateImplementationEntry, validateNextRoute } from "./lifecycle-transition.mjs";
+import { parseDocument } from "../../scripts/vendor/yaml.mjs";
+import { lifecycleTransitionContract, validateImplementationEntry, validateNextRoute } from "../../scripts/lib/lifecycle-transition.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const read = (relative) => readFileSync(path.join(root, relative), "utf8");

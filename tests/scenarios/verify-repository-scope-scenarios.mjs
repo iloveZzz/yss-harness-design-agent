@@ -19,7 +19,7 @@ import {
   validRepositoryScope,
   violationRepositoryScope
 } from "../../scripts/lib/repository-scope-policy.mjs";
-import { makeGitlinkFixture } from "../../scripts/lib/git-submodule-fixtures.mjs";
+import { makeGitlinkFixture } from "../helpers/git-submodule-fixtures.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const read = (relative) => readFileSync(localExists(path.join(root,relative)) ? path.join(root,relative) : fixtureFile(relative), "utf8");

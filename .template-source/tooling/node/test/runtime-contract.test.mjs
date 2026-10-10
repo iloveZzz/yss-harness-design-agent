@@ -61,7 +61,7 @@ test("repository_scope git-submodule is a first-class layout distinct from harne
     validRepositoryScope,
     violationRepositoryScope
   } = await import(path.join(repositoryRoot, "scripts/lib/repository-scope-policy.mjs"));
-  const { makeGitlinkFixture } = await import(path.join(repositoryRoot, "scripts/lib/git-submodule-fixtures.mjs"));
+  const { makeGitlinkFixture } = await import(path.join(repositoryRoot, "tests/helpers/git-submodule-fixtures.mjs"));
   const record = {
     repository_scope: "git-submodule",
     layout_policy: LAYOUT_POLICIES["git-submodule"],

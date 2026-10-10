@@ -3,14 +3,14 @@ export default {
   "schema_version": 1,
   "kind": "test-only-canonical-source",
   "source_repository": "yss-spec-project-template",
-  "source_head": "3c2b2b2fd4ff675b320a385bf3309bd1b913862c",
+  "source_head": "bc4606968ce59d1344250fb31eea2505037cde30",
   "source_state": "working-tree",
   "files": [
     {
       "path": ".agents/skills/implementation-repo-onboarding/SKILL.md",
       "source_path": ".agents/skills/implementation-repo-onboarding/SKILL.md",
       "storage_path": ".agents/skills/implementation-repo-onboarding/SKILL.md",
-      "sha256": "b03109a6d4914b9fb1f24ba981cd3aa05b464d5292bc772c399ff2cd20ec239f",
+      "sha256": "c901e8ea5374defbc66c1e259015acc5784bd933e310757809d5abb306e64c8d",
       "mode": 420
     },
     {
@@ -24,7 +24,7 @@ export default {
       "path": ".agents/skills/yss-ddd-scaffold-generator/SKILL.md",
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/SKILL.md",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/SKILL.md",
-      "sha256": "aa7fec2b0c941314901df23da2167dcbc96e7b364251039d98c8b24e3968cc63",
+      "sha256": "44bc4e53f94acc71890a7bdf0ee3fde7a21f08aa06a637f960118d7de406ef34",
       "mode": 420
     },
     {
@@ -129,7 +129,7 @@ export default {
       "path": ".agents/skills/yss-ddd-scaffold-generator/assets/wrapper/.mvn/maven.config",
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/assets/wrapper/.mvn/maven.config",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/assets/wrapper/.mvn/maven.config",
-      "sha256": "f588b33688ebc166d6a9c1fba5cc27b9a4aab7798363eb5a480f993040adec27",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "mode": 420
     },
     {
@@ -185,7 +185,7 @@ export default {
       "path": ".agents/skills/yss-ddd-scaffold-generator/references/USAGE_EXAMPLES.md",
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/references/USAGE_EXAMPLES.md",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/references/USAGE_EXAMPLES.md",
-      "sha256": "653be1972bc2db728a36609ce565656d65681dd55b8fca124136b747b0356dd2",
+      "sha256": "e4f8433ff102e0bb49c7a4ee054e5cee1bc03b08f3e545dd58605c710f03c21b",
       "mode": 420
     },
     {
@@ -199,21 +199,21 @@ export default {
       "path": ".agents/skills/yss-ddd-scaffold-generator/references/engineering-baseline.md",
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/references/engineering-baseline.md",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/references/engineering-baseline.md",
-      "sha256": "336df2b644cd01df11114626e450044fb353d4ae1226a60d1f825f83de7002a0",
+      "sha256": "f1e53c1b0c7adc7b74f11b35b0d8127d0e0ab3cf23d88e7e2af209a25be85625",
       "mode": 420
     },
     {
       "path": ".agents/skills/yss-ddd-scaffold-generator/references/engineering-checks.md",
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/references/engineering-checks.md",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/references/engineering-checks.md",
-      "sha256": "0ba8cd547223d124dec2293f77d7a840109f2ba327f06a4adb3e47dd934f2b69",
+      "sha256": "6b19763aba9814544bede3d73c3b80d9e0a39d2912432b5064278b6716f707d6",
       "mode": 420
     },
     {
       "path": ".agents/skills/yss-ddd-scaffold-generator/references/generation-workflow.md",
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/references/generation-workflow.md",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/references/generation-workflow.md",
-      "sha256": "9e6055ecd61593970f3b7da4535fa7d728b4bd007eadd931e5b5f934f317b5c4",
+      "sha256": "e0f850040e37bb3100660eb44e3fdc40e03d87e1f85d978dd42429db559d1075",
       "mode": 420
     },
     {
@@ -262,7 +262,7 @@ export default {
       "path": ".agents/skills/yss-ddd-scaffold-generator/scripts/generate_scaffold.mjs",
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/scripts/generate_scaffold.mjs",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/scripts/generate_scaffold.mjs",
-      "sha256": "6b3a0023c9545e292bfb2d848ccfcf97f2a8dafcad661e274308939d8ba91813",
+      "sha256": "2020e81861cdb36e6db5a411054b68e156731ac6a475aa035f0689233a3c3f12",
       "mode": 420
     },
     {
@@ -276,21 +276,21 @@ export default {
       "path": ".agents/skills/yss-ddd-scaffold-generator/scripts/run_scaffold_verification.mjs",
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/scripts/run_scaffold_verification.mjs",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/scripts/run_scaffold_verification.mjs",
-      "sha256": "af636ab3e017a3f4824810845e4e6751a07287342bb1ec6b22317ef2c31570ed",
+      "sha256": "b72da2b8b965341e4387d4eed5a747070cb591ebba8ad43bdb654d1292096b13",
       "mode": 420
     },
     {
       "path": ".agents/skills/yss-ddd-scaffold-generator/scripts/scaffold-generator.test.mjs",
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/scripts/scaffold-generator.test.mjs",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/scripts/scaffold-generator.test.mjs",
-      "sha256": "f40a73d6d6e64b334f4c489794c561a787ba9f98a33f8c6f09b1b67b467f2461",
+      "sha256": "f97536e71abe1961e9caa2929af6879c976979f5e66146550445060ecfeadfe2",
       "mode": 420
     },
     {
       "path": ".agents/skills/yss-dto/SKILL.md",
       "source_path": ".agents/skills/yss-dto/SKILL.md",
       "storage_path": ".agents/skills/yss-dto/SKILL.md",
-      "sha256": "77a47ba132af5556cf91818789d0ac57d75724bb0b53aa104a77bd7a1c556568",
+      "sha256": "ab42c5d20f167e2a1f515f49e4bb4d9e141a90f1a119c3d20559414703522001",
       "mode": 420
     },
     {
@@ -304,14 +304,14 @@ export default {
       "path": ".agents/skills/yss-implementation-contract-compiler/SKILL.md",
       "source_path": ".agents/skills/yss-implementation-contract-compiler/SKILL.md",
       "storage_path": ".agents/skills/yss-implementation-contract-compiler/SKILL.md",
-      "sha256": "d1498c54d6944e51bd1da55a7e04f3daec26765d11c7d46400f6fc12ed090f72",
+      "sha256": "27123c7f20d01c3fd83f204e88dfe171b70ac0ca42de6a7fe2fbb6d5f4b6520f",
       "mode": 420
     },
     {
       "path": ".agents/skills/yss-implementation-contract-compiler/references/compiler-contract.yaml",
       "source_path": ".agents/skills/yss-implementation-contract-compiler/references/compiler-contract.yaml",
       "storage_path": ".agents/skills/yss-implementation-contract-compiler/references/compiler-contract.yaml",
-      "sha256": "ba0f1d09fa78ffe55ce688e8c446c77b1b1fedc675812dd289d92fab38309e5f",
+      "sha256": "f39082e209401f46e9db5b6250f02b69d415e093d848c6b2e1675ce04bc8d540",
       "mode": 420
     },
     {
@@ -320,6 +320,13 @@ export default {
       "storage_path": ".agents/skills/yss-implementation-contract-compiler/references/slice-implementation-contract.md",
       "sha256": "c10b3b2543d878c8ed675f398a1f1d98555e8f50de130f83f0dc2e75783854dc",
       "mode": 420
+    },
+    {
+      "path": ".agents/skills/yss-layered-mvc-scaffold-generator/scripts/run_scaffold_verification.mjs",
+      "source_path": ".agents/skills/yss-layered-mvc-scaffold-generator/scripts/run_scaffold_verification.mjs",
+      "storage_path": ".agents/skills/yss-layered-mvc-scaffold-generator/scripts/run_scaffold_verification.mjs",
+      "sha256": "548d8b5c9bfa0b7e09420ba23d6a3025b98c5fac334006bbbed4385bb930675e",
+      "mode": 493
     },
     {
       "path": ".agents/skills/yss-openapi-draft-review/SKILL.md",
@@ -339,7 +346,7 @@ export default {
       "path": ".agents/skills/yss-product-lifecycle/references/orchestration-contract.yaml",
       "source_path": ".agents/skills/yss-product-lifecycle/references/orchestration-contract.yaml",
       "storage_path": ".agents/skills/yss-product-lifecycle/references/orchestration-contract.yaml",
-      "sha256": "5d59f7d334d9c9c86c9d2557cacddb16029b12c31ef8cf0e48b81532125a299d",
+      "sha256": "526bcd57fe4d78ba8be19f4b7e1020d1aaa63b79c54e7dd98848d55488d95d66",
       "mode": 420
     },
     {
@@ -1358,13 +1365,6 @@ export default {
       "mode": 420
     },
     {
-      "path": ".template-source/engineering/evidence/aliyun-artifact-resolution.json",
-      "source_path": ".template-source/engineering/evidence/aliyun-artifact-resolution.json",
-      "storage_path": ".template-source/engineering/evidence/aliyun-artifact-resolution.json",
-      "sha256": "35a82e84eb93d35046900886affb806f3620b1416b4b097f67f42c658b676bca",
-      "mode": 420
-    },
-    {
       "path": ".template-source/process/MATT-POCOCK-ENGINEERING-SKILLS.md",
       "source_path": ".template-source/process/MATT-POCOCK-ENGINEERING-SKILLS.md",
       "storage_path": ".template-source/process/MATT-POCOCK-ENGINEERING-SKILLS.md",
@@ -1389,21 +1389,28 @@ export default {
       "path": ".template-spec/agents/skill-migrations.md",
       "source_path": ".template-spec/agents/skill-migrations.md",
       "storage_path": ".template-spec/agents/skill-migrations.md",
-      "sha256": "6a989f3aae88123143836cb0016191d310569138e3b193201bb1988e9dfd73a9",
+      "sha256": "30649924d896773a169a65ff039dfb38e6d31a150b3179a879bd420c42e1c1ec",
       "mode": 420
     },
     {
       "path": ".template-spec/agents/yss-skill-registry.yaml",
       "source_path": ".template-spec/agents/yss-skill-registry.yaml",
       "storage_path": ".template-spec/agents/yss-skill-registry.yaml",
-      "sha256": "86f2d20bc68ad668a5f89fb7a382c376cb6d489e2bbadb829ba94fa0b871c068",
+      "sha256": "53981654051e98f813125f2544e1e67b81c578238f70a8fb730cae4ba9fd96f4",
       "mode": 420
     },
     {
       "path": ".template-spec/engineering/backend-platforms.json",
       "source_path": ".template-spec/engineering/backend-platforms.json",
       "storage_path": ".template-spec/engineering/backend-platforms.json",
-      "sha256": "d3996fe8bf12fa8339bb96473620407f55ebac27597d6bb3906a4934ca7897b2",
+      "sha256": "886d26aa0e76c57274c72709088344425c17880bf6ee992e5d2c9f804a814570",
+      "mode": 420
+    },
+    {
+      "path": ".template-spec/engineering/evidence/aliyun-artifact-resolution.json",
+      "source_path": ".template-spec/engineering/evidence/aliyun-artifact-resolution.json",
+      "storage_path": ".template-spec/engineering/evidence/aliyun-artifact-resolution.json",
+      "sha256": "35a82e84eb93d35046900886affb806f3620b1416b4b097f67f42c658b676bca",
       "mode": 420
     },
     {
@@ -1445,7 +1452,7 @@ export default {
       "path": ".template-spec/process/lifecycle-registry.yaml",
       "source_path": ".template-spec/process/lifecycle-registry.yaml",
       "storage_path": ".template-spec/process/lifecycle-registry.yaml",
-      "sha256": "d876225c5bfe1dd63ef05359c34688cd83194d59d05a47bc4a223833a1961ab5",
+      "sha256": "3d527c33db8702a201f8368e522909acd694009abeeffc34965ecd27ffadfb86",
       "mode": 420
     },
     {
@@ -1564,7 +1571,7 @@ export default {
       "path": ".template-spec/process/schemas/lifecycle-checkpoint.schema.json",
       "source_path": ".template-spec/process/schemas/lifecycle-checkpoint.schema.json",
       "storage_path": ".template-spec/process/schemas/lifecycle-checkpoint.schema.json",
-      "sha256": "b890af9a520cdd9a27ca39723189ab3c9bdae28d2e6812b666b525902a44ec0f",
+      "sha256": "7d26712bcf8f8b4ad508f670fd1d1ca3ffe16355af7fcde4856348f1b9cd37ca",
       "mode": 420
     },
     {
@@ -1624,6 +1631,20 @@ export default {
       "mode": 420
     },
     {
+      "path": ".template-spec/process/schemas/spec-baseline-import-receipt.schema.json",
+      "source_path": ".template-spec/process/schemas/spec-baseline-import-receipt.schema.json",
+      "storage_path": ".template-spec/process/schemas/spec-baseline-import-receipt.schema.json",
+      "sha256": "e3a549d32ef2533231c0da454a1b254d885833b6d2956da91ca5a6d530ee2755",
+      "mode": 420
+    },
+    {
+      "path": ".template-spec/process/schemas/spec-baseline-package.schema.json",
+      "source_path": ".template-spec/process/schemas/spec-baseline-package.schema.json",
+      "storage_path": ".template-spec/process/schemas/spec-baseline-package.schema.json",
+      "sha256": "c1f2873b1f59b2695364a23abcfb6417b4554dd235fff236c41354418caf2b1a",
+      "mode": 420
+    },
+    {
       "path": ".template-spec/process/schemas/stage-decision-package-reading.schema.json",
       "source_path": ".template-spec/process/schemas/stage-decision-package-reading.schema.json",
       "storage_path": ".template-spec/process/schemas/stage-decision-package-reading.schema.json",
@@ -1641,21 +1662,21 @@ export default {
       "path": ".template-spec/process/schemas/strategic-design-handoff-v3.schema.json",
       "source_path": ".template-spec/process/schemas/strategic-design-handoff-v3.schema.json",
       "storage_path": ".template-spec/process/schemas/strategic-design-handoff-v3.schema.json",
-      "sha256": "dd6245ffdd7946c540b65f0204e6e68adfba346e60c344838cc19320cbc6f3b9",
+      "sha256": "ff22ff32997b93354721f83e9855cf6576bcd732b0d8eab8cb695fb330ff1eea",
       "mode": 420
     },
     {
       "path": ".template-spec/process/schemas/strategic-design-handoff-v4.schema.json",
       "source_path": ".template-spec/process/schemas/strategic-design-handoff-v4.schema.json",
       "storage_path": ".template-spec/process/schemas/strategic-design-handoff-v4.schema.json",
-      "sha256": "8aa8b76b2a8cbac5352a584a194c4231218f553dfb18a8ecc5f81414afdc162f",
+      "sha256": "54c94e179d95d15c321f04ab12c347dee5cba5bce217c93efa102a3c7fa2023e",
       "mode": 420
     },
     {
       "path": ".template-spec/process/schemas/strategic-design-handoff-v5.schema.json",
       "source_path": ".template-spec/process/schemas/strategic-design-handoff-v5.schema.json",
       "storage_path": ".template-spec/process/schemas/strategic-design-handoff-v5.schema.json",
-      "sha256": "e44a0cbb957efcf997df3be151510765298c27b227aa66296030f4b2eab5b9a3",
+      "sha256": "7242ddd411b054c3263b9871ca8a266e464df99194d2f0988698fdcbf7c6de30",
       "mode": 420
     },
     {
@@ -1690,7 +1711,7 @@ export default {
       "path": ".template-spec/process/schemas/strategic-handoff-export-v2.schema.json",
       "source_path": ".template-spec/process/schemas/strategic-handoff-export-v2.schema.json",
       "storage_path": ".template-spec/process/schemas/strategic-handoff-export-v2.schema.json",
-      "sha256": "b82dce5e146c0dbf638e2e28eab0241c0d3166e4dfc779f4d40dc65af632bbc3",
+      "sha256": "8e951747e8e1058cbd8a39e9c24557095a8138691b28afbc12874dca8a4e9d8d",
       "mode": 420
     },
     {
@@ -1767,7 +1788,7 @@ export default {
       "path": "scripts/fixtures/backend-scaffold/design-prerequisites.mjs",
       "source_path": "scripts/fixtures/backend-scaffold/design-prerequisites.mjs",
       "storage_path": "scripts/fixtures/backend-scaffold/design-prerequisites.mjs",
-      "sha256": "d58565492157dc0f94653d4536511b602ae0ce11a4cfbc9d1525acf6de1066be",
+      "sha256": "f8df89d523705320519783a8db25de2634c5b0c2034306b009a01161e361c11d",
       "mode": 420
     },
     {
@@ -1830,7 +1851,7 @@ export default {
       "path": "scripts/lib/approval-record.mjs",
       "source_path": "scripts/lib/approval-record.mjs",
       "storage_path": "scripts/lib/approval-record.mjs",
-      "sha256": "8d20827f17cdb1466da151808345985246150847157e7e34100fe2ab5202adf8",
+      "sha256": "1f2539084f0e8ec5143214c86a58bc4fdda33f8fb662b4270efff4607e5a7922",
       "mode": 420
     },
     {
@@ -1865,7 +1886,7 @@ export default {
       "path": "scripts/lib/backend-platform-verification.mjs",
       "source_path": "scripts/lib/backend-platform-verification.mjs",
       "storage_path": "scripts/lib/backend-platform-verification.mjs",
-      "sha256": "766662b390401b034896e185fb7df5f9aec25bdffa2c571f49c31433f7dd60b7",
+      "sha256": "73d40a770fc0ab02c3e1cc18d198552bd1088e58089a9068c7acc942309436cc",
       "mode": 420
     },
     {
@@ -1900,7 +1921,7 @@ export default {
       "path": "scripts/lib/business-ticket-lifecycle.mjs",
       "source_path": "scripts/lib/business-ticket-lifecycle.mjs",
       "storage_path": "scripts/lib/business-ticket-lifecycle.mjs",
-      "sha256": "7e836e225f7fbed7cf9fa0b811643586846e097734fe760581bbd34793dfccf2",
+      "sha256": "d27091bba950fd0d7015896b64abb8b71e8e55412f02fb6d8d0d282f6af57a7b",
       "mode": 420
     },
     {
@@ -1914,7 +1935,7 @@ export default {
       "path": "scripts/lib/checkpoint-boundary.mjs",
       "source_path": "scripts/lib/checkpoint-boundary.mjs",
       "storage_path": "scripts/lib/checkpoint-boundary.mjs",
-      "sha256": "01dfc99ad3a036124e1b44c0183ce6b36d6f997e4512ee4a0678da80b1becf13",
+      "sha256": "0bcf14d41e20d8035406a8435c4cdba8328a878a45c219e8f3e6f73b1b5e7bdb",
       "mode": 420
     },
     {
@@ -2009,17 +2030,10 @@ export default {
       "mode": 420
     },
     {
-      "path": "scripts/lib/git-submodule-fixtures.mjs",
-      "source_path": "scripts/lib/git-submodule-fixtures.mjs",
-      "storage_path": "scripts/lib/git-submodule-fixtures.mjs",
-      "sha256": "9ea30d29eb29b878c3cd82345edf722b5cfdae1e9ac51eade1c565a40f3d0485",
-      "mode": 420
-    },
-    {
       "path": "scripts/lib/governance-io.mjs",
       "source_path": "scripts/lib/governance-io.mjs",
       "storage_path": "scripts/lib/governance-io.mjs",
-      "sha256": "023b6fc66da98ba41d0e49fb4a67d461f5c0035dae7d61f4e58921edb093b241",
+      "sha256": "5f065a733409b224dc4a73fd0278ebbc66fa357b184bc7fe1f1edd0050e9e271",
       "mode": 420
     },
     {
@@ -2040,7 +2054,7 @@ export default {
       "path": "scripts/lib/implementation-path-policy.mjs",
       "source_path": "scripts/lib/implementation-path-policy.mjs",
       "storage_path": "scripts/lib/implementation-path-policy.mjs",
-      "sha256": "65f96fec6b786374d2ffc341bd7e3c9e42bb6a850ebfba476c9fc574b7655ef4",
+      "sha256": "c71b445d45eb5990d6710aa07bd36ed43b3dfea3fcf3ddc1a9017706dad807f8",
       "mode": 420
     },
     {
@@ -2089,7 +2103,7 @@ export default {
       "path": "scripts/lib/lifecycle-transition.mjs",
       "source_path": "scripts/lib/lifecycle-transition.mjs",
       "storage_path": "scripts/lib/lifecycle-transition.mjs",
-      "sha256": "db4a4f1428085b6fa59836ab7b54f4f8261a5adb5595770963dd6b1360cf0e7d",
+      "sha256": "54efab594c829bf60ac1859f9d5dbdf80dde19fa46465131a24d4ed1af98882a",
       "mode": 420
     },
     {
@@ -2222,14 +2236,14 @@ export default {
       "path": "scripts/lib/skill-registry.mjs",
       "source_path": "scripts/lib/skill-registry.mjs",
       "storage_path": "scripts/lib/skill-registry.mjs",
-      "sha256": "37da340dddee41a3165bda37aa29a6eb0f8f6957bfd3cf9903d30a2956f123ac",
+      "sha256": "fc9b9c2e69e89589ea634fcbfacc033d3f19d263029e3b633bd7a07a46196a94",
       "mode": 420
     },
     {
       "path": "scripts/lib/skill-supply-chain.mjs",
       "source_path": "scripts/lib/skill-supply-chain.mjs",
       "storage_path": "scripts/lib/skill-supply-chain.mjs",
-      "sha256": "06a70aae2ac40faf7c78c2d63683460accf90c6a5e3e57da099408710cf28391",
+      "sha256": "127b89159ae43636ed85639dccb92fceb7fb041b7d940392e0483003b396ac3b",
       "mode": 420
     },
     {
@@ -2250,7 +2264,7 @@ export default {
       "path": "scripts/lib/slice-contract.mjs",
       "source_path": "scripts/lib/slice-contract.mjs",
       "storage_path": "scripts/lib/slice-contract.mjs",
-      "sha256": "8157baae90435b3c33a2902de0ca301a988d0b8a1b8dc301c6f3f50feff0542f",
+      "sha256": "781caffccae26646eb9093e6af8c34714b5e3aa1702d848d7b3f726a471d1caa",
       "mode": 420
     },
     {
@@ -2275,6 +2289,13 @@ export default {
       "mode": 420
     },
     {
+      "path": "scripts/lib/spec-baseline.mjs",
+      "source_path": "scripts/lib/spec-baseline.mjs",
+      "storage_path": "scripts/lib/spec-baseline.mjs",
+      "sha256": "11c9836aad360c5367b4e8e55e27d483a4a3fa01f13a63d5b3948106dcbbd5aa",
+      "mode": 420
+    },
+    {
       "path": "scripts/lib/stage-tracking.mjs",
       "source_path": "scripts/lib/stage-tracking.mjs",
       "storage_path": "scripts/lib/stage-tracking.mjs",
@@ -2285,7 +2306,7 @@ export default {
       "path": "scripts/lib/strategic-handoff-consumption.mjs",
       "source_path": "scripts/lib/strategic-handoff-consumption.mjs",
       "storage_path": "scripts/lib/strategic-handoff-consumption.mjs",
-      "sha256": "66252b5afa76c91412312f9e338dd616a320ba68448378e8c47db6bf55c18aa4",
+      "sha256": "c5264914c023ce457bb63f0c91319c9f4dd425146f8ae699c73f6ce21c3424ad",
       "mode": 420
     },
     {
@@ -2320,7 +2341,7 @@ export default {
       "path": "scripts/lib/strategic-handoff.mjs",
       "source_path": "scripts/lib/strategic-handoff.mjs",
       "storage_path": "scripts/lib/strategic-handoff.mjs",
-      "sha256": "528ea48376dccb40c785c7073fedcddc7b53e16ef49be7960130fba8099aab55",
+      "sha256": "f6e4b84ecdb4919601308edb06d6176661ca16093788aefd0dcea6442ba9ead1",
       "mode": 420
     },
     {
@@ -2355,7 +2376,7 @@ export default {
       "path": "scripts/lib/ui-baseline.mjs",
       "source_path": "scripts/lib/ui-baseline.mjs",
       "storage_path": "scripts/lib/ui-baseline.mjs",
-      "sha256": "d16dad62c49a4f63dbde61df7d7af82185069a4d5b3eaea6585b49166b80c095",
+      "sha256": "3b3b9026e8d9368714e7e114c7f5e35328ef4f4f1bcc808c9b5d3e36075a6cf9",
       "mode": 420
     },
     {
@@ -2376,7 +2397,7 @@ export default {
       "path": "scripts/lib/validation-phase.mjs",
       "source_path": "scripts/lib/validation-phase.mjs",
       "storage_path": "scripts/lib/validation-phase.mjs",
-      "sha256": "5a08dc611ef1ad75786c26010ebc1cb25e34c51b0d1a41db17101ffb52daf425",
+      "sha256": "dde9922ff0d1bee8276e6254bb6a932bac5e516f9196de55bb39e3524b279702",
       "mode": 420
     },
     {
@@ -2413,6 +2434,13 @@ export default {
       "storage_path": "scripts/verify-yss-dto-openapi-profile",
       "sha256": "915fd5d552645ed706702f84fe1ee47f61648c34eb63208c0031f342c49521ce",
       "mode": 493
+    },
+    {
+      "path": "tests/helpers/git-submodule-fixtures.mjs",
+      "source_path": "tests/helpers/git-submodule-fixtures.mjs",
+      "storage_path": "tests/helpers/git-submodule-fixtures.mjs",
+      "sha256": "9ea30d29eb29b878c3cd82345edf722b5cfdae1e9ac51eade1c565a40f3d0485",
+      "mode": 420
     },
     {
       "path": "yss-project.yaml",

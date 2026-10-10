@@ -1,6 +1,7 @@
 import { assertImplementationTicket, assertSliceBusinessSources, businessTicketVersion } from './business-tickets.mjs';
 import {validateExistingUiBaseline} from './existing-ui-baseline.mjs';
 import {sliceRepositories} from './slice-repositories.mjs';
+import {violation as implementationPathViolation} from './implementation-path-policy.mjs';
 import { sliceCheckApplicability } from './slice-applicability.mjs';
 import { validImplementationPath } from './implementation-path-policy.mjs';
 import {hasLocalImplementationInputs} from './lifecycle-progression.mjs';

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import assert from "node:assert/strict";
 import { readFileSync, writeFileSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -21,13 +22,13 @@ save('review.md', `# 合成独立审查\n审查者：test-only.reviewer\n实施�
 save('task.json', { schema_version: 1, task_id: 'test-only.maintenance-review', work_unit_id: 'work-unit.intensity-aware-review', actor_id: 'test-only.reviewer', role_id: 'role.product-manager', runtime_id: 'runtime.generic', execution_state: 'Reviewer', workflow_status: 'active', skill_source: { registry_ref: '.template-spec/agents/digital-human-roles.yaml', defaults_ref: 'taskPackageDefaults(role.product-manager)', core_skills: ['prototype-review'], forbidden_skills: ['implement'] }, contract: { kind: 'template-maintenance', contract_id: 'test-only.maintenance', contract_version: 1, status: 'issued', contract_ref: 'test-only.checkpoint.json', maintenance_ref: 'test-only.checkpoint.json' }, inputs: ['manifest.json'], objective: '验证合成审查绑定', allowed_write_paths: ['review.md'], forbidden_actions: ['修改实现'], expected_outputs: ['合成审查结论'], expected_evidence_files: ['review.md'], verification_commands: ['test-only.check'], verification_results: [], review_context: { implementation_actor_id: 'test-only.implementer' }, downstream_consumers: ['role.lifecycle-orchestrator'], convergence: { parent_work_unit: 'work-unit.intensity-aware-review', convergence_ref: 'test-only.checkpoint.json', conflict_escalation: '返回合成主控' } });
 save('formal.json', { schema_version: 1, record_kind: 'maintenance-independent-review', review_mode: 'formal-independent', status: 'approved', reviewer_id: 'test-only.reviewer', implementation_actor_id: 'test-only.implementer', candidate_digest: candidateDigest, candidate_snapshot_ref: 'manifest.json', task_package_ref: 'task.json', review_report_ref: 'review.md', reviewed_at: '2026-10-04T06:00:00Z', findings: [] });
 const boundEvidence = (...kinds) => evidence(...kinds).map(item => ({ ...item, command: item.kind === 'formal-independent-review' ? 'formal.json' : item.kind === 'focused-independent-review' ? 'review.md' : item.command }));
-const verify = value => validateMaintenanceCheckpoint(value, { baseDir: reviewRoot });
+const verify = (value, options = {}) => validateMaintenanceCheckpoint(value, { ...options, baseDir: reviewRoot });
 try {
 const base = { schema_version: 1, classification_reason: "场景验证", changed_assets: ["docs/example.md"], escalation: "none" };
 const implementationReady = {
   ...base,
   schema_version: 2,
-  intensity: "L3",
+  intensity: "L2",
   triggers: ["core-validator"],
   verification_evidence: evidence("fresh-verification", "self-check"),
   review_mode: "self-check",
@@ -46,19 +47,27 @@ const legacyFormal = {
 };
 const accepted = [
   { ...base, intensity: "L1", triggers: ["textual-only"], verification_evidence: evidence("relevant-check"), review_mode: "self-check" },
-  { ...base, intensity: "L2", triggers: ["local-rule"], verification_evidence: boundEvidence("counterexample", "fresh-verification", "focused-independent-review"), review_mode: "focused-independent" },
-  { ...base, intensity: "L2", triggers: [], verification_evidence: boundEvidence("counterexample", "fresh-verification", "focused-independent-review"), review_mode: "focused-independent" },
+  { ...base, intensity: "L2", triggers: ["local-rule"], verification_evidence: boundEvidence("fresh-verification", "focused-independent-review"), review_mode: "focused-independent" },
+  { ...base, intensity: "L2", triggers: [], verification_evidence: boundEvidence("fresh-verification", "focused-independent-review"), review_mode: "focused-independent" },
   legacyFormal,
   implementationReady,
-  {...base, intensity:"L2",triggers:["local-rule"],verification_evidence:evidence("counterexample","fresh-verification","self-check"),review_mode:"self-check"}
+  {...base, intensity:"L2",triggers:["local-rule"],verification_evidence:evidence("fresh-verification","self-check"),review_mode:"self-check"}
 ];
-for (const checkpoint of accepted) verify(checkpoint);
+for (const checkpoint of accepted) verify(checkpoint, { history: checkpoint.intensity === "L3" });
+verify({ ...legacyFormal, intensity: "L2", verification_evidence: boundEvidence("fresh-verification", "formal-independent-review") });
+
+assert.throws(() => verify({ ...accepted[0], triggers: ["generation-semantics"] }), /至少要求 L2/);
+for (const trigger of ["ticket-state", "historical-important-escape", "aggregate-behavior-change", "release-candidate"]) {
+  const checkpoint = { ...base, intensity: "L2", triggers: [trigger], verification_evidence: evidence("fresh-verification", "self-check"), review_mode: "self-check" };
+  assert.throws(() => verify(checkpoint), new RegExp(`未知 trigger: ${trigger}`));
+  assert.equal(verify({ ...checkpoint, intensity: "L3" }, { history: true }).current_state, "historical-only");
+}
 
 const rejected = [
   { ...accepted[1], verification_evidence: evidence("fresh-verification") },
-  { ...accepted[1], verification_evidence: evidence("counterexample", "fresh-verification") },
+  { ...accepted[1], verification_evidence: evidence("fresh-verification") },
   { ...accepted[0], triggers: ["release-semantics"] },
-  { ...accepted[0], triggers: ["aggregate-behavior-change"] },
+  { ...accepted[0], triggers: ["generation-semantics"] },
   { ...implementationReady, verification_evidence: evidence("fresh-verification") },
   { ...implementationReady, triggers: ['lifecycle-gate'] },
   { ...accepted[1], verification_evidence: evidence('counterexample', 'fresh-verification', 'focused-independent-review') },
@@ -71,9 +80,9 @@ const rejected = [
 ];
 for (const checkpoint of rejected) {
   let failed = false;
-  try { verify(checkpoint); } catch { failed = true; }
+  try { verify(checkpoint, { history: checkpoint.intensity === "L3" }); } catch { failed = true; }
   if (!failed) throw new TypeError(`错误 checkpoint 未被拒绝: ${JSON.stringify(checkpoint)}`);
 }
 
-process.stdout.write("模板维护 L1/L2/L3 强度场景验证通过\n");
+process.stdout.write("模板维护 L1/L2 强度与历史 L3 兼容场景验证通过\n");
 } finally { rmSync(reviewRoot, { recursive: true, force: true }); }

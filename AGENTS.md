@@ -44,9 +44,9 @@ README、用户指南和 `CLAUDE.md` 只解释或指向上述事实，不定义�
 
 在用户已授权的模板维护范围内，继续完成受影响 Skill、投影、锁文件和分发快照的同步与适用验证；按当前影响面读取文档。首次编辑完成不等于交付完成。只有新增决定、缺失必要输入或命中既有审批边界时才暂停；提交、推送、发布仍按本仓授权规则执行。
 
-- 创建、修改或退役 skill 时使用 `maintaining-skills`，按 `.template-source/process/maintenance-intensity.yaml` 判定 L1/L2/L3；日常验证与交付按本节执行，正式发布按发布合同执行。
+- 创建、修改或退役 skill 时使用 `maintaining-skills`，按 `.template-source/process/maintenance-intensity.yaml` 判定 L1/L2；日常验证与交付按本节执行，正式发布按发布合同执行。
 - `.agents/skills` 是共享技能权威内容；`.codex/skills`、`.cursor/skills`、`.pi/skills` 是生成投影，不得分别手改。
-- 日常维护交付默认执行本轮改动及其直接 / 传递依赖的定向检查，补齐 L1/L2/L3 适用证据后交付 `implementation-ready`。不因交付措辞、L3、当前分支为 main 或缺少发布 baseline 自动运行全量检查，也不把 fast → candidate → release 当作固定顺序。
+- 日常维护交付默认执行本轮改动及其直接 / 传递依赖的定向检查，补齐 L1/L2 适用证据后交付 `implementation-ready`。不因交付措辞、维护等级、当前分支为 main 或缺少发布 baseline 自动运行全量检查，也不把 fast → candidate → release 当作固定顺序。
 - 使用 `scripts/verify-template-fast` 前先看 `--plan`；计划若扩大到全量，日常交付改为执行上述定向检查，记录范围、实际命令、退出码及未覆盖风险。发现本轮缺陷或新增影响时，只补受影响检查；影响无法确定时先调查，不用全量检查代替影响分析。日常维护不强制独立审查或候选冻结。
 - PR 候选使用 `scripts/verify-template-candidate`；main 集成验证及正式发布任务使用 `scripts/verify-template`，适用检查与回退由验证 profile 和发布合同定义，不能用日常定向检查冒充通过。未完成 `yss` 的 `design` 固定 Bundle 及生成实例验证，不得宣称可发布；不得把 `spec` Profile 作为本仓业务方案入口。
 

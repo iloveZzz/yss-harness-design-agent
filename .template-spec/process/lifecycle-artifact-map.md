@@ -86,7 +86,7 @@
 | `evidence.tactical-design-review` | DDD 战术设计评审证据 | 聚合、Entity、Value Object、不变量、状态机、一致性、Gateway 与 API 隔离的结构化评审结果。 |
 | `evidence.stage-decision-package` | 阶段决策包验证证据 | 阶段决策包的 Schema、引用、语义一致性、影响传播和下游消费验证结果。 |
 | `evidence.strategic-design-handoff` | 业务方案交接包验证证据 | 业务方案交接包的来源 digest、业务级 Ticket、研发待决问题和交付完整性验证结果。 |
-| `evidence.maintenance-intensity-checkpoint` | 模板维护强度 checkpoint | template-source 变更的 L1 / L2 / L3 分级、触发项、最低验证证据、review 模式和升级记录。 |
+| `evidence.maintenance-intensity-checkpoint` | 模板维护强度 checkpoint | 当前 template-source 按 maintenance-intensity.yaml 的 L1 / L2 分级，记录触发项、最低验证证据、review 模式和升级依据。 |
 | `evidence.repository-identity-check` | 仓库身份校验结果 | yss-project.yaml 的合法性与 repository_mode 裁决。 |
 | `evidence.approval-record` | 人工批准记录 | 对需要人工批准的 Spec、设计、契约或发布裁决的可追溯记录。 |
 | `evidence.design-review-result` | 设计审查结果 | API、架构或产品设计审查意见及处理结果。 |

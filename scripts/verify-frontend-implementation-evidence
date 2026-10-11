@@ -5,9 +5,10 @@ import path from "node:path";
 import { parseArgs } from "node:util";
 import { fileURLToPath } from "node:url";
 import { parseDocument } from "./vendor/yaml.mjs";
+import { assertNoTemplateReferences } from './lib/work-layout.mjs';
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const schemaPath = path.join(root, ".template-spec/process/schemas/frontend-implementation-evidence.schema.json");
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const schemaPath = path.join(repoRoot, ".template-spec/process/schemas/frontend-implementation-evidence.schema.json");
 const validator = String.raw`
 import json
 import sys
@@ -22,8 +23,9 @@ sys.exit(1 if errors else 0)
 `;
 
 try {
-  const { values, positionals } = parseArgs({ options: { "allow-template": { type: "boolean" } }, allowPositionals: true, strict: true });
-  if (positionals.length !== 1) throw new TypeError("用法: scripts/verify-frontend-implementation-evidence [--allow-template] <file.yaml>");
+  const { values, positionals } = parseArgs({ options: { "allow-template": { type: "boolean" }, root: { type: "string", default: repoRoot } }, allowPositionals: true, strict: true });
+  const root = path.resolve(values.root);
+  if (positionals.length !== 1) throw new TypeError("用法: scripts/verify-frontend-implementation-evidence [--allow-template] [--root <path>] <file.yaml>");
   const document = parseDocument(readFileSync(path.resolve(positionals[0]), "utf8"), { maxAliasCount: 0, uniqueKeys: true });
   if (document.errors.length) throw new TypeError(document.errors[0].message);
   const value = document.toJS({ maxAliasCount: 0 });
@@ -32,8 +34,9 @@ try {
   if (!values["allow-template"] && value.template !== false) throw new TypeError("正式证据必须设置 template: false");
   if (!values["allow-template"] && value.status !== "approved") throw new TypeError("正式证据必须达到 status: approved");
   const serialized = JSON.stringify(value);
-  if (!values["allow-template"] && /REPLACE_ME|<[^>]+>|docs\/\.scratch\/example/.test(serialized)) throw new TypeError("正式证据不得保留模板占位值");
+  if (!values["allow-template"] && /REPLACE_ME|<[^>]+>/.test(serialized)) throw new TypeError("正式证据不得保留模板占位值");
   if (!values["allow-template"]) {
+    assertNoTemplateReferences(value, { root });
     for (const field of ["prototype_ref", "spec_ref"]) {
       const reference = value[field];
       if (!/^https?:\/\//.test(reference) && !existsSync(path.resolve(root, reference))) throw new TypeError(`${field} 不可读取: ${reference}`);

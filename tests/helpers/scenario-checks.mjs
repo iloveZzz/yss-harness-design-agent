@@ -14,8 +14,8 @@ function ensure(condition, message) { if (!condition) throw new TypeError(messag
 function exists(relative) { return existsSync(path.join(root, relative)); }
 function includesAll(actual, expected) { return Array.isArray(actual) && expected.every((item) => actual.includes(item)); }
 function hasText(value) { return typeof value === "string" && value.trim().length > 0; }
-const virtualTicketDecompositionRef = "docs/.scratch/demo/evidence/ticket-decomposition-result.yaml";
-const virtualTicketDecomposition = "result_schema: workflow-execution-result-v1\nwork_unit: work-unit.ticket-decomposition\nresult: completed\nevidence_refs:\n  - docs/.scratch/demo/evidence/ticket-decomposition-result.yaml\n";
+const virtualTicketDecompositionRef = ".work/demo/evidence/ticket-decomposition-result.yaml";
+const virtualTicketDecomposition = "result_schema: workflow-execution-result-v1\nwork_unit: work-unit.ticket-decomposition\nresult: completed\nevidence_refs:\n  - .work/demo/evidence/ticket-decomposition-result.yaml\n";
 
 function validatePlanClarificationPolicy(data) {
   const policy = data.planning?.clarification_policy;
@@ -148,8 +148,8 @@ function validateWorkflowExecutionResult(payload, contract, workUnitRoutes, opti
     const semantic = validateImplementationEntry(implementationState, {
       // The scenario uses one explicit virtual fixture; arbitrary local refs
       // must still pass the real readability check and cannot use a fallback.
-      exists: (ref) => exists(ref) || ref === "docs/.scratch/demo/issues/01-valid-slice.md" || ref === virtualTicketDecompositionRef,
-      read: (ref) => ref === "docs/.scratch/demo/issues/01-valid-slice.md" ? "---\nkind: vertical-slice-ticket\n---\n# 合法切片测试\n" : ref === virtualTicketDecompositionRef ? virtualTicketDecomposition : readFileSync(path.join(root, ref), "utf8"),
+      exists: (ref) => exists(ref) || ref === ".work/demo/issues/01-valid-slice.md" || ref === virtualTicketDecompositionRef,
+      read: (ref) => ref === ".work/demo/issues/01-valid-slice.md" ? "---\nkind: vertical-slice-ticket\n---\n# 合法切片测试\n" : ref === virtualTicketDecompositionRef ? virtualTicketDecomposition : readFileSync(path.join(root, ref), "utf8"),
     });
     ensure(semantic.result === "allowed", `Workflow Execution Result implementation Ticket 语义非法: ${semantic.blocking_signals.join(", ")}`);
   }
@@ -286,7 +286,7 @@ export function runScenario(name, { testAssets = null } = {}) {
       ...validResult,
       work_unit: "work-unit.business-ticket-formalization",
       next_route: "work-unit.strategic-design-handoff",
-      business_ticket_set_ref: "docs/.scratch/demo/issues",
+      business_ticket_set_ref: ".work/demo/issues",
     };
     validateWorkflowExecutionResult(validBusinessTicketResult, data.workflow_execution_result, data.work_unit_routes, { root: planFixture.root });
     const validHandoffResult = { ...validBusinessTicketResult, result: "blocked", blocking_signals: ["missing_evidence"], work_unit: "work-unit.strategic-design-handoff", next_route: null, strategic_design_handoff_ref: ".template-spec/templates/strategic-design-handoff-template.yaml", strategic_delivery_record_ref: ".template-spec/process/schemas/strategic-handoff-delivery.schema.json", strategic_delivery_verification_ref: ".template-spec/process/schemas/strategic-handoff-delivery-verification.schema.json" };

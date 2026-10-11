@@ -20,6 +20,7 @@ test('fixed test closure is portable, source bound and fail closed',async()=>{
   const resolver=await import(pathToFileURL(path.join(sandbox,'tests/fixtures/canonical-source.mjs')).href);
   resolver.verifyFixtureSource();
   const ref=inventory.files[0].path,target=resolver.fixtureFile(ref),raw=fs.readFileSync(target),mode=fs.statSync(target).mode&0o777;
+  fs.chmodSync(target,(mode&0o100)?0o700:0o600);resolver.fixtureFile(ref);fs.chmodSync(target,mode);
   fs.writeFileSync(target,'drift');assert.throws(()=>resolver.fixtureFile(ref),/source-drift/);fs.writeFileSync(target,raw);
   fs.chmodSync(target,mode^0o100);assert.throws(()=>resolver.fixtureFile(ref),/source-drift/);fs.chmodSync(target,mode);
   fs.unlinkSync(target);assert.throws(()=>resolver.fixtureFile(ref));

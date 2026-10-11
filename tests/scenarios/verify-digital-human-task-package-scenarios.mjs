@@ -62,7 +62,7 @@ function packageBase(roleId, taskId, workUnitId, kind, contractFields, stageId) 
     contract: { kind, contract_id: `${kind}-${taskId}`, contract_version: 1, status: "issued", contract_ref: ".template-spec/process/lifecycle-registry.yaml", ...contractFields },
     inputs: ["CONTEXT.md"],
     objective: "执行有界生命周期工作单元",
-    allowed_write_paths: ["docs/.scratch/"],
+    allowed_write_paths: [".work/"],
     forbidden_actions: ["不得越过主控门禁"],
     expected_outputs: ["结构化工作结果"],
     expected_evidence_files: [evidenceRef],

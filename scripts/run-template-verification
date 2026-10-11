@@ -53,7 +53,8 @@ async function runGroups(plan, repositoryMode, concurrency) {
     if (item.when && item.when !== repositoryMode) continue;
     grouped.get(item.group).push(item.command);
   }
-  const jobs = [...grouped.entries()].filter(([, commands]) => commands.length > 0).map(([group, commands]) => async () => {
+  const entries = [...grouped.entries()].filter(([, commands]) => commands.length > 0);
+  const runGroup = async ([group, commands]) => {
     const results = [];
     for (const command of commands) {
       const result = await runCommand(command);
@@ -61,8 +62,14 @@ async function runGroups(plan, repositoryMode, concurrency) {
       if (result.code !== 0) break;
     }
     return { group, results };
-  });
+  };
   const results = [];
+  // These scenarios create and clean repository-local evidence. Run them alone
+  // so other scenario bindings never observe transient fixtures as source drift.
+  for (const entry of entries.filter(([group]) => group === "workspace-fixtures")) {
+    results.push(await runGroup(entry));
+  }
+  const jobs = entries.filter(([group]) => group !== "workspace-fixtures").map(entry => () => runGroup(entry));
   let cursor = 0;
   async function worker() {
     while (cursor < jobs.length) {

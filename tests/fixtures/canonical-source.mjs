@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import inventory from './upstream-source-index.mjs';
 export const sourceRoot=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'upstream-source');
+// Git preserves the executable bit, not checkout umask or group/other permissions.
 const rows=new Map(inventory.files.map(row=>[row.path,row]));
 if(rows.size!==inventory.files.length||inventory.source_state!=="working-tree")throw new Error("test-fixture-invalid-inventory");
 export function fixtureFile(ref) {
@@ -14,7 +15,7 @@ export function fixtureFile(ref) {
   let target=sourceRoot;
   for(const part of (row.storage_path||ref).split('/')) { target=path.join(target,part);if(fs.lstatSync(target).isSymbolicLink())throw new Error('test-fixture-symlink: '+ref); }
   const info=fs.statSync(target);
-  if(!info.isFile()||createHash('sha256').update(fs.readFileSync(target)).digest('hex')!==row.sha256||(info.mode&0o777)!==row.mode)throw new Error('test-fixture-source-drift: '+ref);
+  if(!info.isFile()||createHash('sha256').update(fs.readFileSync(target)).digest('hex')!==row.sha256||((info.mode&0o100)?0o755:0o644)!==row.mode)throw new Error('test-fixture-source-drift: '+ref);
   return target;
 }
 export function verifyFixtureSource() {

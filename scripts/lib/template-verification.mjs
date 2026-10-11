@@ -109,7 +109,8 @@ export function resolveScenarioSource(ref) {
 export function scenarioSourceIdentities(ref) {
   // Source-only fixture changes must select their scenario consumers.
   if(ref.startsWith('tests/fixtures/'))return [...new Set([ref,...SCENARIO_SOURCES.keys()])];
-  return [ref, ...[...SCENARIO_SOURCES].filter(([,target])=>target===ref).map(([source])=>source)];
+  const target=SCENARIO_SOURCES.get(ref)??ref;
+  return [...new Set([ref,target,...[...SCENARIO_SOURCES].filter(([,mapped])=>mapped===target).map(([source])=>source)])];
 }
 function scenarioFile(root,ref) {
   const target=resolveScenarioSource(ref),base=realpathSync(root),file=path.resolve(base,target);
@@ -155,8 +156,11 @@ export function compileScenarioExecution(command,{root=ROOT,inputDigest}={}) {
   if(/^node\s/.test(command)&&/(?:^|\s)(?:-e|--eval|--input-type=module)(?:\s|=|$)/.test(command))return null;
   if(!/(?:scripts\/verify-[\w-]+-scenarios|tests\/scenarios\/verify-[\w-]+-scenarios\.(?:mjs|py))(?:\s|['";|&<>]|$)/.test(command))return null;
   const words=scenarioWords(command);let index=0;
-  if(path.basename(words[0])==='node')index=words.findIndex(word=>SCENARIO_SOURCES.has(word)||/^scripts\/verify-[\w-]+-scenarios$/.test(word)||[...SCENARIO_SOURCES.values()].includes(word));
-  if(index<0||!(index===0||path.basename(words[0])==='node'))throw Error('SCENARIO_COMMAND_UNSUPPORTED');
+  const scenarioOperand=word=>/^scripts\/verify-[\w-]+-scenarios$/.test(word)||/^tests\/scenarios\/verify-[\w-]+-scenarios\.(?:mjs|py)$/.test(word);
+  const interpreter=path.basename(words[0]);
+  if(['node','python3'].includes(interpreter))index=words.findIndex((word,i)=>i>0&&scenarioOperand(word));
+  if(index<0||!scenarioOperand(words[index]))throw Error('SCENARIO_COMMAND_UNSUPPORTED');
+  if(interpreter==='python3'&&!words[index].endsWith('.py'))throw Error('SCENARIO_COMMAND_UNSUPPORTED');
   const ref=words[index],target=scenarioFile(root,ref),prefix=words.slice(1,index),tail=words.slice(index+1);let file=process.execPath,args= index===0?[target,...tail]:[...prefix,target,...tail];
   if(target.endsWith('.py')){
     const observed=spawnSync('python3',['-c','import sys; print(sys.executable)'],{encoding:'utf8'});

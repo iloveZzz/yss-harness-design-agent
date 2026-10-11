@@ -125,6 +125,11 @@ syntax_files:
   - scripts/run-template-verification
   - scripts/verify-template-verification-scenarios
 routing:
+  # 工作目录合同的真实消费者，避免文档/Schema 变化成为未映射路径。
+  - patterns: [".template-spec/agents/issue-tracker.md", ".template-spec/process/work-layout.md", "scripts/lib/work-layout.mjs", "scripts/lib/plan-review-control.mjs", "scripts/lib/review-package.mjs", "scripts/verify-frontend-implementation-evidence", ".template-spec/process/schemas/strategic-gate-migration-plan.schema.json", "scripts/lib/strategic-gate-migration.mjs", "tests/scenarios/verify-strategic-gate-migration-scenarios.mjs"]
+    groups: [work-layout]
+  - patterns: ["tests/helpers/scenario-checks.mjs"]
+    groups: [scenario-helpers]
   - patterns: ["scripts/*strategic-handoff*", "scripts/*strategic-feedback*", "scripts/lib/strategic-handoff*", "scripts/lib/strategic-feedback*", "scripts/fixtures/strategic-handoff/**", ".template-source/distribution/strategic-handoff-tools.lock.json", ".template-spec/process/strategic-handoff-package.md", ".template-spec/process/schemas/strategic-handoff-*", ".template-spec/process/schemas/strategic-design-handoff-*", ".template-spec/process/schemas/strategic-*feedback*"]
     groups: [strategic-handoff-package]
   - patterns: [AGENTS.md, CONTEXT.md, yss-project.yaml, package.json, .gitignore, README.md, "docs/**"]
@@ -150,6 +155,19 @@ routing:
   - patterns: ["scripts/**"]
     groups: [hygiene]
 groups:
+  work-layout:
+    commands:
+      - { run: "node --check scripts/lib/work-layout.mjs" }
+      - { run: "node tests/scenarios/verify-strategic-gate-migration-scenarios.mjs" }
+  scenario-helpers:
+    commands:
+      - { run: "node tests/scenarios/verify-matt-yss-integration-scenarios.mjs" }
+      - { run: "node tests/scenarios/verify-yss-router-scenarios.mjs" }
+      - { run: "node tests/scenarios/verify-openapi-yaml-first-scenarios.mjs" }
+      - { run: "node tests/scenarios/verify-prototype-backend-scaffold-scenarios.mjs" }
+      - { run: "node tests/scenarios/verify-yss-dto-openapi-scenarios.mjs" }
+      - { run: "node tests/scenarios/verify-openapi-json-handoff-scenarios.mjs" }
+      - { run: "node tests/scenarios/verify-lifecycle-scenarios.mjs" }
   strategic-handoff-package:
     commands:
       - { run: "scripts/verify-strategic-handoff-tools-lock", when: template-source }

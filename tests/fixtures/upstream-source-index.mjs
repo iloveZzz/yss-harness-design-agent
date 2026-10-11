@@ -3,7 +3,7 @@ export default {
   "schema_version": 1,
   "kind": "test-only-canonical-source",
   "source_repository": "yss-spec-project-template",
-  "source_head": "cc0a3865d935d1d44c3e88b7e7cd8d5b5d99c41a",
+  "source_head": "81d16094bf0eb5874940fb90d4662a69bead84c2",
   "source_state": "working-tree",
   "files": [
     {
@@ -24,14 +24,14 @@ export default {
       "path": ".agents/skills/yss-ddd-scaffold-generator/SKILL.md",
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/SKILL.md",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/SKILL.md",
-      "sha256": "9fb84e4634ae9dd7d912b6aa8b1224ea082b266c832267cb3be3c0088ae497e1",
+      "sha256": "dea439f9a5241f2816ec65c834fe26e490c519a4909d96f30a853b62a11d70f8",
       "mode": 420
     },
     {
       "path": ".agents/skills/yss-ddd-scaffold-generator/agents/openai.yaml",
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/agents/openai.yaml",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/agents/openai.yaml",
-      "sha256": "8ecbd8ee1d78ae6dd5a6330fd7eb37d4923b92ddfd5e5928bef0491618b99315",
+      "sha256": "a92766316e2810d6ee5911defe83da3848669f5b859049d2a74d2c2145c3429c",
       "mode": 420
     },
     {
@@ -199,7 +199,7 @@ export default {
       "path": ".agents/skills/yss-ddd-scaffold-generator/references/engineering-baseline.md",
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/references/engineering-baseline.md",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/references/engineering-baseline.md",
-      "sha256": "f1e53c1b0c7adc7b74f11b35b0d8127d0e0ab3cf23d88e7e2af209a25be85625",
+      "sha256": "ed4c10f79e8b4e7f85f920a63b49221aea819b7c627c022b38622e46f0fbac46",
       "mode": 420
     },
     {
@@ -220,7 +220,7 @@ export default {
       "path": ".agents/skills/yss-ddd-scaffold-generator/references/generator-maintenance.md",
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/references/generator-maintenance.md",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/references/generator-maintenance.md",
-      "sha256": "c7693739f7e6136973373153fc3cc3a082c8114309a4c345273e08d5636f0cc5",
+      "sha256": "4fcff458a284767014e9dd5e1a53501eb47458d98f41d5775865836eda65d1d7",
       "mode": 420
     },
     {
@@ -241,7 +241,7 @@ export default {
       "path": ".agents/skills/yss-ddd-scaffold-generator/references/standalone-generation.md",
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/references/standalone-generation.md",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/references/standalone-generation.md",
-      "sha256": "fe78fe0452da99d33a6d72468cc45cd183f1789ea92071e5a306b71af46e1b0d",
+      "sha256": "19a6f99a45aa1b9729759a204334841e257ffa077aebed9c76c74d4eca16ded9",
       "mode": 420
     },
     {
@@ -262,14 +262,14 @@ export default {
       "path": ".agents/skills/yss-ddd-scaffold-generator/scripts/generate_and_verify_scaffold.mjs",
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/scripts/generate_and_verify_scaffold.mjs",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/scripts/generate_and_verify_scaffold.mjs",
-      "sha256": "481b2afce4d5e1f1547faf03561231e04d51f90305b276c9499177be6eac69ea",
+      "sha256": "883300312e4b00a22e722ee4ee61e0067aaf21fddc981ff7599bc57d6f192b55",
       "mode": 420
     },
     {
       "path": ".agents/skills/yss-ddd-scaffold-generator/scripts/generate_scaffold.mjs",
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/scripts/generate_scaffold.mjs",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/scripts/generate_scaffold.mjs",
-      "sha256": "e08c0186fae060706c37fe22fbf8a27771e343c9fbb98b5213cab6c75471fc11",
+      "sha256": "e8741a00feb6f38ea0504f4902a30d02459ffea1cd402b062ef801f9069309e9",
       "mode": 420
     },
     {
@@ -297,7 +297,7 @@ export default {
       "path": ".agents/skills/yss-ddd-scaffold-generator/scripts/standalone.test.mjs",
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/scripts/standalone.test.mjs",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/scripts/standalone.test.mjs",
-      "sha256": "654f62d0a4711dc53361a7d9a35d2f1b77c41ded2d5986db33fa8b0bea834664",
+      "sha256": "33b4f93491ab5669aa597ac68e2496401590a0c614cf8ec31d94e79a264c0df0",
       "mode": 420
     },
     {
@@ -339,14 +339,14 @@ export default {
       "path": ".agents/skills/yss-layered-mvc-scaffold-generator/scripts/data-analysis-profile.mjs",
       "source_path": ".agents/skills/yss-layered-mvc-scaffold-generator/scripts/data-analysis-profile.mjs",
       "storage_path": ".agents/skills/yss-layered-mvc-scaffold-generator/scripts/data-analysis-profile.mjs",
-      "sha256": "109e27221aa7ae7a287ffff7b0d41b521cd1689049541c4d0be8d78f9f2d6e38",
+      "sha256": "dfca0b8cd7a73da13193b23b9f766c21dd951e6383e6e96779806a63c4999921",
       "mode": 420
     },
     {
       "path": ".agents/skills/yss-layered-mvc-scaffold-generator/scripts/generate_scaffold.mjs",
       "source_path": ".agents/skills/yss-layered-mvc-scaffold-generator/scripts/generate_scaffold.mjs",
       "storage_path": ".agents/skills/yss-layered-mvc-scaffold-generator/scripts/generate_scaffold.mjs",
-      "sha256": "18d27a680b090ee753408211caf32738b387252cc21061a682f65593665ef2dd",
+      "sha256": "dbfc9516835d06cb839ae8770002e39f10b804885956e9df80633b95e4a63727",
       "mode": 493
     },
     {
@@ -374,7 +374,7 @@ export default {
       "path": ".agents/skills/yss-product-lifecycle/references/orchestration-contract.yaml",
       "source_path": ".agents/skills/yss-product-lifecycle/references/orchestration-contract.yaml",
       "storage_path": ".agents/skills/yss-product-lifecycle/references/orchestration-contract.yaml",
-      "sha256": "3617d6ba1b8236d56b0af517c9ed46fca437dabf6862d4124e18ac687c41b051",
+      "sha256": "7f359562f83e2ccb781e66d31b12f1e218e01cc8822832c94ad03d0bf5262860",
       "mode": 420
     },
     {
@@ -423,7 +423,7 @@ export default {
       "path": ".agents/skills/yss-tactical-design/tests/fixtures/valid-tactical-design.yaml",
       "source_path": ".agents/skills/yss-tactical-design/tests/fixtures/valid-tactical-design.yaml",
       "storage_path": ".agents/skills/yss-tactical-design/tests/fixtures/valid-tactical-design.yaml",
-      "sha256": "a7052250b0ee76f760a310d7359824c9635b785f66f454dca03e818b34815f40",
+      "sha256": "53585afe29632b31893509bd98d4447113f329dfde3b1cb5620ffd577e817cd4",
       "mode": 420
     },
     {
@@ -1417,7 +1417,7 @@ export default {
       "path": ".template-spec/agents/issue-tracker.md",
       "source_path": ".template-spec/agents/issue-tracker.md",
       "storage_path": ".template-spec/agents/issue-tracker.md",
-      "sha256": "f50435051485606cff15b191ad15810209adce1692dd87d533088850fcedfb54",
+      "sha256": "205a6a04cb5ffe0df8caaae8a2d299e97f71cb5db7c27ce497eb19b16a0ab01b",
       "mode": 420
     },
     {
@@ -1431,7 +1431,7 @@ export default {
       "path": ".template-spec/agents/yss-skill-registry.yaml",
       "source_path": ".template-spec/agents/yss-skill-registry.yaml",
       "storage_path": ".template-spec/agents/yss-skill-registry.yaml",
-      "sha256": "53981654051e98f813125f2544e1e67b81c578238f70a8fb730cae4ba9fd96f4",
+      "sha256": "8b8c9add85e520cbcdfc7f5130365bf12d2a3ae614cb30add8a98f3dda5d305f",
       "mode": 420
     },
     {
@@ -1487,7 +1487,7 @@ export default {
       "path": ".template-spec/process/lifecycle-registry.yaml",
       "source_path": ".template-spec/process/lifecycle-registry.yaml",
       "storage_path": ".template-spec/process/lifecycle-registry.yaml",
-      "sha256": "39a8e314412faa8e3ffe82d6f834dbe81d512105df9ae2c49f17b70f21fb892c",
+      "sha256": "57644a5ae989d8edbdb310d33436803e682cc6bdc1e645d2ee30a8a6ae1e2321",
       "mode": 420
     },
     {
@@ -1809,7 +1809,7 @@ export default {
       "path": "CONTEXT.md",
       "source_path": "CONTEXT.md",
       "storage_path": "context-source.fixture.md",
-      "sha256": "1fa0c9a730ec6ec478cb74aa25c601668d507090e8f6e37db290443bb1400869",
+      "sha256": "ef6f0339c67ed47c137bcdf2bdbfd609e6e7831c86d89091e5e423fd933b0597",
       "mode": 420
     },
     {
@@ -1823,7 +1823,7 @@ export default {
       "path": "scripts/fixtures/backend-scaffold/design-prerequisites.mjs",
       "source_path": "scripts/fixtures/backend-scaffold/design-prerequisites.mjs",
       "storage_path": "scripts/fixtures/backend-scaffold/design-prerequisites.mjs",
-      "sha256": "f8df89d523705320519783a8db25de2634c5b0c2034306b009a01161e361c11d",
+      "sha256": "c20cccc4bb0bb28ebc9dee9abb3fe48a5d59cc312dc49f0264f4bdf64e6dd96e",
       "mode": 420
     },
     {
@@ -2089,7 +2089,14 @@ export default {
       "path": "scripts/lib/harness-execution-scope.mjs",
       "source_path": "scripts/lib/harness-execution-scope.mjs",
       "storage_path": "scripts/lib/harness-execution-scope.mjs",
-      "sha256": "6c5c8c938886e588389e85bb9f6fd6c6524b0c4be65908a9cf0b4eb2b84192cb",
+      "sha256": "846a591991bb95aa511890672d9c7552b08e8a701fac992322a1a2aa0b778e5d",
+      "mode": 420
+    },
+    {
+      "path": "scripts/lib/harness-skill-scope.mjs",
+      "source_path": "scripts/lib/harness-skill-scope.mjs",
+      "storage_path": "scripts/lib/harness-skill-scope.mjs",
+      "sha256": "7ae781e8baa31bc6b6bcecd07980cf11c52365525dfcd2980d6ef3dedd9a2f0e",
       "mode": 420
     },
     {
@@ -2117,7 +2124,7 @@ export default {
       "path": "scripts/lib/instance-metadata.mjs",
       "source_path": "scripts/lib/instance-metadata.mjs",
       "storage_path": "scripts/lib/instance-metadata.mjs",
-      "sha256": "f7a505cd3c983cd786bbd0238abefcfbfe3c96088394486640d94b195586f023",
+      "sha256": "7c4c73d0370dd614fb39041080954a1f335d6fe463a089d9758065ee9a0b9455",
       "mode": 420
     },
     {
@@ -2208,7 +2215,7 @@ export default {
       "path": "scripts/lib/plan-review-control.mjs",
       "source_path": "scripts/lib/plan-review-control.mjs",
       "storage_path": "scripts/lib/plan-review-control.mjs",
-      "sha256": "057b337f59d50b7baf0d1c366a169b44ef7d37ac880fa182fdfd32f943811cdb",
+      "sha256": "8f4835d37294b73513e37c8739e5690a08d6b028629f165b8d0104e70d326f34",
       "mode": 420
     },
     {
@@ -2306,14 +2313,14 @@ export default {
       "path": "scripts/lib/skill-registry.mjs",
       "source_path": "scripts/lib/skill-registry.mjs",
       "storage_path": "scripts/lib/skill-registry.mjs",
-      "sha256": "fc9b9c2e69e89589ea634fcbfacc033d3f19d263029e3b633bd7a07a46196a94",
+      "sha256": "cce8a30779e23b63d30f2abf88311f1fb8062f104d3ed65816f03718a14cc7f8",
       "mode": 420
     },
     {
       "path": "scripts/lib/skill-supply-chain.mjs",
       "source_path": "scripts/lib/skill-supply-chain.mjs",
       "storage_path": "scripts/lib/skill-supply-chain.mjs",
-      "sha256": "127b89159ae43636ed85639dccb92fceb7fb041b7d940392e0483003b396ac3b",
+      "sha256": "16fae209dea0664c20f58fbd3105712e729cc1f9068516ce39e608c6d3ec9c92",
       "mode": 420
     },
     {
@@ -2481,7 +2488,7 @@ export default {
       "path": "scripts/lib/work-layout.mjs",
       "source_path": "scripts/lib/work-layout.mjs",
       "storage_path": "scripts/lib/work-layout.mjs",
-      "sha256": "6fce6516ceb49c30919aa4b64b308cf3745cef97eb305f9252e585e8c0d06d62",
+      "sha256": "ef67c3d3c578c1fadd48e27eec484cf947133653cc0a449a11235a8543ef9bcb",
       "mode": 420
     },
     {

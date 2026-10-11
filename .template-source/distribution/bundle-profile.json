@@ -101,7 +101,30 @@
       "scripts/verify-yss-router-scenarios",
       "scripts/verify-yss-ui-scenarios",
       "scripts/instantiate-harness",
-      ".work"
+      ".work",
+      "scripts/fixtures",
+      "scripts/cache-template-commit",
+      "scripts/capture-maintenance-candidate",
+      "scripts/export-yss-skills",
+      "scripts/inspect-maintenance-candidate",
+      "scripts/run-template-verification",
+      "scripts/verify-maintenance-checkpoint",
+      "scripts/verify-maintenance-review-record",
+      "scripts/verify-skill-governance",
+      "scripts/verify-skill-registry",
+      "scripts/verify-template",
+      "scripts/verify-template-candidate",
+      "scripts/verify-template-fast",
+      "scripts/lib/maintenance-intensity.mjs",
+      "scripts/lib/maintenance-review.mjs",
+      "scripts/lib/skill-governance.mjs",
+      "scripts/lib/template-commit-cache.mjs",
+      "scripts/lib/template-verification.mjs",
+      "scripts/lib/maintenance-counterexample.mjs"
+    ],
+    "excludePathSuffixes": [
+      "tests",
+      "test"
     ],
     "renderPaths": [
       "AGENTS.md",

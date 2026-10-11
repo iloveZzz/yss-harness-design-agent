@@ -15,6 +15,12 @@ try {
  fs.unlinkSync(file);fs.symlinkSync(import.meta.filename,file);assert.throws(()=>mod.compileScenarioExecution(old,{root:fixture}),/SYMLINK|ESCAPE/);
  fs.unlinkSync(file);put(target);assert.equal(mod.compileScenarioExecution('node -e "console.log(\'scripts/verify-subagent-task-package-scenarios\')"',{root:fixture}),null);
  assert.throws(()=>mod.compileScenarioExecution(old+'; echo bypass',{root:fixture}),/COMMAND_EXPANSION/);
+ for (const ref of ['tests/scenarios/verify-frontend-delivery-scenarios.mjs', 'tests/scenarios/verify-strategic-handoff-package-scenarios.mjs', 'tests/scenarios/verify-direct-scenarios.py']) {
+  const python=ref.endsWith('.py');put(ref,python?'print("direct")\n':undefined);
+  const run=mod.compileScenarioExecution(`${python?'python3':'node'} ${ref}`,{root:fixture});
+  assert.equal(run.source_bindings.target,ref);assert.equal(spawnSync(run.file,run.args,{cwd:run.cwd}).status,0);mod.assertScenarioExecution(run,{root:fixture});
+ }
+ assert.throws(()=>mod.compileScenarioExecution('bash tests/scenarios/verify-frontend-delivery-scenarios.mjs',{root:fixture}),/COMMAND_UNSUPPORTED/);
  const plan=mod.planTemplateVerification({profile:'release',changedFiles:[]});
  const historicalSources=mod.scenarioSourceIdentities('tests/fixtures/mapping-coverage').filter(ref=>ref.startsWith('scripts/'));
  assert.equal(historicalSources.length,28);

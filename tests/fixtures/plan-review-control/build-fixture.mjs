@@ -11,7 +11,7 @@ import { prepareReviewPackage } from '../../../scripts/lib/review-package.mjs';
 
 export const PLAN_BOUNDARIES = ['check.domain-strategy-approved', 'check.stage-decision-package-approved'];
 
-export function buildPlanReviewFixture(root, { boundaries = PLAN_BOUNDARIES, workRoot = '.work' } = {}) {
+export function buildPlanReviewFixture(root, { boundaries = PLAN_BOUNDARIES, workRoot = '.work', contextSource = context } = {}) {
   fs.mkdirSync(root, { recursive: true });
   root = fs.realpathSync(root);
   const write = (ref, value) => {
@@ -22,7 +22,7 @@ export function buildPlanReviewFixture(root, { boundaries = PLAN_BOUNDARIES, wor
   const read = ref => fs.readFileSync(path.resolve(root, ref));
   const asset = ref => ({ ref, digest: reviewDigest(read(ref)) });
   const authorities = ['.template-spec/agents/digital-human-roles.yaml', '.template-spec/agents/yss-skill-registry.yaml', '.template-spec/process/lifecycle-registry.yaml', '.template-spec/process/harness-profile.yaml', orchestrationRef(ROOT)];
-  write('CONTEXT.md', context);
+  write('CONTEXT.md', contextSource);
   for (const ref of authorities) write(ref, fs.readFileSync(path.join(ROOT, ref)));
   fs.cpSync(path.join(ROOT, '.template-spec/process/schemas'), path.join(root, '.template-spec/process/schemas'), { recursive: true });
   write('yss-project.yaml', 'schema_version: 1\nrepository_mode: project-instance\n');

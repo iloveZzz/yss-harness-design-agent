@@ -164,7 +164,7 @@ try {
   valid.reapprove();
   assert.equal(assertPlanSpecEntry(valid.state, { root: valid.root }).result, 'allowed', '用户确认后的非关键延期可通过');
   // Exercise the registered package/dispatch/completion path with synthetic evidence.
-  const reviewFixture = buildPlanReviewFixture(valid.root);
+  const reviewFixture = buildPlanReviewFixture(valid.root, { contextSource: readFileSync(path.join(valid.root, 'CONTEXT.md')) });
   for (const row of Object.values(reviewFixture.checkpoint.checks)) { row.basis.push(reviewFixture.asset('plan.md')); row.evidence_refs.push('plan.md'); }
   reviewFixture.save();
   const combined = completeSyntheticPlanReview(reviewFixture);

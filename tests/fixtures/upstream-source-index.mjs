@@ -3,7 +3,7 @@ export default {
   "schema_version": 1,
   "kind": "test-only-canonical-source",
   "source_repository": "yss-spec-project-template",
-  "source_head": "d63786d2fb794f45421c902185acd9fb635deea4",
+  "source_head": "81d16094bf0eb5874940fb90d4662a69bead84c2",
   "source_state": "working-tree",
   "files": [
     {
@@ -24,15 +24,15 @@ export default {
       "path": ".agents/skills/yss-ddd-scaffold-generator/SKILL.md",
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/SKILL.md",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/SKILL.md",
-      "sha256": "9fb84e4634ae9dd7d912b6aa8b1224ea082b266c832267cb3be3c0088ae497e1",
-      "mode": 420
+      "sha256": "dea439f9a5241f2816ec65c834fe26e490c519a4909d96f30a853b62a11d70f8",
+      "mode": 384
     },
     {
       "path": ".agents/skills/yss-ddd-scaffold-generator/agents/openai.yaml",
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/agents/openai.yaml",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/agents/openai.yaml",
-      "sha256": "8ecbd8ee1d78ae6dd5a6330fd7eb37d4923b92ddfd5e5928bef0491618b99315",
-      "mode": 420
+      "sha256": "a92766316e2810d6ee5911defe83da3848669f5b859049d2a74d2c2145c3429c",
+      "mode": 384
     },
     {
       "path": ".agents/skills/yss-ddd-scaffold-generator/assets/templates/config/application-local.yml.template",
@@ -199,8 +199,8 @@ export default {
       "path": ".agents/skills/yss-ddd-scaffold-generator/references/engineering-baseline.md",
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/references/engineering-baseline.md",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/references/engineering-baseline.md",
-      "sha256": "f1e53c1b0c7adc7b74f11b35b0d8127d0e0ab3cf23d88e7e2af209a25be85625",
-      "mode": 420
+      "sha256": "ed4c10f79e8b4e7f85f920a63b49221aea819b7c627c022b38622e46f0fbac46",
+      "mode": 384
     },
     {
       "path": ".agents/skills/yss-ddd-scaffold-generator/references/engineering-checks.md",
@@ -220,8 +220,8 @@ export default {
       "path": ".agents/skills/yss-ddd-scaffold-generator/references/generator-maintenance.md",
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/references/generator-maintenance.md",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/references/generator-maintenance.md",
-      "sha256": "c7693739f7e6136973373153fc3cc3a082c8114309a4c345273e08d5636f0cc5",
-      "mode": 420
+      "sha256": "4fcff458a284767014e9dd5e1a53501eb47458d98f41d5775865836eda65d1d7",
+      "mode": 384
     },
     {
       "path": ".agents/skills/yss-ddd-scaffold-generator/references/layer-skill-routing.md",
@@ -241,8 +241,8 @@ export default {
       "path": ".agents/skills/yss-ddd-scaffold-generator/references/standalone-generation.md",
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/references/standalone-generation.md",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/references/standalone-generation.md",
-      "sha256": "fe78fe0452da99d33a6d72468cc45cd183f1789ea92071e5a306b71af46e1b0d",
-      "mode": 420
+      "sha256": "19a6f99a45aa1b9729759a204334841e257ffa077aebed9c76c74d4eca16ded9",
+      "mode": 384
     },
     {
       "path": ".agents/skills/yss-ddd-scaffold-generator/scripts/first-slice-compatibility.test.mjs",
@@ -262,15 +262,15 @@ export default {
       "path": ".agents/skills/yss-ddd-scaffold-generator/scripts/generate_and_verify_scaffold.mjs",
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/scripts/generate_and_verify_scaffold.mjs",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/scripts/generate_and_verify_scaffold.mjs",
-      "sha256": "481b2afce4d5e1f1547faf03561231e04d51f90305b276c9499177be6eac69ea",
-      "mode": 420
+      "sha256": "883300312e4b00a22e722ee4ee61e0067aaf21fddc981ff7599bc57d6f192b55",
+      "mode": 384
     },
     {
       "path": ".agents/skills/yss-ddd-scaffold-generator/scripts/generate_scaffold.mjs",
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/scripts/generate_scaffold.mjs",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/scripts/generate_scaffold.mjs",
-      "sha256": "e08c0186fae060706c37fe22fbf8a27771e343c9fbb98b5213cab6c75471fc11",
-      "mode": 420
+      "sha256": "e8741a00feb6f38ea0504f4902a30d02459ffea1cd402b062ef801f9069309e9",
+      "mode": 384
     },
     {
       "path": ".agents/skills/yss-ddd-scaffold-generator/scripts/run_first_slice_verification.mjs",
@@ -297,8 +297,8 @@ export default {
       "path": ".agents/skills/yss-ddd-scaffold-generator/scripts/standalone.test.mjs",
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/scripts/standalone.test.mjs",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/scripts/standalone.test.mjs",
-      "sha256": "654f62d0a4711dc53361a7d9a35d2f1b77c41ded2d5986db33fa8b0bea834664",
-      "mode": 420
+      "sha256": "33b4f93491ab5669aa597ac68e2496401590a0c614cf8ec31d94e79a264c0df0",
+      "mode": 384
     },
     {
       "path": ".agents/skills/yss-dto/SKILL.md",
@@ -346,8 +346,8 @@ export default {
       "path": ".agents/skills/yss-layered-mvc-scaffold-generator/scripts/generate_scaffold.mjs",
       "source_path": ".agents/skills/yss-layered-mvc-scaffold-generator/scripts/generate_scaffold.mjs",
       "storage_path": ".agents/skills/yss-layered-mvc-scaffold-generator/scripts/generate_scaffold.mjs",
-      "sha256": "aaa3f7d2f8f921ca3f9c4dc4d0be088a073ee4d29e600c720e2c3b845bc6c942",
-      "mode": 493
+      "sha256": "dbfc9516835d06cb839ae8770002e39f10b804885956e9df80633b95e4a63727",
+      "mode": 448
     },
     {
       "path": ".agents/skills/yss-layered-mvc-scaffold-generator/scripts/run_scaffold_verification.mjs",
@@ -2089,8 +2089,15 @@ export default {
       "path": "scripts/lib/harness-execution-scope.mjs",
       "source_path": "scripts/lib/harness-execution-scope.mjs",
       "storage_path": "scripts/lib/harness-execution-scope.mjs",
-      "sha256": "6c5c8c938886e588389e85bb9f6fd6c6524b0c4be65908a9cf0b4eb2b84192cb",
+      "sha256": "846a591991bb95aa511890672d9c7552b08e8a701fac992322a1a2aa0b778e5d",
       "mode": 420
+    },
+    {
+      "path": "scripts/lib/harness-skill-scope.mjs",
+      "source_path": "scripts/lib/harness-skill-scope.mjs",
+      "storage_path": "scripts/lib/harness-skill-scope.mjs",
+      "sha256": "7ae781e8baa31bc6b6bcecd07980cf11c52365525dfcd2980d6ef3dedd9a2f0e",
+      "mode": 384
     },
     {
       "path": "scripts/lib/implementation-candidate-current.mjs",

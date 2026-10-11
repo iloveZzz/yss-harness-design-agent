@@ -45,7 +45,9 @@ const releaseBaseline = [
 const release = planTemplateVerification({ profile: "release", changedFiles: [] });
 assert.equal(release.effective_profile, "release");
 const releaseCommands = new Set(release.commands.map((entry) => entry.command));
-assert.deepEqual(releaseBaseline.filter((command) => !releaseCommands.has(command)), [], "release profile 必须保留旧发布门禁的全部行为命令");
+// Preserve the historical baseline while recognizing the explicit native CLI replacement.
+const currentCommand = command => command === "scripts/verify-context-contract --root . --json" ? "yss context check --root . --json" : command;
+assert.deepEqual(releaseBaseline.filter((command) => !releaseCommands.has(currentCommand(command))), [], "release profile 必须保留旧发布门禁的全部行为命令");
 assert.ok(releaseCommands.has("node scripts/verify-template-verification-scenarios"), "release profile 必须验证三级核验路由本身");
 
 const docsOnly = planTemplateVerification({ profile: "fast", changedFiles: ["docs/plan/example.md"] });

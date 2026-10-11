@@ -56,7 +56,7 @@ assert.match(guide, /不成为新的事实来源/);
 
 const profile = read(".template-spec/process/harness-profile.yaml");
 assert.match(profile, /profile_id: harness\.business-ddd-strategy-handoff/);
-assert.match(profile, /name: 产品需求商务业务方案交付模式/);
+assert.match(profile, /name: 产品与业务设计专职协作模式/);
 
 const registry = read(".template-spec/process/lifecycle-registry.yaml");
 for (const stableId of ["work-unit.domain-strategy-design", "artifact.domain-strategy", "check.domain-strategy-approved"]) {

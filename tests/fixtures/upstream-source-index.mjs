@@ -25,14 +25,14 @@ export default {
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/SKILL.md",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/SKILL.md",
       "sha256": "dea439f9a5241f2816ec65c834fe26e490c519a4909d96f30a853b62a11d70f8",
-      "mode": 384
+      "mode": 420
     },
     {
       "path": ".agents/skills/yss-ddd-scaffold-generator/agents/openai.yaml",
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/agents/openai.yaml",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/agents/openai.yaml",
       "sha256": "a92766316e2810d6ee5911defe83da3848669f5b859049d2a74d2c2145c3429c",
-      "mode": 384
+      "mode": 420
     },
     {
       "path": ".agents/skills/yss-ddd-scaffold-generator/assets/templates/config/application-local.yml.template",
@@ -200,7 +200,7 @@ export default {
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/references/engineering-baseline.md",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/references/engineering-baseline.md",
       "sha256": "ed4c10f79e8b4e7f85f920a63b49221aea819b7c627c022b38622e46f0fbac46",
-      "mode": 384
+      "mode": 420
     },
     {
       "path": ".agents/skills/yss-ddd-scaffold-generator/references/engineering-checks.md",
@@ -221,7 +221,7 @@ export default {
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/references/generator-maintenance.md",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/references/generator-maintenance.md",
       "sha256": "4fcff458a284767014e9dd5e1a53501eb47458d98f41d5775865836eda65d1d7",
-      "mode": 384
+      "mode": 420
     },
     {
       "path": ".agents/skills/yss-ddd-scaffold-generator/references/layer-skill-routing.md",
@@ -242,7 +242,7 @@ export default {
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/references/standalone-generation.md",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/references/standalone-generation.md",
       "sha256": "19a6f99a45aa1b9729759a204334841e257ffa077aebed9c76c74d4eca16ded9",
-      "mode": 384
+      "mode": 420
     },
     {
       "path": ".agents/skills/yss-ddd-scaffold-generator/scripts/first-slice-compatibility.test.mjs",
@@ -263,14 +263,14 @@ export default {
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/scripts/generate_and_verify_scaffold.mjs",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/scripts/generate_and_verify_scaffold.mjs",
       "sha256": "883300312e4b00a22e722ee4ee61e0067aaf21fddc981ff7599bc57d6f192b55",
-      "mode": 384
+      "mode": 420
     },
     {
       "path": ".agents/skills/yss-ddd-scaffold-generator/scripts/generate_scaffold.mjs",
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/scripts/generate_scaffold.mjs",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/scripts/generate_scaffold.mjs",
       "sha256": "e8741a00feb6f38ea0504f4902a30d02459ffea1cd402b062ef801f9069309e9",
-      "mode": 384
+      "mode": 420
     },
     {
       "path": ".agents/skills/yss-ddd-scaffold-generator/scripts/run_first_slice_verification.mjs",
@@ -298,7 +298,7 @@ export default {
       "source_path": ".agents/skills/yss-ddd-scaffold-generator/scripts/standalone.test.mjs",
       "storage_path": ".agents/skills/yss-ddd-scaffold-generator/scripts/standalone.test.mjs",
       "sha256": "33b4f93491ab5669aa597ac68e2496401590a0c614cf8ec31d94e79a264c0df0",
-      "mode": 384
+      "mode": 420
     },
     {
       "path": ".agents/skills/yss-dto/SKILL.md",
@@ -347,7 +347,7 @@ export default {
       "source_path": ".agents/skills/yss-layered-mvc-scaffold-generator/scripts/generate_scaffold.mjs",
       "storage_path": ".agents/skills/yss-layered-mvc-scaffold-generator/scripts/generate_scaffold.mjs",
       "sha256": "dbfc9516835d06cb839ae8770002e39f10b804885956e9df80633b95e4a63727",
-      "mode": 448
+      "mode": 493
     },
     {
       "path": ".agents/skills/yss-layered-mvc-scaffold-generator/scripts/run_scaffold_verification.mjs",
@@ -2097,7 +2097,7 @@ export default {
       "source_path": "scripts/lib/harness-skill-scope.mjs",
       "storage_path": "scripts/lib/harness-skill-scope.mjs",
       "sha256": "7ae781e8baa31bc6b6bcecd07980cf11c52365525dfcd2980d6ef3dedd9a2f0e",
-      "mode": 384
+      "mode": 420
     },
     {
       "path": "scripts/lib/implementation-candidate-current.mjs",

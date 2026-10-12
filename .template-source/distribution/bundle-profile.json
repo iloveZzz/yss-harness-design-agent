@@ -122,10 +122,6 @@
       "scripts/lib/template-verification.mjs",
       "scripts/lib/maintenance-counterexample.mjs"
     ],
-    "excludePathSuffixes": [
-      "tests",
-      "test"
-    ],
     "renderPaths": [
       "AGENTS.md",
       "README.md",

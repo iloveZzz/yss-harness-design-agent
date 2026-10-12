@@ -3,7 +3,7 @@ export default {
   "schema_version": 1,
   "kind": "test-only-canonical-source",
   "source_repository": "yss-spec-project-template",
-  "source_head": "81d16094bf0eb5874940fb90d4662a69bead84c2",
+  "source_head": "57a0d41897d3c0cc4543db2b06c2b0e44ba65fd0",
   "source_state": "working-tree",
   "files": [
     {
@@ -1431,7 +1431,7 @@ export default {
       "path": ".template-spec/agents/yss-skill-registry.yaml",
       "source_path": ".template-spec/agents/yss-skill-registry.yaml",
       "storage_path": ".template-spec/agents/yss-skill-registry.yaml",
-      "sha256": "8b8c9add85e520cbcdfc7f5130365bf12d2a3ae614cb30add8a98f3dda5d305f",
+      "sha256": "ad02895ecf8dbb76e15410646ed0513afe2a7952dce79825656dbd198b9523b6",
       "mode": 420
     },
     {
